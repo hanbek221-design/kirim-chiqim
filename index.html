@@ -4,12 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Kirim–Chiqim Hisobi (LocalStorage)</title>
-  <meta name="description" content="Oddiy kirim–chiqim hisoblagich. Ma'lumotlar LocalStorage'da saqlanadi. PDF va tahlil grafigi mavjud." />
+  <meta name="description" content="Kirim-chiqim hisoblagich. LocalStorage. Zamonaviy tahlil grafiklari. Hisobot: ko‘rish, chop etish, PDF saqlash." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-/* Kirim–Chiqim Hisobi — mobil + desktop + PDF + analytics */
+/* Kirim–Chiqim Hisobi — Ultimate (LocalStorage) */
 :root{
   --bg: #0b0f19;
   --card: rgba(255,255,255,.06);
@@ -54,7 +54,7 @@ body{
 }
 
 .app{
-  max-width: 1100px;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 22px 16px calc(28px + env(safe-area-inset-bottom));
 }
@@ -77,24 +77,16 @@ body{
   border-radius: 14px;
   display:grid;
   place-items:center;
-  font-weight: 800;
+  font-weight: 900;
   background: linear-gradient(135deg, rgba(255,59,48,.25), rgba(255,106,0,.18));
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
 
-h1{
-  font-size: 18px;
-  margin:0;
-  line-height: 1.2;
-}
+h1{font-size: 18px; margin:0; line-height: 1.2;}
 p{margin:6px 0 0}
 .muted{color:var(--muted)}
-.footer{
-  margin-top: 18px;
-  text-align:center;
-  font-size: 12px;
-}
+.footer{margin-top: 18px; text-align:center; font-size: 12px;}
 
 .grid{
   display:grid;
@@ -119,21 +111,16 @@ p{margin:6px 0 0}
   padding: 16px;
 }
 
-.card-title{
-  font-size: 15px;
-  margin: 0 0 12px;
-}
+.card-title{font-size: 15px; margin: 0 0 12px;}
 
 .summary-grid{
   display:grid;
   grid-template-columns: 1fr;
   gap: 10px;
 }
-
 @media (min-width: 620px){
   .summary-grid{grid-template-columns: repeat(3, 1fr);}
 }
-
 .metric{
   padding: 12px;
   border-radius: 16px;
@@ -142,8 +129,7 @@ p{margin:6px 0 0}
 }
 :root[data-theme="light"] .metric{background: rgba(16,24,40,.03)}
 .metric-label{color:var(--muted); font-size: 12px}
-.metric-value{font-size: 20px; font-weight: 800; margin-top: 6px; letter-spacing: .2px}
-
+.metric-value{font-size: 20px; font-weight: 900; margin-top: 6px; letter-spacing: .2px}
 .metric-income .metric-value{color: var(--income)}
 .metric-expense .metric-value{color: var(--expense)}
 .metric-balance .metric-value{color: var(--text)}
@@ -155,27 +141,11 @@ p{margin:6px 0 0}
   gap: 10px;
 }
 
-/* Form */
-.form{
-  display:flex;
-  flex-direction:column;
-  gap: 12px;
-}
-
-.field label{
-  display:block;
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-.hint{
-  display:block;
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 6px;
-}
-
-input, select, .select, .search{
+/* Form fields */
+.form{display:flex; flex-direction:column; gap: 12px;}
+.field label{display:block; font-size: 12px; color: var(--muted); margin-bottom: 6px;}
+.hint{display:block; font-size: 11px; color: var(--muted); margin-top: 6px;}
+input, select, .search{
   width:100%;
   padding: 12px 12px;
   border-radius: 14px;
@@ -190,15 +160,8 @@ input, select, .select, .search{
   background: rgba(255,255,255,.75);
 }
 input:focus, select:focus, .search:focus{box-shadow: var(--focus); border-color: rgba(255,59,48,.45)}
-
-.two-col{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-@media (min-width: 520px){
-  .two-col{grid-template-columns: 1fr 1fr;}
-}
+.two-col{display:grid; grid-template-columns: 1fr; gap: 12px;}
+@media (min-width: 520px){ .two-col{grid-template-columns: 1fr 1fr;} }
 
 .segmented{
   display:flex;
@@ -222,19 +185,13 @@ input:focus, select:focus, .search:focus{box-shadow: var(--focus); border-color:
   border: 1px solid transparent;
 }
 .seg-item input{display:none}
-.seg-item span{font-weight: 900; font-size: 13px}
+.seg-item span{font-weight: 950; font-size: 13px}
 .seg-item:has(input:checked){
   background: linear-gradient(135deg, rgba(255,59,48,.22), rgba(255,106,0,.14));
   border-color: rgba(255,59,48,.35);
 }
 
-.form-actions{
-  display:flex;
-  gap: 10px;
-  align-items:center;
-  justify-content:flex-start;
-  flex-wrap: wrap;
-}
+.form-actions{display:flex; gap: 10px; align-items:center; justify-content:flex-start; flex-wrap: wrap;}
 
 /* Buttons */
 .btn{
@@ -243,7 +200,7 @@ input:focus, select:focus, .search:focus{box-shadow: var(--focus); border-color:
   color: var(--text);
   padding: 11px 14px;
   border-radius: 14px;
-  font-weight: 900;
+  font-weight: 950;
   cursor:pointer;
   display:inline-flex;
   gap: 10px;
@@ -255,7 +212,6 @@ input:focus, select:focus, .search:focus{box-shadow: var(--focus); border-color:
 .btn:active{transform: scale(.98)}
 .btn:hover{filter: brightness(1.06)}
 .btn .icon{opacity:.95}
-
 .btn-primary{
   border-color: rgba(255,59,48,.35);
   background: linear-gradient(135deg, rgba(255,59,48,.95), rgba(255,106,0,.92));
@@ -271,9 +227,8 @@ input:focus, select:focus, .search:focus{box-shadow: var(--focus); border-color:
   background: linear-gradient(135deg, rgba(251,113,133,.88), rgba(255,59,48,.88));
   color: white;
 }
-.btn-ghost{
-  background: transparent;
-}
+.btn-ghost{background: transparent;}
+.btn-mini{padding: 10px 12px; border-radius: 12px; font-weight: 950; font-size: 12px;}
 
 /* List header/tools */
 .list-head{
@@ -302,7 +257,7 @@ input:focus, select:focus, .search:focus{box-shadow: var(--focus); border-color:
 .table{
   width:100%;
   border-collapse: collapse;
-  min-width: 720px;
+  min-width: 760px;
   background: rgba(0,0,0,.06);
 }
 :root[data-theme="light"] .table{background: rgba(255,255,255,.7)}
@@ -329,35 +284,17 @@ th.th-actions, td.td-actions{width: 160px}
   gap: 8px;
   padding: 6px 10px;
   border-radius: 999px;
-  font-weight: 900;
+  font-weight: 950;
   border: 1px solid var(--border);
 }
 .badge.income{color: var(--income); background: rgba(45,212,191,.12); border-color: rgba(45,212,191,.25)}
 .badge.expense{color: var(--expense); background: rgba(251,113,133,.12); border-color: rgba(251,113,133,.25)}
-
-.amount{
-  font-weight: 1000;
-  letter-spacing: .2px;
-}
+.amount{font-weight: 1000; letter-spacing: .2px;}
 .amount.income{color: var(--income)}
 .amount.expense{color: var(--expense)}
 
-.row-actions{
-  display:flex;
-  gap: 8px;
-  justify-content:flex-end;
-}
-.btn-mini{
-  padding: 10px 12px;
-  border-radius: 12px;
-  font-weight: 900;
-  font-size: 12px;
-}
-.btn-mini.edit{border-color: rgba(255,255,255,.18)}
-.btn-mini.del{
-  border-color: rgba(251,113,133,.35);
-  background: rgba(251,113,133,.14);
-}
+.row-actions{display:flex; gap: 8px; justify-content:flex-end;}
+.btn-mini.del{border-color: rgba(251,113,133,.35); background: rgba(251,113,133,.14);}
 :root[data-theme="light"] .btn-mini.del{background: rgba(251,113,133,.10)}
 
 /* Empty */
@@ -371,33 +308,17 @@ th.th-actions, td.td-actions{width: 160px}
   margin-top: 12px;
 }
 .empty-illu{font-size: 26px}
-.empty-title{font-weight: 900}
+.empty-title{font-weight: 950}
 
 /* Mobile cards list */
 .cards{ display:none; }
-
 @media (max-width: 760px){
-  .topbar{
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .topbar-actions{
-    display:flex;
-    justify-content:flex-end;
-  }
-
+  .topbar{flex-direction: column; align-items: stretch;}
+  .topbar-actions{display:flex; justify-content:flex-end;}
   .list-tools{ width: 100%; }
-  .select, .search{
-    min-width: 0;
-    width: 100%;
-  }
-
+  .select, .search{ min-width: 0; width: 100%; }
   .table-wrap{ display:none; }
-  .cards{
-    display:grid;
-    gap: 10px;
-    margin-top: 8px;
-  }
+  .cards{ display:grid; gap: 10px; margin-top: 8px; }
   .card-item{
     border: 1px solid var(--border);
     border-radius: 16px;
@@ -405,169 +326,82 @@ th.th-actions, td.td-actions{width: 160px}
     background: rgba(0,0,0,.06);
   }
   :root[data-theme="light"] .card-item{background: rgba(16,24,40,.03)}
-  .card-top{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap: 10px;
-  }
-  .card-meta{
-    display:flex;
-    align-items:center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .card-date{
-    font-size: 12px;
-    color: var(--muted);
-    font-weight: 900;
-  }
-  .card-amount{
-    font-weight: 1000;
-    letter-spacing: .2px;
-  }
-  .card-note{
-    margin-top: 8px;
-    color: var(--text);
-    font-weight: 650;
-    line-height: 1.25;
-    word-break: break-word;
-  }
-  .card-actions{
-    margin-top: 10px;
-    display:flex;
-    gap: 8px;
-    justify-content:flex-start;
-    flex-wrap: wrap;
-  }
+  .card-top{display:flex; align-items:center; justify-content:space-between; gap: 10px;}
+  .card-meta{display:flex; align-items:center; gap: 8px; flex-wrap: wrap;}
+  .card-date{font-size: 12px; color: var(--muted); font-weight: 950;}
+  .card-amount{font-weight: 1000; letter-spacing: .2px;}
+  .card-note{margin-top: 8px; color: var(--text); font-weight: 650; line-height: 1.25; word-break: break-word;}
+  .card-actions{margin-top: 10px; display:flex; gap: 8px; justify-content:flex-start; flex-wrap: wrap;}
 }
 
 /* Analytics */
-.analysis-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.analysis-grid{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  margin-top: 12px;
-}
-@media (min-width: 900px){
-  .analysis-grid{ grid-template-columns: 1fr 1fr; }
-}
+.analysis-head{display:flex; align-items:center; justify-content:space-between; gap: 12px; flex-wrap: wrap;}
+.analysis-grid{display:grid; grid-template-columns: 1fr; gap: 12px; margin-top: 12px;}
+@media (min-width: 900px){ .analysis-grid{ grid-template-columns: 1fr 1fr; } }
 .canvas-wrap{
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 10px;
   background: rgba(0,0,0,.06);
+  position: relative;
 }
 :root[data-theme="light"] .canvas-wrap{background: rgba(16,24,40,.03)}
-.canvas-title{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom: 8px;
-  color: var(--muted);
-  font-weight: 900;
-  font-size: 12px;
-}
-canvas{
-  width: 100%;
-  height: 220px;
-  display:block;
-}
-@media (max-width: 760px){
-  canvas{ height: 200px; }
-}
-.insights{
-  margin-top: 12px;
-  display:grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-}
-@media (min-width: 900px){
-  .insights{ grid-template-columns: repeat(3, 1fr); }
-}
-.insight{
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 12px;
-  background: rgba(0,0,0,.06);
-}
-:root[data-theme="light"] .insight{background: rgba(16,24,40,.03)}
-.insight .k{color: var(--muted); font-size: 12px; font-weight: 900}
-.insight .v{margin-top: 6px; font-size: 14px; font-weight: 1000}
+.canvas-title{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; color: var(--muted); font-weight: 950; font-size: 12px;}
+canvas{width: 100%; height: 230px; display:block;}
+@media (max-width: 760px){ canvas{ height: 200px; } }
 
-
-/* Modern chart controls + tooltip */
-.canvas-wide{ grid-column: 1 / -1; }
-
-.chart-controls{
-  display:flex;
-  gap: 8px;
-  align-items:center;
-}
-.chart-select{
-  padding: 8px 10px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: rgba(0,0,0,.10);
-  color: var(--text);
-  font-weight: 900;
-  font-size: 12px;
-  outline: none;
-}
-:root[data-theme="light"] .chart-select{ background: rgba(255,255,255,.8); }
-.chart-select:focus{ box-shadow: var(--focus); border-color: rgba(255,59,48,.45); }
-
-.legend{
-  display:flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin: 8px 0 6px;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 900;
-}
-.lg{ display:inline-flex; align-items:center; gap: 8px; }
-.dot{
-  width: 10px; height: 10px; border-radius: 999px; display:inline-block;
-}
-.dot.inc{ background: rgba(45,212,191,.95); box-shadow: 0 0 0 3px rgba(45,212,191,.14); }
-.dot.exp{ background: rgba(251,113,133,.95); box-shadow: 0 0 0 3px rgba(251,113,133,.14); }
-.line{
-  width: 18px; height: 3px; border-radius: 999px; display:inline-block;
-}
-.line.bal{ background: linear-gradient(90deg, rgba(255,59,48,.95), rgba(255,106,0,.95)); }
-
-.canvas-rel{ position: relative; }
-.chart-big{ height: 280px; }
-@media (max-width: 760px){ .chart-big{ height: 240px; } }
-
-.chart-tip{
-  position: absolute;
-  top: 10px;
+.tooltip{
+  position:absolute;
   left: 10px;
-  max-width: min(320px, calc(100% - 20px));
-  padding: 10px 12px;
+  top: 10px;
+  padding: 10px 10px;
   border-radius: 14px;
   border: 1px solid var(--border);
   background: rgba(0,0,0,.55);
   backdrop-filter: blur(10px);
-  box-shadow: var(--shadow);
   color: var(--text);
+  box-shadow: var(--shadow);
   font-size: 12px;
-  z-index: 5;
+  pointer-events:none;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity .12s ease, transform .12s ease;
+  max-width: min(520px, calc(100% - 20px));
 }
-:root[data-theme="light"] .chart-tip{ background: rgba(255,255,255,.92); }
-.chart-tip .t1{ font-weight: 1000; margin-bottom: 6px; }
-.chart-tip .t2{ display:grid; grid-template-columns: auto 1fr; gap: 4px 10px; color: var(--muted); }
-.chart-tip b{ color: var(--text); }
+:root[data-theme="light"] .tooltip{background: rgba(255,255,255,.92)}
+.tooltip.show{opacity: 1; transform: translateY(0);}
+
+.insights{margin-top: 12px; display:grid; grid-template-columns: 1fr; gap: 10px;}
+@media (min-width: 900px){ .insights{ grid-template-columns: repeat(3, 1fr); } }
+.insight{border: 1px solid var(--border); border-radius: 16px; padding: 12px; background: rgba(0,0,0,.06);}
+:root[data-theme="light"] .insight{background: rgba(16,24,40,.03)}
+.insight .k{color: var(--muted); font-size: 12px; font-weight: 950}
+.insight .v{margin-top: 6px; font-size: 14px; font-weight: 1000}
+
+/* Report settings */
+.pillrow{display:flex; flex-wrap:wrap; gap: 8px; margin-top: 10px;}
+.pill{
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 10px;
+  background: rgba(0,0,0,.08);
+  font-weight: 900;
+  font-size: 12px;
+}
+:root[data-theme="light"] .pill{background: rgba(16,24,40,.03)}
+.switch{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(0,0,0,.06);
+}
+:root[data-theme="light"] .switch{background: rgba(16,24,40,.03)}
+.switch input{width: 20px; height: 20px; margin:0;}
+.small-actions{display:flex; gap: 10px; flex-wrap:wrap; align-items:center; margin-top: 10px;}
+.hr{height:1px; background: var(--border); margin: 12px 0}
 
 /* Toast */
 .toast{
@@ -582,82 +416,12 @@ canvas{
   backdrop-filter: blur(10px);
   color: var(--text);
   box-shadow: var(--shadow);
-  max-width: min(640px, calc(100vw - 24px));
+  max-width: min(680px, calc(100vw - 24px));
   z-index: 9999;
 }
 :root[data-theme="light"] .toast{background: rgba(255,255,255,.92)}
 
-  
-/* Analytics extras */
-.section-split{
-  height: 1px;
-  background: var(--border);
-  margin: 14px 0;
-}
-.analysis-extra{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  margin-top: 10px;
-}
-@media (min-width: 980px){
-  .analysis-extra{ grid-template-columns: 1fr 1fr; }
-}
-.extra-card{
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 12px;
-  background: rgba(0,0,0,.06);
-}
-:root[data-theme="light"] .extra-card{background: rgba(16,24,40,.03)}
-.extra-title{
-  display:flex;
-  align-items:baseline;
-  justify-content:space-between;
-  gap: 10px;
-  font-weight: 1000;
-  font-size: 13px;
-  margin-bottom: 10px;
-}
-.extra-table-wrap{
-  overflow:auto;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-}
-.extra-table{
-  width:100%;
-  border-collapse: collapse;
-  min-width: 520px;
-  background: rgba(0,0,0,.04);
-}
-:root[data-theme="light"] .extra-table{background: rgba(255,255,255,.65)}
-.extra-table th, .extra-table td{
-  padding: 10px 10px;
-  border-bottom: 1px solid var(--border);
-  font-size: 12px;
-  vertical-align: top;
-}
-.extra-table th{
-  position: sticky;
-  top: 0;
-  background: rgba(0,0,0,.12);
-  color: var(--muted);
-  text-align:left;
-}
-:root[data-theme="light"] .extra-table th{background: rgba(255,255,255,.9)}
-.mini-head{
-  font-weight: 1000;
-  color: var(--muted);
-  font-size: 12px;
-  margin: 8px 0 8px;
-}
-.two-top{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-
-</style>
+  </style>
 </head>
 <body>
   <div class="app">
@@ -697,12 +461,7 @@ canvas{
         </div>
 
         <div class="summary-actions">
-          <button id="btnPdf" class="btn btn-primary" type="button" title="Chop etish oynasi ochiladi (Save as PDF)">
-            <span class="icon" aria-hidden="true">🧾</span>
-            <span>Hisobot / PDF</span>
-          </button>
-
-          <button id="btnToggleAnalysisMain" class="btn btn-secondary" type="button">
+          <button id="btnToggleAnalysis" class="btn btn-secondary" type="button">
             <span class="icon" aria-hidden="true">📊</span>
             <span>Tahlilni ko‘rish</span>
           </button>
@@ -722,12 +481,14 @@ canvas{
           </button>
         </div>
 
-        <p class="muted" style="margin-top:10px;font-size:12px">
-          “Hisobot / PDF” tugmasi chop etish oynasini ochadi. U yerdan “Save as PDF” qilib saqlaysiz.
-        </p>
+        <div class="pillrow">
+          <span class="pill">Hisobotda sana tanlash bor</span>
+          <span class="pill">Chop etish / PDF alohida</span>
+          <span class="pill">Oy boshi kunini sozlash</span>
+        </div>
       </section>
 
-      <!-- Form -->
+      <!-- Left column: Entry + Report -->
       <section class="card form-card">
         <h2 class="card-title">Yangi yozuv</h2>
 
@@ -775,7 +536,118 @@ canvas{
         </form>
       </section>
 
-      <!-- List -->
+      <section class="card report-card">
+        <h2 class="card-title">Hisobot (sana tanlab)</h2>
+
+        <div class="two-col">
+          <div class="field">
+            <label for="reportFrom">Hisobot: qaysi sanadan</label>
+            <input id="reportFrom" type="date" />
+          </div>
+          <div class="field">
+            <label for="reportTo">Hisobot: qaysi sanagacha</label>
+            <input id="reportTo" type="date" />
+          </div>
+        </div>
+
+        <div class="small-actions">
+          <button id="btnRangeAll" class="btn btn-secondary" type="button">
+            <span class="icon" aria-hidden="true">∞</span>
+            <span>Barchasi</span>
+          </button>
+          <div class="field" style="flex:1;min-width:220px;margin:0">
+            <label for="reportType">Hisobot turi</label>
+            <select id="reportType">
+              <option value="all">Kirim + Chiqim</option>
+              <option value="income">Faqat kirim</option>
+              <option value="expense">Faqat chiqim</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <label class="switch">
+          <input id="useReportForCalc" type="checkbox" checked />
+          <div>
+            <div style="font-weight:950">Hisoblash ham shu diapazon bo‘yicha</div>
+            <div class="muted" style="font-size:12px">O‘chirsangiz — kirim va chiqimni alohida sanalar bilan hisoblay olasiz.</div>
+          </div>
+        </label>
+
+        <div id="calcRangesBox" hidden>
+          <div class="two-col" style="margin-top:12px">
+            <div class="field">
+              <label for="calcIncomeFrom">Kirim hisoblash: from</label>
+              <input id="calcIncomeFrom" type="date" />
+            </div>
+            <div class="field">
+              <label for="calcIncomeTo">Kirim hisoblash: to</label>
+              <input id="calcIncomeTo" type="date" />
+            </div>
+          </div>
+
+          <div class="two-col" style="margin-top:12px">
+            <div class="field">
+              <label for="calcExpenseFrom">Chiqim hisoblash: from</label>
+              <input id="calcExpenseFrom" type="date" />
+            </div>
+            <div class="field">
+              <label for="calcExpenseTo">Chiqim hisoblash: to</label>
+              <input id="calcExpenseTo" type="date" />
+            </div>
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-top:12px">
+          <div class="field">
+            <label for="fiscalStartDay">Oy boshi kuni</label>
+            <select id="fiscalStartDay">
+              <option value="1" selected>1-kun</option><option value="2" >2-kun</option><option value="3" >3-kun</option><option value="4" >4-kun</option><option value="5" >5-kun</option><option value="6" >6-kun</option><option value="7" >7-kun</option><option value="8" >8-kun</option><option value="9" >9-kun</option><option value="10" >10-kun</option><option value="11" >11-kun</option><option value="12" >12-kun</option><option value="13" >13-kun</option><option value="14" >14-kun</option><option value="15" >15-kun</option><option value="16" >16-kun</option><option value="17" >17-kun</option><option value="18" >18-kun</option><option value="19" >19-kun</option><option value="20" >20-kun</option><option value="21" >21-kun</option><option value="22" >22-kun</option><option value="23" >23-kun</option><option value="24" >24-kun</option><option value="25" >25-kun</option><option value="26" >26-kun</option><option value="27" >27-kun</option><option value="28" >28-kun</option>
+            </select>
+            <small class="hint">Masalan: 25-kun — oy 25dan boshlanadi, keyingi oyning 24iga qadar.</small>
+          </div>
+
+          <div class="field">
+            <label>Hisobot tarkibi</label>
+            <label class="switch" style="margin-top:6px">
+              <input id="includeCharts" type="checkbox" checked />
+              <div><div style="font-weight:950">Grafiklarni qo‘shish</div></div>
+            </label>
+            <label class="switch" style="margin-top:8px">
+              <input id="includeDetails" type="checkbox" checked />
+              <div><div style="font-weight:950">Detallarni qo‘shish</div></div>
+            </label>
+            <small class="hint">Detallar ko‘p bo‘lsa PDF og‘irlashadi — limit qo‘ying.</small>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:10px">
+          <label for="maxDetailRows">Detallar limiti (0–5000)</label>
+          <input id="maxDetailRows" type="number" min="0" max="5000" step="50" value="300" />
+        </div>
+
+        <div class="form-actions" style="margin-top:12px">
+          <button id="btnReportView" class="btn btn-secondary" type="button">
+            <span class="icon" aria-hidden="true">👁</span>
+            <span>Hisobotni ko‘rish</span>
+          </button>
+          <button id="btnReportPrint" class="btn btn-secondary" type="button">
+            <span class="icon" aria-hidden="true">🖨</span>
+            <span>Chop etish</span>
+          </button>
+          <button id="btnReportPDF" class="btn btn-primary" type="button">
+            <span class="icon" aria-hidden="true">📄</span>
+            <span>PDF saqlash</span>
+          </button>
+        </div>
+
+        <p class="muted" style="margin-top:10px;font-size:12px">
+          “PDF saqlash” universal yechim: brauzer Print oynasidan <b>Save as PDF</b> tanlanadi (telefon va kompyuterda ishlaydi).
+        </p>
+      </section>
+
+      <!-- Right column: List -->
       <section class="card list-card">
         <div class="list-head">
           <div>
@@ -794,7 +666,6 @@ canvas{
           </div>
         </div>
 
-        <!-- Desktop: Table -->
         <div class="table-wrap">
           <table class="table" aria-label="Kirim chiqim jadvali">
             <thead>
@@ -810,7 +681,6 @@ canvas{
           </table>
         </div>
 
-        <!-- Mobile: Cards -->
         <div id="cards" class="cards" aria-label="Kirim chiqim kartochkalari"></div>
 
         <div class="empty" id="emptyState" hidden>
@@ -823,63 +693,36 @@ canvas{
       </section>
 
       <!-- Analytics -->
-      <section id="analysisSection" class="card analysis">
+      <section class="card analysis">
         <div class="analysis-head">
           <div>
-            <h2 class="card-title" style="margin-bottom:4px">Tahlil (real vaqtda)</h2>
-            <div class="muted" style="font-size:12px">“Kirim ko‘p bo‘lgan kunlar”, “Chiqim ko‘p bo‘lgan kunlar” va oxirgi 30 kun grafigi.</div>
+            <h2 class="card-title" style="margin-bottom:4px">Tahlil (tanlangan hisobot diapazoni bo‘yicha)</h2>
+            <div class="muted" style="font-size:12px">Grafiklar hisobotdagi sana va tur (kirim/chiqim) tanloviga qarab real vaqtda yangilanadi.</div>
           </div>
-          <button id="btnToggleAnalysis" class="btn btn-secondary" type="button" style="display:none"></button>
         </div>
 
         <div id="analysisBody" hidden>
-          
-<div class="analysis-grid">
-            <div class="canvas-wrap canvas-wide">
+          <div class="analysis-grid">
+            <div class="canvas-wrap">
               <div class="canvas-title">
-                <span>Kirim / Chiqim (zamonaviy)</span>
-                <div class="chart-controls" aria-label="Grafik boshqaruvlari">
-                  <select id="groupSelect" class="chart-select" aria-label="Guruhlash">
-                    <option value="day">Kun</option>
-                    <option value="week">Hafta</option>
-                    <option value="month">Oy</option>
-                  </select>
-                  <select id="rangeSelect" class="chart-select" aria-label="Oraliq">
-                    <option value="7">Oxirgi 7</option>
-                    <option value="30" selected>Oxirgi 30</option>
-                    <option value="90">Oxirgi 90</option>
-                    <option value="all">Hammasi</option>
-                  </select>
-                </div>
+                <span>Kirim vs Chiqim + Net</span>
+                <span class="muted">Kunlar bo‘yicha</span>
               </div>
-
-              <div class="legend">
-                <span class="lg"><i class="dot inc"></i> Kirim</span>
-                <span class="lg"><i class="dot exp"></i> Chiqim</span>
-                <span class="lg"><i class="line bal"></i> Balans (kumulative)</span>
-              </div>
-
-              <div class="canvas-rel">
-                <canvas id="chartCombo" class="chart-big"></canvas>
-                <div id="chartTip" class="chart-tip" hidden></div>
-              </div>
-
-              <div class="muted" style="margin-top:8px;font-size:12px">
-                Maslahat: telefonda bar ustiga bosib qiymatlarni ko‘ring. PDF hisobotda ham grafiklar chiqadi.
-              </div>
+              <canvas id="chartCombo"></canvas>
+              <div id="tipCombo" class="tooltip"></div>
             </div>
 
             <div class="canvas-wrap">
               <div class="canvas-title">
                 <span>Kumulative balans</span>
-                <span class="muted">umumiy trend</span>
+                <span class="muted">Trend</span>
               </div>
               <canvas id="chartBalance"></canvas>
+              <div id="tipBalance" class="tooltip"></div>
             </div>
           </div>
 
           <div class="insights">
-
             <div class="insight">
               <div class="k">Eng ko‘p chiqim bo‘lgan kun</div>
               <div class="v" id="insight1">—</div>
@@ -895,82 +738,14 @@ canvas{
           </div>
 
           <div class="muted" style="margin-top:10px;font-size:12px">
-            
-          <div class="section-split"></div>
-
-          <div class="analysis-extra">
-            <div class="extra-card">
-              <div class="extra-title">
-                <span>Oylik jamlanma</span>
-                <span class="muted">Kirim / Chiqim / Net</span>
-              </div>
-              <div class="extra-table-wrap">
-                <table class="extra-table" aria-label="Oylik jamlanma">
-                  <thead>
-                    <tr>
-                      <th>Oy</th>
-                      <th style="text-align:right">Kirim</th>
-                      <th style="text-align:right">Chiqim</th>
-                      <th style="text-align:right">Net</th>
-                    </tr>
-                  </thead>
-                  <tbody id="monthTbody"></tbody>
-                </table>
-              </div>
-              <div class="muted" style="margin-top:10px;font-size:12px">
-                Oxirgi 12 oy ko‘rsatiladi (ko‘p bo‘lsa).
-              </div>
-            </div>
-
-            <div class="extra-card">
-              <div class="extra-title">
-                <span>Top 10</span>
-                <span class="muted">Eng katta summalar</span>
-              </div>
-
-              <div class="two-top">
-                <div>
-                  <div class="mini-head">Eng katta kirimlar</div>
-                  <div class="extra-table-wrap">
-                    <table class="extra-table" aria-label="Top 10 kirim">
-                      <thead>
-                        <tr>
-                          <th>Sana</th>
-                          <th style="text-align:right">Summa</th>
-                          <th>Izoh</th>
-                        </tr>
-                      </thead>
-                      <tbody id="topIncomeTbody"></tbody>
-                    </table>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="mini-head">Eng katta chiqimlar</div>
-                  <div class="extra-table-wrap">
-                    <table class="extra-table" aria-label="Top 10 chiqim">
-                      <thead>
-                        <tr>
-                          <th>Sana</th>
-                          <th style="text-align:right">Summa</th>
-                          <th>Izoh</th>
-                        </tr>
-                      </thead>
-                      <tbody id="topExpenseTbody"></tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsatiladi. Hisobot/PDF ichida ham grafiklar chiqadi.
+            Tooltip ko‘rish: telefonda grafik ustiga bosib turing yoki bosing, kompyuterda ustiga olib boring.
           </div>
         </div>
       </section>
     </main>
 
     <footer class="footer muted">
-      <span>V2 • LocalStorage • mobil + desktop • PDF + tahlil</span>
+      <span>Ultimate • LocalStorage • Report/Print/PDF • Modern Charts</span>
     </footer>
   </div>
 
@@ -987,16 +762,18 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
 
   const $ = (sel) => document.querySelector(sel);
 
+  // summary
   const sumIncomeEl = $('#sumIncome');
   const sumExpenseEl = $('#sumExpense');
   const sumBalanceEl = $('#sumBalance');
 
+  // list
   const tbody = $('#tbody');
   const cardsEl = $('#cards');
-
   const emptyState = $('#emptyState');
   const countLabel = $('#countLabel');
 
+  // entry form
   const entryForm = $('#entryForm');
   const amountInput = $('#amount');
   const noteInput = $('#note');
@@ -1007,36 +784,52 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
   const filterType = $('#filterType');
   const searchInput = $('#search');
 
+  // data tools
   const btnClearAll = $('#btnClearAll');
   const btnExport = $('#btnExport');
   const btnImport = $('#btnImport');
   const fileImport = $('#fileImport');
-
   const btnTheme = $('#btnTheme');
 
-  const btnToggleAnalysis = $('#btnToggleAnalysisMain');
+  // analytics
+  const btnToggleAnalysis = $('#btnToggleAnalysis');
   const analysisBody = $('#analysisBody');
-  const analysisSection = $('#analysisSection');
-
-  const btnPdf = $('#btnPdf');
-
   const canvasCombo = $('#chartCombo');
   const canvasBalance = $('#chartBalance');
-  const chartTip = $('#chartTip');
-  const rangeSelect = $('#rangeSelect');
-  const groupSelect = $('#groupSelect');
-
+  const tipCombo = $('#tipCombo');
+  const tipBalance = $('#tipBalance');
   const insight1 = $('#insight1');
   const insight2 = $('#insight2');
   const insight3 = $('#insight3');
 
-  const monthTbody = $('#monthTbody');
-  const topIncomeTbody = $('#topIncomeTbody');
-  const topExpenseTbody = $('#topExpenseTbody');
+  // report settings
+  const reportFrom = $('#reportFrom');
+  const reportTo = $('#reportTo');
+  const btnRangeAll = $('#btnRangeAll');
+  const reportType = $('#reportType');
 
+  const useReportForCalc = $('#useReportForCalc');
+  const calcIncomeFrom = $('#calcIncomeFrom');
+  const calcIncomeTo = $('#calcIncomeTo');
+  const calcExpenseFrom = $('#calcExpenseFrom');
+  const calcExpenseTo = $('#calcExpenseTo');
+  const calcRangesBox = $('#calcRangesBox');
+
+  const fiscalStartDay = $('#fiscalStartDay');
+
+  const includeCharts = $('#includeCharts');
+  const includeDetails = $('#includeDetails');
+  const maxDetailRows = $('#maxDetailRows');
+
+  const btnReportView = $('#btnReportView');
+  const btnReportPrint = $('#btnReportPrint');
+  const btnReportPDF = $('#btnReportPDF');
+
+  // toast
   const toast = $('#toast');
   let toastTimer = null;
 
+  // editing
   let editingId = null;
 
   // ---------- Utils ----------
@@ -1048,7 +841,6 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
   }
 
   function parseAmount(str) {
-    // Accept: "150 000", "150,000", "150000", "150000.50"
     if (typeof str !== 'string') return NaN;
     const cleaned = str.trim().replace(/\s+/g, '').replace(/,/g, '.');
     const num = Number(cleaned);
@@ -1064,6 +856,29 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
     const off = d.getTimezoneOffset();
     const local = new Date(d.getTime() - off * 60_000);
     return local.toISOString().slice(0, 10);
+  }
+
+  function isoToDate(iso) {
+    // safe local date
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    if (!m) return null;
+    const y = Number(m[1]), mo = Number(m[2]) - 1, da = Number(m[3]);
+    const d = new Date(y, mo, da);
+    d.setHours(0,0,0,0);
+    return d;
+  }
+
+  function inRange(iso, fromIso, toIso) {
+    const d = isoToDate(iso);
+    if (!d) return false;
+    const f = isoToDate(fromIso);
+    const t = isoToDate(toIso);
+    if (!f || !t) return false;
+    return d.getTime() >= f.getTime() && d.getTime() <= t.getTime();
+  }
+
+  function clamp(n, a, b) {
+    return Math.max(a, Math.min(b, n));
   }
 
   function showToast(msg) {
@@ -1130,9 +945,10 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
     if (current === 'light') setTheme('');
     else setTheme('light');
     showToast(`Tema: ${document.documentElement.getAttribute('data-theme') === 'light' ? 'Light' : 'Dark'}`);
+    if (!analysisBody.hidden) renderAnalytics();
   }
 
-  // ---------- Filtering ----------
+  // ---------- Filtering (list) ----------
   function getFilteredItems() {
     const ft = filterType.value;
     const q = (searchInput.value || '').trim().toLowerCase();
@@ -1157,7 +973,7 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
   }
 
   // ---------- Summary ----------
-  function calcTotals(items = state.items) {
+  function calcTotals(items) {
     const income = items.filter(x => x.type === 'income').reduce((s, x) => s + (Number(x.amount) || 0), 0);
     const expense = items.filter(x => x.type === 'expense').reduce((s, x) => s + (Number(x.amount) || 0), 0);
     return { income, expense, balance: income - expense };
@@ -1176,50 +992,23 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
     for (const it of items) {
       const tr = document.createElement('tr');
 
-      const tdDate = document.createElement('td');
-      tdDate.textContent = it.date || '';
-      tr.appendChild(tdDate);
+      tr.innerHTML = `
+        <td>${safeText(it.date || '')}</td>
+        <td><span class="badge ${safeText(it.type)}">${it.type === 'income' ? 'Kirim' : 'Chiqim'}</span></td>
+        <td><span class="amount ${safeText(it.type)}">${safeText(formatMoney(it.amount))}</span></td>
+        <td>${safeText(it.note || '')}</td>
+        <td class="td-actions">
+          <div class="row-actions">
+            <button type="button" class="btn btn-mini edit">Tahrirlash</button>
+            <button type="button" class="btn btn-mini del">O‘chirish</button>
+          </div>
+        </td>
+      `;
 
-      const tdType = document.createElement('td');
-      const badge = document.createElement('span');
-      badge.className = `badge ${it.type}`;
-      badge.textContent = it.type === 'income' ? 'Kirim' : 'Chiqim';
-      tdType.appendChild(badge);
-      tr.appendChild(tdType);
-
-      const tdAmount = document.createElement('td');
-      const amt = document.createElement('span');
-      amt.className = `amount ${it.type}`;
-      amt.textContent = formatMoney(it.amount);
-      tdAmount.appendChild(amt);
-      tr.appendChild(tdAmount);
-
-      const tdNote = document.createElement('td');
-      tdNote.textContent = it.note || '';
-      tr.appendChild(tdNote);
-
-      const tdActions = document.createElement('td');
-      tdActions.className = 'td-actions';
-
-      const actions = document.createElement('div');
-      actions.className = 'row-actions';
-
-      const btnE = document.createElement('button');
-      btnE.type = 'button';
-      btnE.className = 'btn btn-mini edit';
-      btnE.textContent = 'Tahrirlash';
+      const btnE = tr.querySelector('.edit');
+      const btnD = tr.querySelector('.del');
       btnE.addEventListener('click', () => startEdit(it.id));
-
-      const btnD = document.createElement('button');
-      btnD.type = 'button';
-      btnD.className = 'btn btn-mini del';
-      btnD.textContent = 'O‘chirish';
       btnD.addEventListener('click', () => removeItem(it.id));
-
-      actions.appendChild(btnE);
-      actions.appendChild(btnD);
-      tdActions.appendChild(actions);
-      tr.appendChild(tdActions);
 
       tbody.appendChild(tr);
     }
@@ -1231,55 +1020,23 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
       const card = document.createElement('div');
       card.className = 'card-item';
 
-      const top = document.createElement('div');
-      top.className = 'card-top';
+      card.innerHTML = `
+        <div class="card-top">
+          <div class="card-meta">
+            <div class="card-date">${safeText(it.date || '')}</div>
+            <span class="badge ${safeText(it.type)}">${it.type === 'income' ? 'Kirim' : 'Chiqim'}</span>
+          </div>
+          <div class="card-amount amount ${safeText(it.type)}">${safeText(formatMoney(it.amount))}</div>
+        </div>
+        <div class="card-note">${safeText(it.note || '')}</div>
+        <div class="card-actions">
+          <button type="button" class="btn btn-mini edit">Tahrirlash</button>
+          <button type="button" class="btn btn-mini del">O‘chirish</button>
+        </div>
+      `;
 
-      const meta = document.createElement('div');
-      meta.className = 'card-meta';
-
-      const date = document.createElement('div');
-      date.className = 'card-date';
-      date.textContent = it.date || '';
-
-      const badge = document.createElement('span');
-      badge.className = `badge ${it.type}`;
-      badge.textContent = it.type === 'income' ? 'Kirim' : 'Chiqim';
-
-      meta.appendChild(date);
-      meta.appendChild(badge);
-
-      const amount = document.createElement('div');
-      amount.className = `card-amount amount ${it.type}`;
-      amount.textContent = formatMoney(it.amount);
-
-      top.appendChild(meta);
-      top.appendChild(amount);
-
-      const note = document.createElement('div');
-      note.className = 'card-note';
-      note.textContent = it.note || '';
-
-      const actions = document.createElement('div');
-      actions.className = 'card-actions';
-
-      const btnE = document.createElement('button');
-      btnE.type = 'button';
-      btnE.className = 'btn btn-mini edit';
-      btnE.textContent = 'Tahrirlash';
-      btnE.addEventListener('click', () => startEdit(it.id));
-
-      const btnD = document.createElement('button');
-      btnD.type = 'button';
-      btnD.className = 'btn btn-mini del';
-      btnD.textContent = 'O‘chirish';
-      btnD.addEventListener('click', () => removeItem(it.id));
-
-      actions.appendChild(btnE);
-      actions.appendChild(btnD);
-
-      card.appendChild(top);
-      card.appendChild(note);
-      card.appendChild(actions);
+      card.querySelector('.edit').addEventListener('click', () => startEdit(it.id));
+      card.querySelector('.del').addEventListener('click', () => removeItem(it.id));
 
       cardsEl.appendChild(card);
     }
@@ -1288,120 +1045,372 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
   function renderList() {
     const items = getFilteredItems();
     countLabel.textContent = `${items.length} ta yozuv`;
-
     emptyState.hidden = items.length !== 0;
-
     renderTableRows(items);
     renderCards(items);
   }
 
-  // ---------- Analytics ----------
-  function groupByDate(items) {
-    // returns array sorted by date asc: {date, income, expense}
+  // ---------- Report settings ----------
+  function getMinMaxDates() {
+    if (!state.items.length) return { min: todayISO(), max: todayISO() };
+    const dates = state.items.map(x => x.date).filter(Boolean).sort();
+    return { min: dates[0], max: dates[dates.length - 1] };
+  }
+
+  function syncReportRangesToData() {
+    const { min, max } = getMinMaxDates();
+    // if empty or invalid, set defaults
+    if (!reportFrom.value) reportFrom.value = min;
+    if (!reportTo.value) reportTo.value = max;
+
+    // ensure calc defaults
+    if (!calcIncomeFrom.value) calcIncomeFrom.value = reportFrom.value;
+    if (!calcIncomeTo.value) calcIncomeTo.value = reportTo.value;
+    if (!calcExpenseFrom.value) calcExpenseFrom.value = reportFrom.value;
+    if (!calcExpenseTo.value) calcExpenseTo.value = reportTo.value;
+  }
+
+  function toggleCalcRangesUI() {
+    const on = !!useReportForCalc.checked;
+    calcRangesBox.hidden = on;
+    if (on) {
+      calcIncomeFrom.value = reportFrom.value;
+      calcIncomeTo.value = reportTo.value;
+      calcExpenseFrom.value = reportFrom.value;
+      calcExpenseTo.value = reportTo.value;
+    }
+  }
+
+  // ---------- Fiscal month grouping ----------
+  function fiscalKey(iso, startDay) {
+    const d = isoToDate(iso);
+    if (!d) return null;
+    const sd = clamp(Number(startDay) || 1, 1, 28);
+    const year = d.getFullYear();
+    const month = d.getMonth(); // 0..11
+    const day = d.getDate();
+    // if day < startDay -> belongs to previous month period
+    let y = year, m = month;
+    if (day < sd) {
+      m -= 1;
+      if (m < 0) { m = 11; y -= 1; }
+    }
+    const mm = String(m + 1).padStart(2, '0');
+    return `${y}-${mm}`; // period key by start month
+  }
+
+  function groupByFiscalMonth(items, startDay) {
     const map = new Map();
     for (const it of items) {
-      const d = it.date || todayISO();
-      if (!map.has(d)) map.set(d, { date: d, income: 0, expense: 0 });
-      const row = map.get(d);
+      const key = fiscalKey(it.date, startDay);
+      if (!key) continue;
+      if (!map.has(key)) map.set(key, { key, income: 0, expense: 0 });
+      const row = map.get(key);
       if (it.type === 'income') row.income += Number(it.amount) || 0;
       else row.expense += Number(it.amount) || 0;
     }
     const arr = Array.from(map.values());
-    arr.sort((a,b)=> (a.date||'').localeCompare(b.date||''));
+    arr.sort((a,b)=> (a.key||'').localeCompare(b.key||''));
     return arr;
   }
 
-  function lastNDaysSeries(grouped, n=30) {
-    if (grouped.length <= n) return grouped;
-    return grouped.slice(grouped.length - n);
+  function formatMonthKey(ym) {
+    const m = /^(\d{4})-(\d{2})$/.exec(ym || '');
+    if (!m) return ym || '';
+    return `${m[2]}.${m[1]}`;
   }
 
-  function drawBarChart(canvas, series, valueKey, opts) {
+  // ---------- Analytics (modern-ish charts) ----------
+  function filterForAnalytics() {
+    // analytics uses report range and report type (so user can preview by same selection)
+    const f = reportFrom.value || todayISO();
+    const t = reportTo.value || todayISO();
+    const rt = reportType.value || 'all';
+
+    let items = state.items.filter(x => inRange(x.date, f, t));
+    if (rt !== 'all') items = items.filter(x => x.type === rt);
+    return items;
+  }
+
+  function groupByDay(items) {
+    const map = new Map();
+    for (const it of items) {
+      const k = it.date || todayISO();
+      if (!map.has(k)) map.set(k, { k, income: 0, expense: 0, net: 0 });
+      const row = map.get(k);
+      if (it.type === 'income') row.income += Number(it.amount) || 0;
+      else row.expense += Number(it.amount) || 0;
+      row.net = row.income - row.expense;
+    }
+    const arr = Array.from(map.values()).sort((a,b)=> (a.k||'').localeCompare(b.k||''));
+    return arr;
+  }
+
+  function drawComboChart(canvas, tooltipEl, series) {
     const ctx = canvas.getContext('2d');
     const dpr = Math.max(1, window.devicePixelRatio || 1);
-
     const cssW = canvas.clientWidth || 600;
-    const cssH = canvas.clientHeight || 220;
+    const cssH = canvas.clientHeight || 230;
     canvas.width = Math.round(cssW * dpr);
     canvas.height = Math.round(cssH * dpr);
-
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const W = cssW;
-    const H = cssH;
-
-    // theme colors
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-    const bg = isLight ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)';
     const grid = isLight ? 'rgba(16,24,40,0.10)' : 'rgba(255,255,255,0.10)';
     const text = isLight ? 'rgba(16,24,40,0.72)' : 'rgba(255,255,255,0.72)';
-    const bar = opts.barColor;
-    const accent = opts.accentColor;
+    const incomeC = 'rgba(45,212,191,0.92)';
+    const expenseC = 'rgba(251,113,133,0.92)';
+    const netC = isLight ? 'rgba(17,24,39,0.80)' : 'rgba(255,255,255,0.85)';
 
-    ctx.clearRect(0,0,W,H);
-    ctx.fillStyle = bg;
-    ctx.fillRect(0,0,W,H);
+    ctx.clearRect(0,0,cssW,cssH);
 
-    const padding = { left: 44, right: 12, top: 12, bottom: 34 };
-    const plotW = W - padding.left - padding.right;
-    const plotH = H - padding.top - padding.bottom;
+    const pad = { l: 50, r: 10, t: 10, b: 34 };
+    const W = cssW - pad.l - pad.r;
+    const H = cssH - pad.t - pad.b;
 
-    const values = series.map(x => Number(x[valueKey]) || 0);
-    const maxV = Math.max(1, ...values);
-    const steps = 4;
-    const stepV = maxV / steps;
+    const n = Math.max(1, series.length);
+    const maxV = Math.max(1, ...series.map(s => Math.max(s.income, s.expense)));
+    const maxNet = Math.max(1, ...series.map(s => Math.abs(s.net)));
 
-    // grid + y labels
-    ctx.font = '12px Inter, system-ui, sans-serif';
-    ctx.fillStyle = text;
+    // y grid
     ctx.strokeStyle = grid;
     ctx.lineWidth = 1;
+    ctx.font = '12px Inter, system-ui, sans-serif';
+    ctx.fillStyle = text;
 
-    for (let i=0;i<=steps;i++){
-      const y = padding.top + plotH - (plotH * (i/steps));
+    for (let i=0;i<=4;i++){
+      const y = pad.t + H - (H * (i/4));
       ctx.beginPath();
-      ctx.moveTo(padding.left, y);
-      ctx.lineTo(padding.left + plotW, y);
+      ctx.moveTo(pad.l, y);
+      ctx.lineTo(pad.l + W, y);
       ctx.stroke();
-
-      const v = Math.round(stepV*i);
+      const v = Math.round(maxV * (i/4));
       ctx.fillText(formatShort(v), 6, y+4);
     }
 
     // bars
-    const n = series.length || 1;
-    const gap = 6;
-    const barW = Math.max(6, Math.floor((plotW - gap*(n-1)) / n));
+    const gap = 8;
+    const groupW = (W - gap*(n-1)) / n;
+    const barW = Math.max(6, Math.floor((groupW - 4) / 2));
+    const hitBoxes = [];
 
     for (let i=0;i<n;i++){
-      const v = values[i];
-      const h = (v / maxV) * plotH;
-      const x = padding.left + i*(barW + gap);
-      const y = padding.top + plotH - h;
+      const s = series[i];
+      const x0 = pad.l + i*(groupW + gap);
 
-      // gradient bar
-      const grad = ctx.createLinearGradient(0, y, 0, y+h);
-      grad.addColorStop(0, bar);
-      grad.addColorStop(1, accent);
+      const hi = (s.income / maxV) * H;
+      const he = (s.expense / maxV) * H;
 
-      ctx.fillStyle = grad;
-      roundRect(ctx, x, y, barW, h, 8);
-      ctx.fill();
+      // income bar
+      const xi = x0;
+      const yi = pad.t + H - hi;
+      ctx.fillStyle = incomeC;
+      roundRect(ctx, xi, yi, barW, hi, 8); ctx.fill();
 
-      // x label every 3 items or last
+      // expense bar
+      const xe = x0 + barW + 4;
+      const ye = pad.t + H - he;
+      ctx.fillStyle = expenseC;
+      roundRect(ctx, xe, ye, barW, he, 8); ctx.fill();
+
+      // x labels (every 3 or last)
       const showLabel = (n <= 10) || (i % 3 === 0) || (i === n-1);
       if (showLabel) {
+        const label = shortDate(s.k);
         ctx.fillStyle = text;
-        const label = shortDate(series[i].date);
-        const lx = x + barW/2 - (ctx.measureText(label).width/2);
-        ctx.fillText(label, lx, padding.top + plotH + 22);
+        const w = ctx.measureText(label).width;
+        ctx.fillText(label, x0 + groupW/2 - w/2, pad.t + H + 22);
+      }
+
+      // hit area for tooltip
+      hitBoxes.push({ i, x: x0, y: pad.t, w: groupW, h: H });
+    }
+
+    // net line (scaled to maxV for readability)
+    ctx.strokeStyle = netC;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i=0;i<n;i++){
+      const s = series[i];
+      const x0 = pad.l + i*(groupW + gap) + groupW/2;
+      // map net to vertical centered around bottom? We'll draw a line over bars using net mapped to maxV range
+      const yn = pad.t + H - ((s.net + maxV) / (2*maxV)) * H; // net in [-maxV..maxV]
+      if (i === 0) ctx.moveTo(x0, yn);
+      else ctx.lineTo(x0, yn);
+    }
+    ctx.stroke();
+
+    // net line dots
+    for (let i=0;i<n;i++){
+      const s = series[i];
+      const x0 = pad.l + i*(groupW + gap) + groupW/2;
+      const yn = pad.t + H - ((s.net + maxV) / (2*maxV)) * H;
+      ctx.fillStyle = netC;
+      ctx.beginPath();
+      ctx.arc(x0, yn, 3, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    // tooltip interactions
+    attachTooltip(canvas, tooltipEl, hitBoxes, (idx) => {
+      const s = series[idx];
+      return `📅 ${s.k}\nKirim: ${formatMoney(s.income)}\nChiqim: ${formatMoney(s.expense)}\nNet: ${formatMoney(s.net)}`;
+    });
+  }
+
+  function drawBalanceChart(canvas, tooltipEl, series) {
+    const ctx = canvas.getContext('2d');
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const cssW = canvas.clientWidth || 600;
+    const cssH = canvas.clientHeight || 230;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const grid = isLight ? 'rgba(16,24,40,0.10)' : 'rgba(255,255,255,0.10)';
+    const text = isLight ? 'rgba(16,24,40,0.72)' : 'rgba(255,255,255,0.72)';
+    const lineC = isLight ? 'rgba(255,59,48,0.85)' : 'rgba(255,106,0,0.92)';
+
+    ctx.clearRect(0,0,cssW,cssH);
+
+    const pad = { l: 50, r: 10, t: 10, b: 34 };
+    const W = cssW - pad.l - pad.r;
+    const H = cssH - pad.t - pad.b;
+
+    // cumulative balance
+    let bal = 0;
+    const pts = series.map(s => {
+      bal += (s.income - s.expense);
+      return { k: s.k, bal };
+    });
+
+    const values = pts.map(p => p.bal);
+    const minV = Math.min(0, ...values);
+    const maxV = Math.max(1, ...values);
+
+    // grid + y labels
+    ctx.strokeStyle = grid;
+    ctx.lineWidth = 1;
+    ctx.font = '12px Inter, system-ui, sans-serif';
+    ctx.fillStyle = text;
+
+    for (let i=0;i<=4;i++){
+      const y = pad.t + H - (H * (i/4));
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y);
+      ctx.lineTo(pad.l + W, y);
+      ctx.stroke();
+      const v = minV + (maxV - minV) * (i/4);
+      ctx.fillText(formatShort(Math.round(v)), 6, y+4);
+    }
+
+    // x spacing
+    const n = Math.max(1, pts.length);
+    const step = n === 1 ? 0 : (W / (n-1));
+    const hitBoxes = [];
+
+    // zero line
+    const y0 = pad.t + H - ((0 - minV) / (maxV - minV || 1)) * H;
+    ctx.strokeStyle = isLight ? 'rgba(16,24,40,0.22)' : 'rgba(255,255,255,0.18)';
+    ctx.beginPath();
+    ctx.moveTo(pad.l, y0);
+    ctx.lineTo(pad.l + W, y0);
+    ctx.stroke();
+
+    // line
+    ctx.strokeStyle = lineC;
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    for (let i=0;i<n;i++){
+      const x = pad.l + i*step;
+      const y = pad.t + H - ((pts[i].bal - minV) / (maxV - minV || 1)) * H;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+
+      hitBoxes.push({ i, x: x - 10, y: pad.t, w: 20, h: H });
+    }
+    ctx.stroke();
+
+    // fill under line
+    const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + H);
+    grad.addColorStop(0, isLight ? 'rgba(255,59,48,0.18)' : 'rgba(255,106,0,0.16)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.lineTo(pad.l + W, pad.t + H);
+    ctx.lineTo(pad.l, pad.t + H);
+    ctx.closePath();
+    ctx.fill();
+
+    // dots + x labels
+    ctx.fillStyle = lineC;
+    for (let i=0;i<n;i++){
+      const x = pad.l + i*step;
+      const y = pad.t + H - ((pts[i].bal - minV) / (maxV - minV || 1)) * H;
+      ctx.beginPath();
+      ctx.arc(x, y, 3.5, 0, Math.PI*2);
+      ctx.fill();
+
+      const showLabel = (n <= 10) || (i % 3 === 0) || (i === n-1);
+      if (showLabel) {
+        const label = shortDate(pts[i].k);
+        ctx.fillStyle = text;
+        const w = ctx.measureText(label).width;
+        ctx.fillText(label, x - w/2, pad.t + H + 22);
+        ctx.fillStyle = lineC;
       }
     }
 
-    // title hint
-    ctx.fillStyle = text;
-    ctx.font = '11px Inter, system-ui, sans-serif';
-    ctx.fillText(opts.footerHint || '', padding.left, H - 6);
+    attachTooltip(canvas, tooltipEl, hitBoxes, (idx) => {
+      const p = pts[idx];
+      return `📅 ${p.k}\nKumulative balans: ${formatMoney(p.bal)}`;
+    });
+  }
+
+  function attachTooltip(canvas, tipEl, hitBoxes, textFn) {
+    if (!tipEl) return;
+
+    function showAt(idx) {
+      const text = textFn(idx);
+      tipEl.textContent = text;
+      tipEl.classList.add('show');
+    }
+    function hide() {
+      tipEl.classList.remove('show');
+    }
+
+    function pick(x, y) {
+      for (const b of hitBoxes) {
+        if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) return b.i;
+      }
+      return null;
+    }
+
+    let last = null;
+
+    canvas.onpointermove = (e) => {
+      const r = canvas.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      const idx = pick(x, y);
+      if (idx === null) { last = null; hide(); return; }
+      if (idx !== last) {
+        last = idx;
+        showAt(idx);
+      }
+    };
+    canvas.onpointerleave = () => { last = null; hide(); };
+
+    // touch: tap to show, tap empty to hide
+    canvas.onclick = (e) => {
+      const r = canvas.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      const idx = pick(x, y);
+      if (idx === null) { last = null; hide(); return; }
+      last = idx;
+      showAt(idx);
+    };
   }
 
   function roundRect(ctx, x,y,w,h,r){
@@ -1416,491 +1425,25 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
   }
 
   function shortDate(iso){
-    if (!iso) return '';
-    // ISO yyyy-mm-dd -> dd.mm
-    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
-    if (!m) return iso;
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+    if (!m) return iso || '';
     return `${m[3]}.${m[2]}`;
   }
 
   function formatShort(n){
     const v = Number(n) || 0;
-    if (v >= 1_000_000_000) return `${Math.round(v/1_000_000_000)}B`;
-    if (v >= 1_000_000) return `${Math.round(v/1_000_000)}M`;
-    if (v >= 1_000) return `${Math.round(v/1_000)}K`;
+    const av = Math.abs(v);
+    const sign = v < 0 ? '-' : '';
+    if (av >= 1_000_000_000) return `${sign}${Math.round(av/1_000_000_000)}B`;
+    if (av >= 1_000_000) return `${sign}${Math.round(av/1_000_000)}M`;
+    if (av >= 1_000) return `${sign}${Math.round(av/1_000)}K`;
     return `${v}`;
   }
 
-  function computeInsights(grouped){
-    if (!grouped.length) return {
-      maxExpenseDay: null,
-      minExpenseDay: null,
-      maxIncomeDay: null
-    };
-
-    let maxE = grouped[0], minE = grouped[0], maxI = grouped[0];
-    for (const d of grouped){
-      if ((d.expense||0) > (maxE.expense||0)) maxE = d;
-      if ((d.expense||0) < (minE.expense||0)) minE = d;
-      if ((d.income||0) > (maxI.income||0)) maxI = d;
-    }
-    return { maxExpenseDay: maxE, minExpenseDay: minE, maxIncomeDay: maxI };
-  }
-
-
-  function groupByMonth(items) {
-    // returns array sorted by month asc: {month:'YYYY-MM', income, expense}
-    const map = new Map();
-    for (const it of items) {
-      const d = it.date || todayISO();
-      const ym = String(d).slice(0,7); // YYYY-MM
-      if (!map.has(ym)) map.set(ym, { month: ym, income: 0, expense: 0 });
-      const row = map.get(ym);
-      if (it.type === 'income') row.income += Number(it.amount) || 0;
-      else row.expense += Number(it.amount) || 0;
-    }
-    const arr = Array.from(map.values());
-    arr.sort((a,b)=> (a.month||'').localeCompare(b.month||''));
-    return arr;
-  }
-
-  function formatMonth(ym) {
-    // 'YYYY-MM' -> 'MM.YYYY'
-    const m = /^(\d{4})-(\d{2})$/.exec(ym || '');
-    if (!m) return ym || '';
-    return `${m[2]}.${m[1]}`;
-  }
-
-  function renderMonthlyTable() {
-    if (!monthTbody) return;
-    const months = groupByMonth(state.items);
-    monthTbody.innerHTML = '';
-
-    if (months.length === 0) {
-      monthTbody.innerHTML = `<tr><td colspan="4">Ma’lumot yo‘q</td></tr>`;
-      return;
-    }
-
-    const view = months.length > 12 ? months.slice(months.length - 12) : months;
-
-    for (const m of view) {
-      const net = (m.income || 0) - (m.expense || 0);
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${safeText(formatMonth(m.month))}</td>
-        <td style="text-align:right"><span class="amount income">${safeText(formatMoney(m.income))}</span></td>
-        <td style="text-align:right"><span class="amount expense">${safeText(formatMoney(m.expense))}</span></td>
-        <td style="text-align:right"><span class="amount">${safeText(formatMoney(net))}</span></td>
-      `;
-      monthTbody.appendChild(tr);
-    }
-  }
-
-  function renderTopTables() {
-    if (!topIncomeTbody || !topExpenseTbody) return;
-
-    const incomes = state.items
-      .filter(x => x.type === 'income')
-      .slice()
-      .sort((a,b)=> (Number(b.amount)||0) - (Number(a.amount)||0))
-      .slice(0, 10);
-
-    const expenses = state.items
-      .filter(x => x.type === 'expense')
-      .slice()
-      .sort((a,b)=> (Number(b.amount)||0) - (Number(a.amount)||0))
-      .slice(0, 10);
-
-    topIncomeTbody.innerHTML = incomes.length ? '' : `<tr><td colspan="3">Kirim yo‘q</td></tr>`;
-    topExpenseTbody.innerHTML = expenses.length ? '' : `<tr><td colspan="3">Chiqim yo‘q</td></tr>`;
-
-    for (const it of incomes) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${safeText(it.date || '')}</td>
-        <td style="text-align:right"><span class="amount income">${safeText(formatMoney(it.amount))}</span></td>
-        <td>${safeText(it.note || '')}</td>
-      `;
-      topIncomeTbody.appendChild(tr);
-    }
-
-    for (const it of expenses) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${safeText(it.date || '')}</td>
-        <td style="text-align:right"><span class="amount expense">${safeText(formatMoney(it.amount))}</span></td>
-        <td>${safeText(it.note || '')}</td>
-      `;
-      topExpenseTbody.appendChild(tr);
-    }
-  }
-
-    // ---------- Modern Charts ----------
-  function parseISODate(iso){
-    if (!iso) return new Date();
-    return new Date(`${iso}T00:00:00`);
-  }
-  function toISODate(d){
-    const y = d.getFullYear();
-    const m = String(d.getMonth()+1).padStart(2,'0');
-    const da = String(d.getDate()).padStart(2,'0');
-    return `${y}-${m}-${da}`;
-  }
-  function startOfWeekMonday(d){
-    const x = new Date(d);
-    const day = x.getDay();
-    const diff = (day === 0 ? -6 : 1 - day);
-    x.setDate(x.getDate() + diff);
-    x.setHours(0,0,0,0);
-    return x;
-  }
-  function startOfMonth(d){
-    const x = new Date(d.getFullYear(), d.getMonth(), 1);
-    x.setHours(0,0,0,0);
-    return x;
-  }
-
-  function groupSeries(items, mode){
-    const map = new Map();
-    for (const it of items){
-      const d = parseISODate(it.date || todayISO());
-      let key, ts, label;
-
-      if (mode === 'month'){
-        const m = startOfMonth(d);
-        ts = m.getTime();
-        const ym = `${m.getFullYear()}-${String(m.getMonth()+1).padStart(2,'0')}`;
-        key = ym;
-        label = formatMonth(ym);
-      } else if (mode === 'week'){
-        const w = startOfWeekMonday(d);
-        ts = w.getTime();
-        key = toISODate(w);
-        label = shortDate(key);
-      } else {
-        const iso = toISODate(d);
-        ts = d.getTime();
-        key = iso;
-        label = shortDate(iso);
-      }
-
-      if (!map.has(key)) map.set(key, { key, label, ts, income:0, expense:0 });
-      const row = map.get(key);
-      if (it.type === 'income') row.income += Number(it.amount) || 0;
-      else row.expense += Number(it.amount) || 0;
-    }
-    const arr = Array.from(map.values());
-    arr.sort((a,b)=> (a.ts||0) - (b.ts||0));
-    return arr;
-  }
-
-  function applyRange(series){
-    const v = rangeSelect?.value || '30';
-    if (v === 'all') return series;
-    const n = Math.max(1, Number(v) || 30);
-    return series.length > n ? series.slice(series.length - n) : series;
-  }
-
-  const comboHit = { series: [], centers: [], pad: null, plotW:0, plotH:0, W:0, H:0 };
-
-  function drawComboChart(canvas, series){
-    const ctx = canvas.getContext('2d');
-    const dpr = Math.max(1, window.devicePixelRatio || 1);
-
-    const cssW = canvas.clientWidth || 800;
-    const cssH = canvas.clientHeight || 260;
-    canvas.width = Math.round(cssW * dpr);
-    canvas.height = Math.round(cssH * dpr);
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-
-    const W = cssW, H = cssH;
-
-    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-    const grid = isLight ? 'rgba(16,24,40,0.10)' : 'rgba(255,255,255,0.10)';
-    const text = isLight ? 'rgba(16,24,40,0.72)' : 'rgba(255,255,255,0.72)';
-
-    const pad = { l: 54, r: 14, t: 12, b: 36 };
-    const plotW = W - pad.l - pad.r;
-    const plotH = H - pad.t - pad.b;
-
-    ctx.clearRect(0,0,W,H);
-
-    const values = series.flatMap(s => [s.income, s.expense]).map(v => Number(v)||0);
-    const maxV = Math.max(1, ...values);
-
-    // grid + y labels
-    const steps = 4;
-    ctx.font = '12px Inter, system-ui, sans-serif';
-    ctx.fillStyle = text;
-    ctx.strokeStyle = grid;
-    ctx.lineWidth = 1;
-
-    for (let i=0;i<=steps;i++){
-      const y = pad.t + plotH - (plotH * (i/steps));
-      ctx.beginPath();
-      ctx.moveTo(pad.l, y);
-      ctx.lineTo(pad.l + plotW, y);
-      ctx.stroke();
-
-      const v = Math.round((maxV/steps)*i);
-      ctx.fillText(formatShort(v), 6, y+4);
-    }
-
-    const n = Math.max(1, series.length);
-    const groupW = plotW / n;
-    const gap = Math.max(6, Math.min(12, groupW * 0.14));
-    const barW = Math.max(6, Math.min(18, (groupW - gap) / 2));
-
-    comboHit.series = series;
-    comboHit.centers = [];
-    comboHit.pad = pad;
-    comboHit.plotW = plotW;
-    comboHit.plotH = plotH;
-    comboHit.W = W;
-    comboHit.H = H;
-
-    for (let i=0;i<n;i++){
-      const s = series[i];
-      const cx = pad.l + (i + 0.5) * groupW;
-      comboHit.centers.push(cx);
-
-      const incH = (s.income / maxV) * plotH;
-      const expH = (s.expense / maxV) * plotH;
-
-      const x1 = cx - barW - gap/2;
-      const x2 = cx + gap/2;
-
-      // income bar
-      const y1 = pad.t + plotH - incH;
-      const g1 = ctx.createLinearGradient(0, y1, 0, y1 + incH);
-      g1.addColorStop(0, 'rgba(45,212,191,0.98)');
-      g1.addColorStop(1, 'rgba(45,212,191,0.18)');
-      ctx.fillStyle = g1;
-      roundRect(ctx, x1, y1, barW, incH, 10);
-      ctx.fill();
-
-      // expense bar
-      const y2 = pad.t + plotH - expH;
-      const g2 = ctx.createLinearGradient(0, y2, 0, y2 + expH);
-      g2.addColorStop(0, 'rgba(251,113,133,0.98)');
-      g2.addColorStop(1, 'rgba(251,113,133,0.18)');
-      ctx.fillStyle = g2;
-      roundRect(ctx, x2, y2, barW, expH, 10);
-      ctx.fill();
-
-      // x labels
-      const showLabel = (n <= 10) || (i % 3 === 0) || (i === n-1);
-      if (showLabel) {
-        ctx.fillStyle = text;
-        const label = s.label || '';
-        const lw = ctx.measureText(label).width;
-        ctx.fillText(label, cx - lw/2, pad.t + plotH + 22);
-      }
-    }
-
-    ctx.strokeStyle = grid;
-    ctx.strokeRect(pad.l + 0.5, pad.t + 0.5, plotW - 1, plotH - 1);
-  }
-
-  function drawBalanceChart(canvas, series){
-    const ctx = canvas.getContext('2d');
-    const dpr = Math.max(1, window.devicePixelRatio || 1);
-
-    const cssW = canvas.clientWidth || 600;
-    const cssH = canvas.clientHeight || 220;
-    canvas.width = Math.round(cssW * dpr);
-    canvas.height = Math.round(cssH * dpr);
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-
-    const W = cssW, H = cssH;
-
-    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-    const grid = isLight ? 'rgba(16,24,40,0.10)' : 'rgba(255,255,255,0.10)';
-    const text = isLight ? 'rgba(16,24,40,0.72)' : 'rgba(255,255,255,0.72)';
-
-    const pad = { l: 54, r: 14, t: 12, b: 34 };
-    const plotW = W - pad.l - pad.r;
-    const plotH = H - pad.t - pad.b;
-
-    ctx.clearRect(0,0,W,H);
-
-    // cumulative
-    let cum = 0;
-    const pts = series.map(s => {
-      cum += (Number(s.income)||0) - (Number(s.expense)||0);
-      return { label: s.label, value: cum };
-    });
-
-    const vals = pts.map(p=>p.value);
-    const minV = Math.min(0, ...vals);
-    const maxV = Math.max(0, ...vals);
-    const span = Math.max(1, maxV - minV);
-
-    // grid
-    ctx.font = '12px Inter, system-ui, sans-serif';
-    ctx.fillStyle = text;
-    ctx.strokeStyle = grid;
-    ctx.lineWidth = 1;
-
-    const steps = 4;
-    for (let i=0;i<=steps;i++){
-      const y = pad.t + plotH - (plotH * (i/steps));
-      ctx.beginPath();
-      ctx.moveTo(pad.l, y);
-      ctx.lineTo(pad.l + plotW, y);
-      ctx.stroke();
-
-      const v = minV + (span/steps)*i;
-      ctx.fillText(formatShort(Math.round(v)), 6, y+4);
-    }
-
-    // zero line
-    const y0 = pad.t + plotH - ((0 - minV)/span)*plotH;
-    ctx.strokeStyle = isLight ? 'rgba(16,24,40,0.18)' : 'rgba(255,255,255,0.18)';
-    ctx.beginPath();
-    ctx.moveTo(pad.l, y0);
-    ctx.lineTo(pad.l + plotW, y0);
-    ctx.stroke();
-
-    const n = Math.max(1, pts.length);
-    const stepX = plotW / Math.max(1, n-1);
-
-    const grad = ctx.createLinearGradient(pad.l, 0, pad.l + plotW, 0);
-    grad.addColorStop(0, 'rgba(255,59,48,0.95)');
-    grad.addColorStop(1, 'rgba(255,106,0,0.95)');
-
-    // line
-    ctx.lineWidth = 2.6;
-    ctx.strokeStyle = grad;
-    ctx.beginPath();
-    for (let i=0;i<n;i++){
-      const x = pad.l + i * stepX;
-      const y = pad.t + plotH - ((pts[i].value - minV)/span)*plotH;
-      if (i===0) ctx.moveTo(x,y);
-      else ctx.lineTo(x,y);
-    }
-    ctx.stroke();
-
-    // fill
-    const fillGrad = ctx.createLinearGradient(0, pad.t, 0, pad.t + plotH);
-    fillGrad.addColorStop(0, 'rgba(255,59,48,0.18)');
-    fillGrad.addColorStop(1, 'rgba(255,106,0,0.02)');
-    ctx.fillStyle = fillGrad;
-    ctx.lineTo(pad.l + (n-1)*stepX, y0);
-    ctx.lineTo(pad.l, y0);
-    ctx.closePath();
-    ctx.fill();
-
-    // points
-    for (let i=0;i<n;i++){
-      const x = pad.l + i * stepX;
-      const y = pad.t + plotH - ((pts[i].value - minV)/span)*plotH;
-      ctx.fillStyle = isLight ? 'white' : 'rgba(0,0,0,0.35)';
-      ctx.beginPath(); ctx.arc(x,y,4.2,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = grad;
-      ctx.beginPath(); ctx.arc(x,y,2.5,0,Math.PI*2); ctx.fill();
-    }
-
-    // x labels sparse
-    ctx.fillStyle = text;
-    for (let i=0;i<n;i++){
-      const show = (n <= 10) || (i % 3 === 0) || (i === n-1);
-      if (!show) continue;
-      const x = pad.l + i * stepX;
-      const label = pts[i].label || '';
-      const lw = ctx.measureText(label).width;
-      ctx.fillText(label, x - lw/2, pad.t + plotH + 22);
-    }
-
-    ctx.strokeStyle = grid;
-    ctx.strokeRect(pad.l + 0.5, pad.t + 0.5, plotW - 1, plotH - 1);
-  }
-
-  function setTipContent(s){
-    if (!chartTip) return;
-    const net = (Number(s.income)||0) - (Number(s.expense)||0);
-    chartTip.innerHTML = `
-      <div class="t1">${safeText(s.key || '')}</div>
-      <div class="t2">
-        <span>Kirim</span><b>${safeText(formatMoney(s.income))}</b>
-        <span>Chiqim</span><b>${safeText(formatMoney(s.expense))}</b>
-        <span>Net</span><b>${safeText(formatMoney(net))}</b>
-      </div>
-    `;
-  }
-  function showTip(s){
-    if (!chartTip) return;
-    setTipContent(s);
-    chartTip.hidden = false;
-  }
-  function hideTip(){
-    if (!chartTip) return;
-    chartTip.hidden = true;
-  }
-
-  function nearestIndexFromX(x){
-    const centers = comboHit.centers || [];
-    if (!centers.length) return -1;
-    let best = 0, bestD = Infinity;
-    for (let i=0;i<centers.length;i++){
-      const d = Math.abs(centers[i] - x);
-      if (d < bestD){ bestD = d; best = i; }
-    }
-    return best;
-  }
-
-  function bindChartEvents(){
-    if (!canvasCombo) return;
-
-    const onMove = (clientX, clientY) => {
-      if (!comboHit.series.length) return;
-      const rect = canvasCombo.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
-
-      const p = comboHit.pad;
-      if (!p) return;
-
-      if (x < p.l || x > (p.l + comboHit.plotW) || y < p.t || y > (p.t + comboHit.plotH)){
-        hideTip();
-        return;
-      }
-
-      const idx = nearestIndexFromX(x);
-      const s = comboHit.series[idx];
-      if (!s) return;
-
-      showTip(s);
-      const tipW = chartTip.offsetWidth || 240;
-      const tipH = chartTip.offsetHeight || 80;
-
-      let tx = Math.min(comboHit.W - tipW - 10, Math.max(10, x + 12));
-      let ty = Math.min(comboHit.H - tipH - 10, Math.max(10, y - tipH - 12));
-
-      chartTip.style.left = `${tx}px`;
-      chartTip.style.top = `${ty}px`;
-    };
-
-    canvasCombo.addEventListener('mousemove', (e) => onMove(e.clientX, e.clientY));
-    canvasCombo.addEventListener('mouseleave', hideTip);
-
-    canvasCombo.addEventListener('touchstart', (e) => {
-      const t = e.touches?.[0];
-      if (t) onMove(t.clientX, t.clientY);
-    }, { passive: true });
-
-    canvasCombo.addEventListener('touchmove', (e) => {
-      const t = e.touches?.[0];
-      if (t) onMove(t.clientX, t.clientY);
-    }, { passive: true });
-
-    canvasCombo.addEventListener('touchend', () => {
-      setTimeout(hideTip, 1200);
-    }, { passive: true });
-  }
-
-  function computeInsightsFromSeries(series){
+  function computeInsights(series) {
+    // series: day grouped
     if (!series.length) return { maxExpense: null, minExpense: null, maxIncome: null };
+
     let maxE = series[0], minE = series[0], maxI = series[0];
     for (const s of series){
       if ((s.expense||0) > (maxE.expense||0)) maxE = s;
@@ -1911,110 +1454,126 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
   }
 
   function renderAnalytics() {
-    const groupMode = groupSelect?.value || 'day';
-    const all = groupSeries(state.items, groupMode);
-    const view = applyRange(all);
+    const items = filterForAnalytics();
+    const series = groupByDay(items);
 
-    drawComboChart(canvasCombo, view);
-    drawBalanceChart(canvasBalance, view);
+    drawComboChart(canvasCombo, tipCombo, series);
+    drawBalanceChart(canvasBalance, tipBalance, series);
 
-    const ins = computeInsightsFromSeries(view);
-    insight1.textContent = ins.maxExpense ? `${ins.maxExpense.key} — ${formatMoney(ins.maxExpense.expense)}` : 'Ma’lumot yo‘q';
-    insight2.textContent = ins.minExpense ? `${ins.minExpense.key} — ${formatMoney(ins.minExpense.expense)}` : 'Ma’lumot yo‘q';
-    insight3.textContent = ins.maxIncome ? `${ins.maxIncome.key} — ${formatMoney(ins.maxIncome.income)}` : 'Ma’lumot yo‘q';
-
-    renderMonthlyTable();
-    renderTopTables();
+    const ins = computeInsights(series);
+    insight1.textContent = ins.maxExpense ? `${ins.maxExpense.k} — ${formatMoney(ins.maxExpense.expense)}` : 'Ma’lumot yo‘q';
+    insight2.textContent = ins.minExpense ? `${ins.minExpense.k} — ${formatMoney(ins.minExpense.expense)}` : 'Ma’lumot yo‘q';
+    insight3.textContent = ins.maxIncome ? `${ins.maxIncome.k} — ${formatMoney(ins.maxIncome.income)}` : 'Ma’lumot yo‘q';
   }
 
-
-  function toggleAnalysis(open) {
-    const isOpen = open ?? analysisBody.hidden;
-    analysisBody.hidden = !isOpen;
-    btnToggleAnalysis.querySelector('span:last-child').textContent = isOpen ? 'Tahlilni yopish' : 'Tahlilni ko‘rish';
-    if (isOpen) {
-      // ensure charts size is correct after unhide
+  function toggleAnalysis() {
+    const open = analysisBody.hidden;
+    analysisBody.hidden = !open;
+    btnToggleAnalysis.querySelector('span:last-child').textContent = open ? 'Tahlilni yopish' : 'Tahlilni ko‘rish';
+    if (open) {
       setTimeout(() => renderAnalytics(), 30);
-      analysisSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      showToast('Tahlil ochildi');
     }
   }
 
-  // ---------- PDF / Print report ----------
-  function openPrintReport() {
-    // Use all items (not filtered) for full report; you can change to filtered if desired.
-    const items = [...state.items].sort((a,b)=>{
-      if (a.date !== b.date) return (a.date||'').localeCompare(b.date||'');
-      return (a.createdAt||0) - (b.createdAt||0);
-    });
+  // ---------- Report generation ----------
+  function getReportSettings() {
+    const rf = reportFrom.value || todayISO();
+    const rt = reportTo.value || todayISO();
+    const type = reportType.value || 'all';
 
-    const { income, expense, balance } = calcTotals(items);
+    const startDay = clamp(Number(fiscalStartDay.value) || 1, 1, 28);
 
-    const grouped = groupByDate(items);
-    const limited = lastNDaysSeries(grouped, 30);
+    const calcModeSame = !!useReportForCalc.checked;
+    const calc = {
+      incomeFrom: calcModeSame ? rf : (calcIncomeFrom.value || rf),
+      incomeTo: calcModeSame ? rt : (calcIncomeTo.value || rt),
+      expenseFrom: calcModeSame ? rf : (calcExpenseFrom.value || rf),
+      expenseTo: calcModeSame ? rt : (calcExpenseTo.value || rt),
+      sameAsReport: calcModeSame
+    };
 
-    // Ensure charts rendered before exporting
-    renderAnalytics();
+    return {
+      reportFrom: rf,
+      reportTo: rt,
+      reportType: type,
+      fiscalStartDay: startDay,
+      includeCharts: !!includeCharts.checked,
+      includeDetails: !!includeDetails.checked,
+      maxDetailRows: clamp(Number(maxDetailRows.value) || 200, 0, 5000),
+      calc
+    };
+  }
 
-    const imgIncome = canvasCombo.toDataURL('image/png');
-    const imgExpense = canvasBalance.toDataURL('image/png');
+  function validateReportSettings(s) {
+    const a = isoToDate(s.reportFrom);
+    const b = isoToDate(s.reportTo);
+    if (!a || !b) return 'Sana noto‘g‘ri';
+    if (a.getTime() > b.getTime()) return 'Boshlanish sanasi tugash sanasidan katta bo‘la olmaydi';
+    // calc ranges
+    const ci1 = isoToDate(s.calc.incomeFrom), ci2 = isoToDate(s.calc.incomeTo);
+    const ce1 = isoToDate(s.calc.expenseFrom), ce2 = isoToDate(s.calc.expenseTo);
+    if (!ci1 || !ci2 || !ce1 || !ce2) return 'Hisoblash sanalari noto‘g‘ri';
+    if (ci1.getTime() > ci2.getTime()) return 'Kirim hisoblash sanasi noto‘g‘ri (from > to)';
+    if (ce1.getTime() > ce2.getTime()) return 'Chiqim hisoblash sanasi noto‘g‘ri (from > to)';
+    return null;
+  }
 
-    const incomeRows = items.filter(x=>x.type==='income').map(x => `
-      <tr>
-        <td>${safeText(x.date)}</td>
-        <td style="text-align:right">${safeText(formatMoney(x.amount))}</td>
-        <td>${safeText(x.note)}</td>
-      </tr>
-    `).join('');
+  function filterByReport(items, s) {
+    let out = items.filter(x => inRange(x.date, s.reportFrom, s.reportTo));
+    if (s.reportType !== 'all') out = out.filter(x => x.type === s.reportType);
+    out.sort((a,b)=> (a.date||'').localeCompare(b.date||'') || (a.createdAt||0) - (b.createdAt||0));
+    return out;
+  }
 
-    const expenseRows = items.filter(x=>x.type==='expense').map(x => `
-      <tr>
-        <td>${safeText(x.date)}</td>
-        <td style="text-align:right">${safeText(formatMoney(x.amount))}</td>
-        <td>${safeText(x.note)}</td>
-      </tr>
-    `).join('');
+  function calcByCustomRanges(items, s) {
+    const incItems = items.filter(x => x.type === 'income' && inRange(x.date, s.calc.incomeFrom, s.calc.incomeTo));
+    const expItems = items.filter(x => x.type === 'expense' && inRange(x.date, s.calc.expenseFrom, s.calc.expenseTo));
+    const income = incItems.reduce((t,x)=> t + (Number(x.amount)||0), 0);
+    const expense = expItems.reduce((t,x)=> t + (Number(x.amount)||0), 0);
+    return { income, expense, balance: income - expense };
+  }
 
+  function openReport(mode) {
+    const s = getReportSettings();
+    const err = validateReportSettings(s);
+    if (err) return showToast(err);
 
-    const months = groupByMonth(items);
-    const monthRows = (months.length ? months : []).map(m => `
-      <tr>
-        <td>${safeText(formatMonth(m.month))}</td>
-        <td style="text-align:right">${safeText(formatMoney(m.income))}</td>
-        <td style="text-align:right">${safeText(formatMoney(m.expense))}</td>
-        <td style="text-align:right">${safeText(formatMoney((m.income||0)-(m.expense||0)))}</td>
-      </tr>
-    `).join('');
+    // report items within report range & type
+    const reportItems = filterByReport(state.items, s);
 
-    const topIncome = items.filter(x=>x.type==='income').slice().sort((a,b)=> (Number(b.amount)||0)-(Number(a.amount)||0)).slice(0,10);
-    const topExpense = items.filter(x=>x.type==='expense').slice().sort((a,b)=> (Number(b.amount)||0)-(Number(a.amount)||0)).slice(0,10);
+    // totals calculated with custom ranges
+    const totals = calcByCustomRanges(state.items, s);
 
-    const topIncomeRows = topIncome.map(x => `
-      <tr>
-        <td>${safeText(x.date)}</td>
-        <td style="text-align:right">${safeText(formatMoney(x.amount))}</td>
-        <td>${safeText(x.note)}</td>
-      </tr>
-    `).join('');
+    // summaries
+    const daySeries = groupByDay(reportItems);
 
-    const topExpenseRows = topExpense.map(x => `
-      <tr>
-        <td>${safeText(x.date)}</td>
-        <td style="text-align:right">${safeText(formatMoney(x.amount))}</td>
-        <td>${safeText(x.note)}</td>
-      </tr>
-    `).join('');
+    const months = groupByFiscalMonth(reportItems, s.fiscalStartDay);
+    const monthRows = months.map(m => ({
+      month: m.key,
+      income: m.income,
+      expense: m.expense,
+      net: (m.income||0) - (m.expense||0)
+    }));
 
-        const dailyRows = grouped.map(d => `
-      <tr>
-        <td>${safeText(d.date)}</td>
-        <td style="text-align:right">${safeText(formatMoney(d.income))}</td>
-        <td style="text-align:right">${safeText(formatMoney(d.expense))}</td>
-        <td style="text-align:right">${safeText(formatMoney((d.income||0)-(d.expense||0)))}</td>
-      </tr>
-    `).join('');
+    const topIncome = reportItems.filter(x => x.type === 'income').slice().sort((a,b)=> (b.amount||0)-(a.amount||0)).slice(0, 10);
+    const topExpense = reportItems.filter(x => x.type === 'expense').slice().sort((a,b)=> (b.amount||0)-(a.amount||0)).slice(0, 10);
 
-    const now = new Date();
-    const generatedAt = now.toLocaleString();
+    // charts as images (optional)
+    let imgCombo = '', imgBalance = '';
+    if (s.includeCharts && !analysisBody.hidden) {
+      // ensure latest draw in case user changed range
+      renderAnalytics();
+    }
+    if (s.includeCharts) {
+      try {
+        imgCombo = canvasCombo.toDataURL('image/png');
+        imgBalance = canvasBalance.toDataURL('image/png');
+      } catch (e) {}
+    }
+
+    const now = new Date().toLocaleString();
+    const titleSuffix = mode === 'pdf' ? ' (PDF saqlash)' : mode === 'print' ? ' (Chop etish)' : '';
 
     const reportCss = `
       @page { size: A4; margin: 14mm; }
@@ -2027,12 +1586,12 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
       .sub{color:#6b7280;font-size:12px;margin-top:6px}
       .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
       .box{border:1px solid #e5e7eb;border-radius:12px;padding:10px}
-      .k{font-size:11px;color:#6b7280;font-weight:700}
-      .v{font-size:16px;font-weight:900;margin-top:6px}
+      .k{font-size:11px;color:#6b7280;font-weight:800}
+      .v{font-size:16px;font-weight:950;margin-top:6px}
       .v.in{color:#0f766e}
       .v.ex{color:#be123c}
       .section{margin-top:16px}
-      .stitle{font-size:14px;font-weight:900;margin:0 0 8px}
+      .stitle{font-size:14px;font-weight:950;margin:0 0 8px}
       table{width:100%;border-collapse:collapse}
       th,td{border-bottom:1px solid #e5e7eb;padding:8px 6px;font-size:11.5px;vertical-align:top}
       th{color:#374151;text-align:left;background:#f9fafb}
@@ -2040,13 +1599,122 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
       .chart{border:1px solid #e5e7eb;border-radius:12px;padding:10px}
       .chart img{width:100%;height:auto;display:block}
       .note{font-size:10.5px;color:#6b7280;margin-top:6px}
-      .printbar{position:fixed;right:14px;top:14px;display:flex;gap:8px}
-      .btn{border:1px solid #e5e7eb;border-radius:10px;background:#111827;color:white;padding:8px 10px;font-weight:800;font-size:12px;cursor:pointer}
+      .bar{position:fixed;right:14px;top:14px;display:flex;gap:8px;z-index:10}
+      .btn{border:1px solid #e5e7eb;border-radius:10px;background:#111827;color:white;padding:8px 10px;font-weight:900;font-size:12px;cursor:pointer}
       .btn2{background:white;color:#111827}
+      .banner{
+        border:1px solid #fde68a;
+        background:#fffbeb;
+        color:#92400e;
+        border-radius:12px;
+        padding:10px 12px;
+        font-size:12px;
+        margin-top:12px;
+        line-height:1.35;
+      }
+      .pill{
+        display:inline-block;
+        border:1px solid #e5e7eb;
+        border-radius:999px;
+        padding:4px 8px;
+        font-weight:900;
+        font-size:11px;
+        color:#374151;
+        margin-right:6px;
+      }
       @media print{
-        .printbar{display:none}
+        .bar{display:none}
+        .banner{display:none}
       }
     `;
+
+    const bannerHtml = mode === 'pdf'
+      ? `<div class="banner">
+          <span class="pill">PDF saqlash</span>
+          Telefon/kompyuterda PDF olish uchun: <b>“PDF saqlash”</b> tugmasini bosing (Print oynasi chiqadi) → <b>Save as PDF</b> tanlang.
+        </div>`
+      : mode === 'print'
+      ? `<div class="banner"><span class="pill">Chop etish</span> Printerga chiqarish uchun “Chop etish” tugmasi bosiladi.</div>`
+      : '';
+
+    const chartsHtml = (s.includeCharts && imgCombo && imgBalance)
+      ? `<div class="section">
+          <div class="stitle">Grafiklar (diapazon: ${safeText(s.reportFrom)} → ${safeText(s.reportTo)})</div>
+          <div class="two">
+            <div class="chart">
+              <div class="k">Kirim/Chiqim (kunlar bo‘yicha)</div>
+              <img src="${imgCombo}" alt="Combo chart" />
+            </div>
+            <div class="chart">
+              <div class="k">Kumulative balans</div>
+              <img src="${imgBalance}" alt="Balance chart" />
+            </div>
+          </div>
+        </div>`
+      : '';
+
+    const maxRows = s.includeDetails ? s.maxDetailRows : 0;
+
+    const incomeRows = maxRows
+      ? reportItems.filter(x=>x.type==='income').slice(0, maxRows).map(x => `
+          <tr>
+            <td>${safeText(x.date)}</td>
+            <td style="text-align:right">${safeText(formatMoney(x.amount))}</td>
+            <td>${safeText(x.note)}</td>
+          </tr>
+        `).join('')
+      : '';
+
+    const expenseRows = maxRows
+      ? reportItems.filter(x=>x.type==='expense').slice(0, maxRows).map(x => `
+          <tr>
+            <td>${safeText(x.date)}</td>
+            <td style="text-align:right">${safeText(formatMoney(x.amount))}</td>
+            <td>${safeText(x.note)}</td>
+          </tr>
+        `).join('')
+      : '';
+
+    const dailyRows = daySeries.map(d => `
+      <tr>
+        <td>${safeText(d.k)}</td>
+        <td style="text-align:right">${safeText(formatMoney(d.income))}</td>
+        <td style="text-align:right">${safeText(formatMoney(d.expense))}</td>
+        <td style="text-align:right">${safeText(formatMoney(d.net))}</td>
+      </tr>
+    `).join('');
+
+    const monthTableRows = monthRows.map(m => `
+      <tr>
+        <td>${safeText(formatMonthKey(m.month))}</td>
+        <td style="text-align:right">${safeText(formatMoney(m.income))}</td>
+        <td style="text-align:right">${safeText(formatMoney(m.expense))}</td>
+        <td style="text-align:right">${safeText(formatMoney(m.net))}</td>
+      </tr>
+    `).join('');
+
+    const topIncomeRows = topIncome.map(x => `
+      <tr>
+        <td>${safeText(x.date)}</td>
+        <td style="text-align:right">${safeText(formatMoney(x.amount))}</td>
+        <td>${safeText(x.note)}</td>
+      </tr>
+    `).join('');
+    const topExpenseRows = topExpense.map(x => `
+      <tr>
+        <td>${safeText(x.date)}</td>
+        <td style="text-align:right">${safeText(formatMoney(x.amount))}</td>
+        <td>${safeText(x.note)}</td>
+      </tr>
+    `).join('');
+
+    const detailNote = s.includeDetails
+      ? `<div class="note">Eslatma: Detallar maksimum ${safeText(String(maxRows))} ta yozuv bilan cheklanadi. (Ko‘p bo‘lsa — kamaytiring.)</div>`
+      : `<div class="note">Detallar o‘chirilgan. Faqat jamlanmalar ko‘rsatilmoqda.</div>`;
+
+    const calcNote = s.calc.sameAsReport
+      ? `Hisoblash: hisobot diapazoni bo‘yicha`
+      : `Hisoblash: Kirim ${safeText(s.calc.incomeFrom)}→${safeText(s.calc.incomeTo)}, Chiqim ${safeText(s.calc.expenseFrom)}→${safeText(s.calc.expenseTo)}`;
 
     const reportHtml = `
       <!doctype html>
@@ -2054,38 +1722,30 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Kirim–Chiqim Hisoboti</title>
+        <title>Kirim–Chiqim Hisoboti${safeText(titleSuffix)}</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
         <style>${reportCss}</style>
       </head>
       <body>
-        <div class="printbar">
-          <button class="btn" onclick="window.print()">Chop etish / PDF</button>
+        <div class="bar">
+          <button class="btn" onclick="window.print()">${mode === 'pdf' ? 'PDF saqlash' : 'Chop etish'}</button>
           <button class="btn btn2" onclick="window.close()">Yopish</button>
         </div>
 
         <h1>Kirim–Chiqim Hisoboti</h1>
-        <div class="sub">Yaratilgan: ${safeText(generatedAt)} • Yozuvlar: ${items.length} ta</div>
+        <div class="sub">Yaratilgan: ${safeText(now)} • Yozuvlar (hisobot diapazoni): ${safeText(String(reportItems.length))} ta</div>
+        <div class="sub">${safeText(calcNote)} • Oy boshi kuni: ${safeText(String(s.fiscalStartDay))}</div>
+        ${bannerHtml}
 
         <div class="grid">
-          <div class="box"><div class="k">Jami kirim</div><div class="v in">${safeText(formatMoney(income))}</div></div>
-          <div class="box"><div class="k">Jami chiqim</div><div class="v ex">${safeText(formatMoney(expense))}</div></div>
-          <div class="box"><div class="k">Balans</div><div class="v">${safeText(formatMoney(balance))}</div></div>
+          <div class="box"><div class="k">Jami kirim (hisoblash bo‘yicha)</div><div class="v in">${safeText(formatMoney(totals.income))}</div></div>
+          <div class="box"><div class="k">Jami chiqim (hisoblash bo‘yicha)</div><div class="v ex">${safeText(formatMoney(totals.expense))}</div></div>
+          <div class="box"><div class="k">Balans</div><div class="v">${safeText(formatMoney(totals.balance))}</div></div>
         </div>
 
-        <div class="section">
-          <div class="stitle">Tahlil grafiklari (kunlar bo‘yicha)</div>
-          <div class="two">
-            <div class="chart">
-              <div class="k">Kirim / Chiqim (tanlangan oraliq)</div>
-              <img src="${imgIncome}" alt="Kirim/Chiqim grafigi" />
-            </div>
-            <div class="chart">
-              <div class="k">Balans (kumulative)</div>
-              <img src="${imgExpense}" alt="Balans grafigi" />
-            </div>
-          </div>
-          <div class="note">Eslatma: Grafika ko‘rinishi brauzerga bog‘liq. PDF olish uchun “Chop etish / PDF” tugmasini bosing.</div>
-        </div>
+        ${chartsHtml}
 
         <div class="section">
           <div class="stitle">Kunlik jamlanma</div>
@@ -2095,7 +1755,7 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
                 <th>Sana</th>
                 <th style="text-align:right">Kirim</th>
                 <th style="text-align:right">Chiqim</th>
-                <th style="text-align:right">Net (balans)</th>
+                <th style="text-align:right">Net</th>
               </tr>
             </thead>
             <tbody>
@@ -2104,6 +1764,61 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
           </table>
         </div>
 
+        <div class="section">
+          <div class="stitle">Oylik jamlanma (oy boshi kuni: ${safeText(String(s.fiscalStartDay))})</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Oy</th>
+                <th style="text-align:right">Kirim</th>
+                <th style="text-align:right">Chiqim</th>
+                <th style="text-align:right">Net</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${monthTableRows || '<tr><td colspan="4">Ma’lumot yo‘q</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section">
+          <div class="stitle">Top 10 kirimlar</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Sana</th>
+                <th style="text-align:right">Summa</th>
+                <th>Izoh</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${topIncomeRows || '<tr><td colspan="3">Kirim yo‘q</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section">
+          <div class="stitle">Top 10 chiqimlar</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Sana</th>
+                <th style="text-align:right">Summa</th>
+                <th>Izoh</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${topExpenseRows || '<tr><td colspan="3">Chiqim yo‘q</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section">
+          <div class="stitle">Detallar</div>
+          ${detailNote}
+        </div>
+
+        ${s.includeDetails ? `
         <div class="section">
           <div class="stitle">Kirimlar (nimadan kelgan)</div>
           <table>
@@ -2135,21 +1850,31 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
             </tbody>
           </table>
         </div>
+        ` : ''}
+
+        <script>
+          // Auto actions
+          (function(){
+            const mode = ${JSON.stringify(mode)};
+            if (mode === 'print' || mode === 'pdf') {
+              setTimeout(()=> window.print(), 400);
+            }
+          })();
+        <\/script>
       </body>
       </html>
     `;
 
     const w = window.open('', '_blank');
-    if (!w) {
-      showToast('Brauzer popupni blok qildi. Ruxsat bering va qayta bosing.');
-      return;
-    }
+    if (!w) return showToast('Brauzer popupni blok qildi. Ruxsat bering va qayta bosing.');
     w.document.open();
     w.document.write(reportHtml);
     w.document.close();
+
+    if (mode === 'view') showToast('Hisobot oynasi ochildi');
   }
 
-  // ---------- Actions ----------
+  // ---------- Entry actions ----------
   function resetForm() {
     editingId = null;
     entryForm.reset();
@@ -2194,14 +1919,7 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
       editingId = null;
     }
 
-    state.items.push({
-      id: uid(),
-      type,
-      amount,
-      note,
-      date,
-      createdAt: Date.now()
-    });
+    state.items.push({ id: uid(), type, amount, note, date, createdAt: Date.now() });
     save();
     render();
     showToast('Saqlandi');
@@ -2218,18 +1936,14 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
     state.items = state.items.filter(x => x.id !== id);
     save();
     render();
-
     if (editingId === id) resetForm();
-
     showToast('O‘chirildi');
   }
 
   function clearAll() {
     if (state.items.length === 0) return showToast('Tozalash uchun ma’lumot yo‘q');
-
     const ok = confirm('Hamma yozuvlarni o‘chirib tashlaysizmi? Bu amalni qaytarib bo‘lmaydi.');
     if (!ok) return;
-
     state.items = [];
     save();
     render();
@@ -2238,12 +1952,7 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
   }
 
   function exportJSON() {
-    const payload = {
-      exportedAt: new Date().toISOString(),
-      version: 1,
-      items: state.items
-    };
-
+    const payload = { exportedAt: new Date().toISOString(), version: 1, items: state.items };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -2292,7 +2001,7 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
   function render() {
     renderSummary();
     renderList();
-    // real-time analytics (if open, redraw; if closed, keep light)
+    syncReportRangesToData();
     if (!analysisBody.hidden) renderAnalytics();
   }
 
@@ -2337,15 +2046,29 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
 
   btnTheme.addEventListener('click', toggleTheme);
 
-  btnToggleAnalysis.addEventListener('click', () => toggleAnalysis());
-  rangeSelect?.addEventListener('change', () => { if (!analysisBody.hidden) renderAnalytics(); });
-  groupSelect?.addEventListener('change', () => { if (!analysisBody.hidden) renderAnalytics(); });
+  btnToggleAnalysis.addEventListener('click', toggleAnalysis);
+  window.addEventListener('resize', () => { if (!analysisBody.hidden) renderAnalytics(); });
 
-  btnPdf.addEventListener('click', openPrintReport);
+  // Report UI events
+  reportFrom.addEventListener('change', () => { if (useReportForCalc.checked) toggleCalcRangesUI(); if (!analysisBody.hidden) renderAnalytics(); });
+  reportTo.addEventListener('change', () => { if (useReportForCalc.checked) toggleCalcRangesUI(); if (!analysisBody.hidden) renderAnalytics(); });
+  reportType.addEventListener('change', () => { if (!analysisBody.hidden) renderAnalytics(); });
 
-  window.addEventListener('resize', () => {
+  btnRangeAll.addEventListener('click', () => {
+    const { min, max } = getMinMaxDates();
+    reportFrom.value = min; reportTo.value = max;
+    toggleCalcRangesUI();
     if (!analysisBody.hidden) renderAnalytics();
+    showToast('Hisobot diapazoni: barchasi');
   });
+
+  useReportForCalc.addEventListener('change', toggleCalcRangesUI);
+
+  fiscalStartDay.addEventListener('change', () => { showToast(`Oy boshi: ${fiscalStartDay.value}`); });
+
+  btnReportView.addEventListener('click', () => openReport('view'));
+  btnReportPrint.addEventListener('click', () => openReport('print'));
+  btnReportPDF.addEventListener('click', () => openReport('pdf'));
 
   // ---------- Init ----------
   function init() {
@@ -2354,17 +2077,18 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
     const saved = getSavedTheme();
     if (saved) setTheme(saved);
 
-    bindChartEvents();
     load();
+    syncReportRangesToData();
+    toggleCalcRangesUI();
     render();
     resetForm();
 
-    // start with analytics hidden, but ready
-    toggleAnalysis(false);
+    // analytics start hidden
+    analysisBody.hidden = true;
   }
 
   init();
 })();
-</script>
+  </script>
 </body>
 </html>
