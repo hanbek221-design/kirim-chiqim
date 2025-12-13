@@ -1,0 +1,2094 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Kirim–Chiqim Hisobi (LocalStorage)</title>
+  <meta name="description" content="Kirim-chiqim hisoblagich. LocalStorage. Zamonaviy tahlil grafiklari. Hisobot: ko‘rish, chop etish, PDF saqlash." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+/* Kirim–Chiqim Hisobi — Ultimate (LocalStorage) */
+:root{
+  --bg: #0b0f19;
+  --card: rgba(255,255,255,.06);
+  --card2: rgba(255,255,255,.08);
+  --text: rgba(255,255,255,.92);
+  --muted: rgba(255,255,255,.66);
+  --border: rgba(255,255,255,.12);
+
+  --primary: #ff3b30;
+  --primary2: #ff6a00;
+
+  --income: #2dd4bf;
+  --expense: #fb7185;
+
+  --shadow: 0 12px 40px rgba(0,0,0,.35);
+  --radius: 18px;
+
+  --focus: 0 0 0 3px rgba(255,59,48,.25);
+}
+
+:root[data-theme="light"]{
+  --bg: #f7f7fb;
+  --card: rgba(255,255,255,.9);
+  --card2: rgba(255,255,255,.95);
+  --text: rgba(16,24,40,.92);
+  --muted: rgba(16,24,40,.62);
+  --border: rgba(16,24,40,.12);
+
+  --shadow: 0 10px 30px rgba(16,24,40,.10);
+}
+
+*{box-sizing:border-box; -webkit-tap-highlight-color: transparent}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background:
+    radial-gradient(1000px 700px at 10% 0%, rgba(255,106,0,.25), transparent 60%),
+    radial-gradient(900px 700px at 90% 10%, rgba(45,212,191,.18), transparent 55%),
+    linear-gradient(180deg, var(--bg), var(--bg));
+  color:var(--text);
+}
+
+.app{
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 22px 16px calc(28px + env(safe-area-inset-bottom));
+}
+
+.topbar{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.brand{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.logo{
+  width:44px;height:44px;
+  border-radius: 14px;
+  display:grid;
+  place-items:center;
+  font-weight: 900;
+  background: linear-gradient(135deg, rgba(255,59,48,.25), rgba(255,106,0,.18));
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+h1{font-size: 18px; margin:0; line-height: 1.2;}
+p{margin:6px 0 0}
+.muted{color:var(--muted)}
+.footer{margin-top: 18px; text-align:center; font-size: 12px;}
+
+.grid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 980px){
+  .grid{
+    grid-template-columns: 420px 1fr;
+    align-items:start;
+  }
+  .summary{grid-column: 1 / -1;}
+  .analysis{grid-column: 1 / -1;}
+}
+
+.card{
+  background: linear-gradient(180deg, var(--card2), var(--card));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.card-title{font-size: 15px; margin: 0 0 12px;}
+
+.summary-grid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+@media (min-width: 620px){
+  .summary-grid{grid-template-columns: repeat(3, 1fr);}
+}
+.metric{
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.08);
+}
+:root[data-theme="light"] .metric{background: rgba(16,24,40,.03)}
+.metric-label{color:var(--muted); font-size: 12px}
+.metric-value{font-size: 20px; font-weight: 900; margin-top: 6px; letter-spacing: .2px}
+.metric-income .metric-value{color: var(--income)}
+.metric-expense .metric-value{color: var(--expense)}
+.metric-balance .metric-value{color: var(--text)}
+
+.summary-actions{
+  margin-top: 12px;
+  display:flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Form fields */
+.form{display:flex; flex-direction:column; gap: 12px;}
+.field label{display:block; font-size: 12px; color: var(--muted); margin-bottom: 6px;}
+.hint{display:block; font-size: 11px; color: var(--muted); margin-top: 6px;}
+input, select, .search{
+  width:100%;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.10);
+  color: var(--text);
+  outline: none;
+}
+:root[data-theme="light"] input, 
+:root[data-theme="light"] select,
+:root[data-theme="light"] .search{
+  background: rgba(255,255,255,.75);
+}
+input:focus, select:focus, .search:focus{box-shadow: var(--focus); border-color: rgba(255,59,48,.45)}
+.two-col{display:grid; grid-template-columns: 1fr; gap: 12px;}
+@media (min-width: 520px){ .two-col{grid-template-columns: 1fr 1fr;} }
+
+.segmented{
+  display:flex;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.08);
+}
+:root[data-theme="light"] .segmented{background: rgba(16,24,40,.03)}
+.seg-item{
+  flex: 1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding: 10px 10px;
+  border-radius: 14px;
+  cursor:pointer;
+  user-select:none;
+  border: 1px solid transparent;
+}
+.seg-item input{display:none}
+.seg-item span{font-weight: 950; font-size: 13px}
+.seg-item:has(input:checked){
+  background: linear-gradient(135deg, rgba(255,59,48,.22), rgba(255,106,0,.14));
+  border-color: rgba(255,59,48,.35);
+}
+
+.form-actions{display:flex; gap: 10px; align-items:center; justify-content:flex-start; flex-wrap: wrap;}
+
+/* Buttons */
+.btn{
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.12);
+  color: var(--text);
+  padding: 11px 14px;
+  border-radius: 14px;
+  font-weight: 950;
+  cursor:pointer;
+  display:inline-flex;
+  gap: 10px;
+  align-items:center;
+  transition: transform .06s ease, filter .15s ease, background .15s ease;
+  touch-action: manipulation;
+}
+:root[data-theme="light"] .btn{background: rgba(255,255,255,.8)}
+.btn:active{transform: scale(.98)}
+.btn:hover{filter: brightness(1.06)}
+.btn .icon{opacity:.95}
+.btn-primary{
+  border-color: rgba(255,59,48,.35);
+  background: linear-gradient(135deg, rgba(255,59,48,.95), rgba(255,106,0,.92));
+  color: white;
+}
+.btn-secondary{
+  border-color: rgba(255,255,255,.18);
+  background: rgba(255,255,255,.08);
+}
+:root[data-theme="light"] .btn-secondary{background: rgba(16,24,40,.05)}
+.btn-danger{
+  border-color: rgba(251,113,133,.35);
+  background: linear-gradient(135deg, rgba(251,113,133,.88), rgba(255,59,48,.88));
+  color: white;
+}
+.btn-ghost{background: transparent;}
+.btn-mini{padding: 10px 12px; border-radius: 12px; font-weight: 950; font-size: 12px;}
+
+/* List header/tools */
+.list-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.list-tools{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items:center;
+}
+.select{min-width: 180px}
+.search{min-width: 240px}
+
+/* Desktop table */
+.table-wrap{
+  overflow:auto;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+.table{
+  width:100%;
+  border-collapse: collapse;
+  min-width: 760px;
+  background: rgba(0,0,0,.06);
+}
+:root[data-theme="light"] .table{background: rgba(255,255,255,.7)}
+th, td{
+  padding: 12px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  font-size: 13px;
+}
+th{
+  text-align:left;
+  font-size: 12px;
+  color: var(--muted);
+  position: sticky;
+  top: 0;
+  background: rgba(0,0,0,.16);
+  backdrop-filter: blur(10px);
+}
+:root[data-theme="light"] th{background: rgba(255,255,255,.9)}
+th.th-actions, td.td-actions{width: 160px}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 950;
+  border: 1px solid var(--border);
+}
+.badge.income{color: var(--income); background: rgba(45,212,191,.12); border-color: rgba(45,212,191,.25)}
+.badge.expense{color: var(--expense); background: rgba(251,113,133,.12); border-color: rgba(251,113,133,.25)}
+.amount{font-weight: 1000; letter-spacing: .2px;}
+.amount.income{color: var(--income)}
+.amount.expense{color: var(--expense)}
+
+.row-actions{display:flex; gap: 8px; justify-content:flex-end;}
+.btn-mini.del{border-color: rgba(251,113,133,.35); background: rgba(251,113,133,.14);}
+:root[data-theme="light"] .btn-mini.del{background: rgba(251,113,133,.10)}
+
+/* Empty */
+.empty{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  margin-top: 12px;
+}
+.empty-illu{font-size: 26px}
+.empty-title{font-weight: 950}
+
+/* Mobile cards list */
+.cards{ display:none; }
+@media (max-width: 760px){
+  .topbar{flex-direction: column; align-items: stretch;}
+  .topbar-actions{display:flex; justify-content:flex-end;}
+  .list-tools{ width: 100%; }
+  .select, .search{ min-width: 0; width: 100%; }
+  .table-wrap{ display:none; }
+  .cards{ display:grid; gap: 10px; margin-top: 8px; }
+  .card-item{
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px;
+    background: rgba(0,0,0,.06);
+  }
+  :root[data-theme="light"] .card-item{background: rgba(16,24,40,.03)}
+  .card-top{display:flex; align-items:center; justify-content:space-between; gap: 10px;}
+  .card-meta{display:flex; align-items:center; gap: 8px; flex-wrap: wrap;}
+  .card-date{font-size: 12px; color: var(--muted); font-weight: 950;}
+  .card-amount{font-weight: 1000; letter-spacing: .2px;}
+  .card-note{margin-top: 8px; color: var(--text); font-weight: 650; line-height: 1.25; word-break: break-word;}
+  .card-actions{margin-top: 10px; display:flex; gap: 8px; justify-content:flex-start; flex-wrap: wrap;}
+}
+
+/* Analytics */
+.analysis-head{display:flex; align-items:center; justify-content:space-between; gap: 12px; flex-wrap: wrap;}
+.analysis-grid{display:grid; grid-template-columns: 1fr; gap: 12px; margin-top: 12px;}
+@media (min-width: 900px){ .analysis-grid{ grid-template-columns: 1fr 1fr; } }
+.canvas-wrap{
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 10px;
+  background: rgba(0,0,0,.06);
+  position: relative;
+}
+:root[data-theme="light"] .canvas-wrap{background: rgba(16,24,40,.03)}
+.canvas-title{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; color: var(--muted); font-weight: 950; font-size: 12px;}
+canvas{width: 100%; height: 230px; display:block;}
+@media (max-width: 760px){ canvas{ height: 200px; } }
+
+.tooltip{
+  position:absolute;
+  left: 10px;
+  top: 10px;
+  padding: 10px 10px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  font-size: 12px;
+  pointer-events:none;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity .12s ease, transform .12s ease;
+  max-width: min(520px, calc(100% - 20px));
+}
+:root[data-theme="light"] .tooltip{background: rgba(255,255,255,.92)}
+.tooltip.show{opacity: 1; transform: translateY(0);}
+
+.insights{margin-top: 12px; display:grid; grid-template-columns: 1fr; gap: 10px;}
+@media (min-width: 900px){ .insights{ grid-template-columns: repeat(3, 1fr); } }
+.insight{border: 1px solid var(--border); border-radius: 16px; padding: 12px; background: rgba(0,0,0,.06);}
+:root[data-theme="light"] .insight{background: rgba(16,24,40,.03)}
+.insight .k{color: var(--muted); font-size: 12px; font-weight: 950}
+.insight .v{margin-top: 6px; font-size: 14px; font-weight: 1000}
+
+/* Report settings */
+.pillrow{display:flex; flex-wrap:wrap; gap: 8px; margin-top: 10px;}
+.pill{
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 10px;
+  background: rgba(0,0,0,.08);
+  font-weight: 900;
+  font-size: 12px;
+}
+:root[data-theme="light"] .pill{background: rgba(16,24,40,.03)}
+.switch{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(0,0,0,.06);
+}
+:root[data-theme="light"] .switch{background: rgba(16,24,40,.03)}
+.switch input{width: 20px; height: 20px; margin:0;}
+.small-actions{display:flex; gap: 10px; flex-wrap:wrap; align-items:center; margin-top: 10px;}
+.hr{height:1px; background: var(--border); margin: 12px 0}
+
+/* Toast */
+.toast{
+  position: fixed;
+  left: 50%;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  max-width: min(680px, calc(100vw - 24px));
+  z-index: 9999;
+}
+:root[data-theme="light"] .toast{background: rgba(255,255,255,.92)}
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">₸</div>
+        <div>
+          <h1>Kirim–Chiqim Hisobi</h1>
+          <p class="muted">Telefon va kompyuterga mos. Internet shart emas — LocalStorage’da saqlanadi.</p>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="btnTheme" class="btn btn-ghost" type="button" title="Tema (Light/Dark)">
+          <span class="icon" aria-hidden="true">☾</span>
+          <span>Tema</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="grid">
+      <!-- Summary -->
+      <section class="card summary">
+        <div class="summary-grid">
+          <div class="metric metric-income">
+            <div class="metric-label">Jami kirim</div>
+            <div class="metric-value" id="sumIncome">0 so'm</div>
+          </div>
+          <div class="metric metric-expense">
+            <div class="metric-label">Jami chiqim</div>
+            <div class="metric-value" id="sumExpense">0 so'm</div>
+          </div>
+          <div class="metric metric-balance">
+            <div class="metric-label">Balans</div>
+            <div class="metric-value" id="sumBalance">0 so'm</div>
+          </div>
+        </div>
+
+        <div class="summary-actions">
+          <button id="btnToggleAnalysis" class="btn btn-secondary" type="button">
+            <span class="icon" aria-hidden="true">📊</span>
+            <span>Tahlilni ko‘rish</span>
+          </button>
+
+          <button id="btnExport" class="btn btn-secondary" type="button">
+            <span class="icon" aria-hidden="true">⤓</span>
+            <span>Eksport (JSON)</span>
+          </button>
+          <input id="fileImport" type="file" accept="application/json" hidden />
+          <button id="btnImport" class="btn btn-secondary" type="button">
+            <span class="icon" aria-hidden="true">⤒</span>
+            <span>Import</span>
+          </button>
+          <button id="btnClearAll" class="btn btn-danger" type="button">
+            <span class="icon" aria-hidden="true">🗑</span>
+            <span>Hammasini tozalash</span>
+          </button>
+        </div>
+
+        <div class="pillrow">
+          <span class="pill">Hisobotda sana tanlash bor</span>
+          <span class="pill">Chop etish / PDF alohida</span>
+          <span class="pill">Oy boshi kunini sozlash</span>
+        </div>
+      </section>
+
+      <!-- Left column: Entry + Report -->
+      <section class="card form-card">
+        <h2 class="card-title">Yangi yozuv</h2>
+
+        <form id="entryForm" class="form">
+          <div class="segmented" role="group" aria-label="Kirim yoki chiqim tanlang">
+            <label class="seg-item">
+              <input type="radio" name="type" value="income" checked />
+              <span>Kirim</span>
+            </label>
+            <label class="seg-item">
+              <input type="radio" name="type" value="expense" />
+              <span>Chiqim</span>
+            </label>
+          </div>
+
+          <div class="two-col">
+            <div class="field">
+              <label for="amount">Summasi</label>
+              <input id="amount" name="amount" inputmode="decimal" placeholder="Masalan: 150000" required />
+              <small class="hint">Raqam kiriting (so‘m). Bo‘shliq/vergul bo‘lsa ham bo‘ladi.</small>
+            </div>
+
+            <div class="field">
+              <label for="date">Sana</label>
+              <input id="date" name="date" type="date" required />
+              <small class="hint">Default: bugungi sana.</small>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="note">Izoh (nimaga / qayerdan)</label>
+            <input id="note" name="note" maxlength="120" placeholder="Masalan: Oziq-ovqat / Oylik / Transport..." required />
+          </div>
+
+          <div class="form-actions">
+            <button id="btnSave" class="btn btn-primary" type="submit">
+              <span class="icon" aria-hidden="true">💾</span>
+              <span>Saqlash</span>
+            </button>
+            <button id="btnCancelEdit" class="btn btn-ghost" type="button" hidden>
+              <span class="icon" aria-hidden="true">↩</span>
+              <span>Bekor qilish</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card report-card">
+        <h2 class="card-title">Hisobot (sana tanlab)</h2>
+
+        <div class="two-col">
+          <div class="field">
+            <label for="reportFrom">Hisobot: qaysi sanadan</label>
+            <input id="reportFrom" type="date" />
+          </div>
+          <div class="field">
+            <label for="reportTo">Hisobot: qaysi sanagacha</label>
+            <input id="reportTo" type="date" />
+          </div>
+        </div>
+
+        <div class="small-actions">
+          <button id="btnRangeAll" class="btn btn-secondary" type="button">
+            <span class="icon" aria-hidden="true">∞</span>
+            <span>Barchasi</span>
+          </button>
+          <div class="field" style="flex:1;min-width:220px;margin:0">
+            <label for="reportType">Hisobot turi</label>
+            <select id="reportType">
+              <option value="all">Kirim + Chiqim</option>
+              <option value="income">Faqat kirim</option>
+              <option value="expense">Faqat chiqim</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <label class="switch">
+          <input id="useReportForCalc" type="checkbox" checked />
+          <div>
+            <div style="font-weight:950">Hisoblash ham shu diapazon bo‘yicha</div>
+            <div class="muted" style="font-size:12px">O‘chirsangiz — kirim va chiqimni alohida sanalar bilan hisoblay olasiz.</div>
+          </div>
+        </label>
+
+        <div id="calcRangesBox" hidden>
+          <div class="two-col" style="margin-top:12px">
+            <div class="field">
+              <label for="calcIncomeFrom">Kirim hisoblash: from</label>
+              <input id="calcIncomeFrom" type="date" />
+            </div>
+            <div class="field">
+              <label for="calcIncomeTo">Kirim hisoblash: to</label>
+              <input id="calcIncomeTo" type="date" />
+            </div>
+          </div>
+
+          <div class="two-col" style="margin-top:12px">
+            <div class="field">
+              <label for="calcExpenseFrom">Chiqim hisoblash: from</label>
+              <input id="calcExpenseFrom" type="date" />
+            </div>
+            <div class="field">
+              <label for="calcExpenseTo">Chiqim hisoblash: to</label>
+              <input id="calcExpenseTo" type="date" />
+            </div>
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-top:12px">
+          <div class="field">
+            <label for="fiscalStartDay">Oy boshi kuni</label>
+            <select id="fiscalStartDay">
+              <option value="1" selected>1-kun</option><option value="2" >2-kun</option><option value="3" >3-kun</option><option value="4" >4-kun</option><option value="5" >5-kun</option><option value="6" >6-kun</option><option value="7" >7-kun</option><option value="8" >8-kun</option><option value="9" >9-kun</option><option value="10" >10-kun</option><option value="11" >11-kun</option><option value="12" >12-kun</option><option value="13" >13-kun</option><option value="14" >14-kun</option><option value="15" >15-kun</option><option value="16" >16-kun</option><option value="17" >17-kun</option><option value="18" >18-kun</option><option value="19" >19-kun</option><option value="20" >20-kun</option><option value="21" >21-kun</option><option value="22" >22-kun</option><option value="23" >23-kun</option><option value="24" >24-kun</option><option value="25" >25-kun</option><option value="26" >26-kun</option><option value="27" >27-kun</option><option value="28" >28-kun</option>
+            </select>
+            <small class="hint">Masalan: 25-kun — oy 25dan boshlanadi, keyingi oyning 24iga qadar.</small>
+          </div>
+
+          <div class="field">
+            <label>Hisobot tarkibi</label>
+            <label class="switch" style="margin-top:6px">
+              <input id="includeCharts" type="checkbox" checked />
+              <div><div style="font-weight:950">Grafiklarni qo‘shish</div></div>
+            </label>
+            <label class="switch" style="margin-top:8px">
+              <input id="includeDetails" type="checkbox" checked />
+              <div><div style="font-weight:950">Detallarni qo‘shish</div></div>
+            </label>
+            <small class="hint">Detallar ko‘p bo‘lsa PDF og‘irlashadi — limit qo‘ying.</small>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:10px">
+          <label for="maxDetailRows">Detallar limiti (0–5000)</label>
+          <input id="maxDetailRows" type="number" min="0" max="5000" step="50" value="300" />
+        </div>
+
+        <div class="form-actions" style="margin-top:12px">
+          <button id="btnReportView" class="btn btn-secondary" type="button">
+            <span class="icon" aria-hidden="true">👁</span>
+            <span>Hisobotni ko‘rish</span>
+          </button>
+          <button id="btnReportPrint" class="btn btn-secondary" type="button">
+            <span class="icon" aria-hidden="true">🖨</span>
+            <span>Chop etish</span>
+          </button>
+          <button id="btnReportPDF" class="btn btn-primary" type="button">
+            <span class="icon" aria-hidden="true">📄</span>
+            <span>PDF saqlash</span>
+          </button>
+        </div>
+
+        <p class="muted" style="margin-top:10px;font-size:12px">
+          “PDF saqlash” universal yechim: brauzer Print oynasidan <b>Save as PDF</b> tanlanadi (telefon va kompyuterda ishlaydi).
+        </p>
+      </section>
+
+      <!-- Right column: List -->
+      <section class="card list-card">
+        <div class="list-head">
+          <div>
+            <h2 class="card-title">Yozuvlar</h2>
+            <p class="muted" id="countLabel">0 ta yozuv</p>
+          </div>
+
+          <div class="list-tools">
+            <select id="filterType" class="select" aria-label="Filtr">
+              <option value="all">Barchasi</option>
+              <option value="income">Faqat kirim</option>
+              <option value="expense">Faqat chiqim</option>
+            </select>
+
+            <input id="search" class="search" type="search" placeholder="Izoh bo‘yicha qidirish..." />
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table" aria-label="Kirim chiqim jadvali">
+            <thead>
+              <tr>
+                <th>Sana</th>
+                <th>Turi</th>
+                <th>Summasi</th>
+                <th>Izoh</th>
+                <th class="th-actions">Amal</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+
+        <div id="cards" class="cards" aria-label="Kirim chiqim kartochkalari"></div>
+
+        <div class="empty" id="emptyState" hidden>
+          <div class="empty-illu" aria-hidden="true">🧾</div>
+          <div>
+            <div class="empty-title">Hozircha yozuv yo‘q</div>
+            <div class="muted">Yuqoridan kirim yoki chiqim kiriting va “Saqlash” bosing.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analytics -->
+      <section class="card analysis">
+        <div class="analysis-head">
+          <div>
+            <h2 class="card-title" style="margin-bottom:4px">Tahlil (tanlangan hisobot diapazoni bo‘yicha)</h2>
+            <div class="muted" style="font-size:12px">Grafiklar hisobotdagi sana va tur (kirim/chiqim) tanloviga qarab real vaqtda yangilanadi.</div>
+          </div>
+        </div>
+
+        <div id="analysisBody" hidden>
+          <div class="analysis-grid">
+            <div class="canvas-wrap">
+              <div class="canvas-title">
+                <span>Kirim vs Chiqim + Net</span>
+                <span class="muted">Kunlar bo‘yicha</span>
+              </div>
+              <canvas id="chartCombo"></canvas>
+              <div id="tipCombo" class="tooltip"></div>
+            </div>
+
+            <div class="canvas-wrap">
+              <div class="canvas-title">
+                <span>Kumulative balans</span>
+                <span class="muted">Trend</span>
+              </div>
+              <canvas id="chartBalance"></canvas>
+              <div id="tipBalance" class="tooltip"></div>
+            </div>
+          </div>
+
+          <div class="insights">
+            <div class="insight">
+              <div class="k">Eng ko‘p chiqim bo‘lgan kun</div>
+              <div class="v" id="insight1">—</div>
+            </div>
+            <div class="insight">
+              <div class="k">Eng kam chiqim bo‘lgan kun</div>
+              <div class="v" id="insight2">—</div>
+            </div>
+            <div class="insight">
+              <div class="k">Eng ko‘p kirim bo‘lgan kun</div>
+              <div class="v" id="insight3">—</div>
+            </div>
+          </div>
+
+          <div class="muted" style="margin-top:10px;font-size:12px">
+            Tooltip ko‘rish: telefonda grafik ustiga bosib turing yoki bosing, kompyuterda ustiga olib boring.
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer muted">
+      <span>Ultimate • LocalStorage • Report/Print/PDF • Modern Charts</span>
+    </footer>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+
+  <script>
+(() => {
+  'use strict';
+
+  const STORAGE_KEY = 'kirim_chiqim_v1';
+
+  /** @type {{items: Array<{id:string,type:'income'|'expense',amount:number,note:string,date:string,createdAt:number}>}} */
+  let state = { items: [] };
+
+  const $ = (sel) => document.querySelector(sel);
+
+  // summary
+  const sumIncomeEl = $('#sumIncome');
+  const sumExpenseEl = $('#sumExpense');
+  const sumBalanceEl = $('#sumBalance');
+
+  // list
+  const tbody = $('#tbody');
+  const cardsEl = $('#cards');
+  const emptyState = $('#emptyState');
+  const countLabel = $('#countLabel');
+
+  // entry form
+  const entryForm = $('#entryForm');
+  const amountInput = $('#amount');
+  const noteInput = $('#note');
+  const dateInput = $('#date');
+  const btnSave = $('#btnSave');
+  const btnCancelEdit = $('#btnCancelEdit');
+
+  const filterType = $('#filterType');
+  const searchInput = $('#search');
+
+  // data tools
+  const btnClearAll = $('#btnClearAll');
+  const btnExport = $('#btnExport');
+  const btnImport = $('#btnImport');
+  const fileImport = $('#fileImport');
+  const btnTheme = $('#btnTheme');
+
+  // analytics
+  const btnToggleAnalysis = $('#btnToggleAnalysis');
+  const analysisBody = $('#analysisBody');
+  const canvasCombo = $('#chartCombo');
+  const canvasBalance = $('#chartBalance');
+  const tipCombo = $('#tipCombo');
+  const tipBalance = $('#tipBalance');
+  const insight1 = $('#insight1');
+  const insight2 = $('#insight2');
+  const insight3 = $('#insight3');
+
+  // report settings
+  const reportFrom = $('#reportFrom');
+  const reportTo = $('#reportTo');
+  const btnRangeAll = $('#btnRangeAll');
+  const reportType = $('#reportType');
+
+  const useReportForCalc = $('#useReportForCalc');
+  const calcIncomeFrom = $('#calcIncomeFrom');
+  const calcIncomeTo = $('#calcIncomeTo');
+  const calcExpenseFrom = $('#calcExpenseFrom');
+  const calcExpenseTo = $('#calcExpenseTo');
+  const calcRangesBox = $('#calcRangesBox');
+
+  const fiscalStartDay = $('#fiscalStartDay');
+
+  const includeCharts = $('#includeCharts');
+  const includeDetails = $('#includeDetails');
+  const maxDetailRows = $('#maxDetailRows');
+
+  const btnReportView = $('#btnReportView');
+  const btnReportPrint = $('#btnReportPrint');
+  const btnReportPDF = $('#btnReportPDF');
+
+  // toast
+  const toast = $('#toast');
+  let toastTimer = null;
+
+  // editing
+  let editingId = null;
+
+  // ---------- Utils ----------
+  const fmt = new Intl.NumberFormat('uz-UZ');
+
+  function formatMoney(n) {
+    const v = Number.isFinite(n) ? n : 0;
+    return `${fmt.format(v)} so'm`;
+  }
+
+  function parseAmount(str) {
+    if (typeof str !== 'string') return NaN;
+    const cleaned = str.trim().replace(/\s+/g, '').replace(/,/g, '.');
+    const num = Number(cleaned);
+    return Number.isFinite(num) ? num : NaN;
+  }
+
+  function uid() {
+    return `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`;
+  }
+
+  function todayISO() {
+    const d = new Date();
+    const off = d.getTimezoneOffset();
+    const local = new Date(d.getTime() - off * 60_000);
+    return local.toISOString().slice(0, 10);
+  }
+
+  function isoToDate(iso) {
+    // safe local date
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    if (!m) return null;
+    const y = Number(m[1]), mo = Number(m[2]) - 1, da = Number(m[3]);
+    const d = new Date(y, mo, da);
+    d.setHours(0,0,0,0);
+    return d;
+  }
+
+  function inRange(iso, fromIso, toIso) {
+    const d = isoToDate(iso);
+    if (!d) return false;
+    const f = isoToDate(fromIso);
+    const t = isoToDate(toIso);
+    if (!f || !t) return false;
+    return d.getTime() >= f.getTime() && d.getTime() <= t.getTime();
+  }
+
+  function clamp(n, a, b) {
+    return Math.max(a, Math.min(b, n));
+  }
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.hidden = false;
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.hidden = true;
+      toast.textContent = '';
+      toastTimer = null;
+    }, 2600);
+  }
+
+  function safeText(s) {
+    return String(s ?? '').replace(/[<>&"]/g, (ch) => ({
+      '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'
+    }[ch]));
+  }
+
+  // ---------- Storage ----------
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (!data || typeof data !== 'object') return;
+      if (!Array.isArray(data.items)) return;
+
+      state.items = data.items
+        .filter(x => x && (x.type === 'income' || x.type === 'expense'))
+        .map(x => ({
+          id: String(x.id || uid()),
+          type: x.type,
+          amount: Number(x.amount) || 0,
+          note: String(x.note || '').slice(0, 120),
+          date: String(x.date || todayISO()).slice(0, 10),
+          createdAt: Number(x.createdAt) || Date.now()
+        }));
+    } catch (e) {
+      console.warn('Storage load error:', e);
+      state.items = [];
+    }
+  }
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  // ---------- Theme ----------
+  function getSavedTheme() {
+    return localStorage.getItem('kirim_chiqim_theme') || '';
+  }
+  function setTheme(theme) {
+    if (theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('kirim_chiqim_theme', theme);
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.removeItem('kirim_chiqim_theme');
+    }
+  }
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    if (current === 'light') setTheme('');
+    else setTheme('light');
+    showToast(`Tema: ${document.documentElement.getAttribute('data-theme') === 'light' ? 'Light' : 'Dark'}`);
+    if (!analysisBody.hidden) renderAnalytics();
+  }
+
+  // ---------- Filtering (list) ----------
+  function getFilteredItems() {
+    const ft = filterType.value;
+    const q = (searchInput.value || '').trim().toLowerCase();
+
+    let items = [...state.items];
+
+    if (ft !== 'all') items = items.filter(x => x.type === ft);
+
+    if (q) {
+      items = items.filter(x =>
+        (x.note || '').toLowerCase().includes(q)
+        || (x.date || '').includes(q)
+      );
+    }
+
+    items.sort((a, b) => {
+      if (a.date !== b.date) return (b.date || '').localeCompare(a.date || '');
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    });
+
+    return items;
+  }
+
+  // ---------- Summary ----------
+  function calcTotals(items) {
+    const income = items.filter(x => x.type === 'income').reduce((s, x) => s + (Number(x.amount) || 0), 0);
+    const expense = items.filter(x => x.type === 'expense').reduce((s, x) => s + (Number(x.amount) || 0), 0);
+    return { income, expense, balance: income - expense };
+  }
+
+  function renderSummary() {
+    const { income, expense, balance } = calcTotals(state.items);
+    sumIncomeEl.textContent = formatMoney(income);
+    sumExpenseEl.textContent = formatMoney(expense);
+    sumBalanceEl.textContent = formatMoney(balance);
+  }
+
+  // ---------- Render list ----------
+  function renderTableRows(items) {
+    tbody.innerHTML = '';
+    for (const it of items) {
+      const tr = document.createElement('tr');
+
+      tr.innerHTML = `
+        <td>${safeText(it.date || '')}</td>
+        <td><span class="badge ${safeText(it.type)}">${it.type === 'income' ? 'Kirim' : 'Chiqim'}</span></td>
+        <td><span class="amount ${safeText(it.type)}">${safeText(formatMoney(it.amount))}</span></td>
+        <td>${safeText(it.note || '')}</td>
+        <td class="td-actions">
+          <div class="row-actions">
+            <button type="button" class="btn btn-mini edit">Tahrirlash</button>
+            <button type="button" class="btn btn-mini del">O‘chirish</button>
+          </div>
+        </td>
+      `;
+
+      const btnE = tr.querySelector('.edit');
+      const btnD = tr.querySelector('.del');
+      btnE.addEventListener('click', () => startEdit(it.id));
+      btnD.addEventListener('click', () => removeItem(it.id));
+
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderCards(items) {
+    cardsEl.innerHTML = '';
+    for (const it of items) {
+      const card = document.createElement('div');
+      card.className = 'card-item';
+
+      card.innerHTML = `
+        <div class="card-top">
+          <div class="card-meta">
+            <div class="card-date">${safeText(it.date || '')}</div>
+            <span class="badge ${safeText(it.type)}">${it.type === 'income' ? 'Kirim' : 'Chiqim'}</span>
+          </div>
+          <div class="card-amount amount ${safeText(it.type)}">${safeText(formatMoney(it.amount))}</div>
+        </div>
+        <div class="card-note">${safeText(it.note || '')}</div>
+        <div class="card-actions">
+          <button type="button" class="btn btn-mini edit">Tahrirlash</button>
+          <button type="button" class="btn btn-mini del">O‘chirish</button>
+        </div>
+      `;
+
+      card.querySelector('.edit').addEventListener('click', () => startEdit(it.id));
+      card.querySelector('.del').addEventListener('click', () => removeItem(it.id));
+
+      cardsEl.appendChild(card);
+    }
+  }
+
+  function renderList() {
+    const items = getFilteredItems();
+    countLabel.textContent = `${items.length} ta yozuv`;
+    emptyState.hidden = items.length !== 0;
+    renderTableRows(items);
+    renderCards(items);
+  }
+
+  // ---------- Report settings ----------
+  function getMinMaxDates() {
+    if (!state.items.length) return { min: todayISO(), max: todayISO() };
+    const dates = state.items.map(x => x.date).filter(Boolean).sort();
+    return { min: dates[0], max: dates[dates.length - 1] };
+  }
+
+  function syncReportRangesToData() {
+    const { min, max } = getMinMaxDates();
+    // if empty or invalid, set defaults
+    if (!reportFrom.value) reportFrom.value = min;
+    if (!reportTo.value) reportTo.value = max;
+
+    // ensure calc defaults
+    if (!calcIncomeFrom.value) calcIncomeFrom.value = reportFrom.value;
+    if (!calcIncomeTo.value) calcIncomeTo.value = reportTo.value;
+    if (!calcExpenseFrom.value) calcExpenseFrom.value = reportFrom.value;
+    if (!calcExpenseTo.value) calcExpenseTo.value = reportTo.value;
+  }
+
+  function toggleCalcRangesUI() {
+    const on = !!useReportForCalc.checked;
+    calcRangesBox.hidden = on;
+    if (on) {
+      calcIncomeFrom.value = reportFrom.value;
+      calcIncomeTo.value = reportTo.value;
+      calcExpenseFrom.value = reportFrom.value;
+      calcExpenseTo.value = reportTo.value;
+    }
+  }
+
+  // ---------- Fiscal month grouping ----------
+  function fiscalKey(iso, startDay) {
+    const d = isoToDate(iso);
+    if (!d) return null;
+    const sd = clamp(Number(startDay) || 1, 1, 28);
+    const year = d.getFullYear();
+    const month = d.getMonth(); // 0..11
+    const day = d.getDate();
+    // if day < startDay -> belongs to previous month period
+    let y = year, m = month;
+    if (day < sd) {
+      m -= 1;
+      if (m < 0) { m = 11; y -= 1; }
+    }
+    const mm = String(m + 1).padStart(2, '0');
+    return `${y}-${mm}`; // period key by start month
+  }
+
+  function groupByFiscalMonth(items, startDay) {
+    const map = new Map();
+    for (const it of items) {
+      const key = fiscalKey(it.date, startDay);
+      if (!key) continue;
+      if (!map.has(key)) map.set(key, { key, income: 0, expense: 0 });
+      const row = map.get(key);
+      if (it.type === 'income') row.income += Number(it.amount) || 0;
+      else row.expense += Number(it.amount) || 0;
+    }
+    const arr = Array.from(map.values());
+    arr.sort((a,b)=> (a.key||'').localeCompare(b.key||''));
+    return arr;
+  }
+
+  function formatMonthKey(ym) {
+    const m = /^(\d{4})-(\d{2})$/.exec(ym || '');
+    if (!m) return ym || '';
+    return `${m[2]}.${m[1]}`;
+  }
+
+  // ---------- Analytics (modern-ish charts) ----------
+  function filterForAnalytics() {
+    // analytics uses report range and report type (so user can preview by same selection)
+    const f = reportFrom.value || todayISO();
+    const t = reportTo.value || todayISO();
+    const rt = reportType.value || 'all';
+
+    let items = state.items.filter(x => inRange(x.date, f, t));
+    if (rt !== 'all') items = items.filter(x => x.type === rt);
+    return items;
+  }
+
+  function groupByDay(items) {
+    const map = new Map();
+    for (const it of items) {
+      const k = it.date || todayISO();
+      if (!map.has(k)) map.set(k, { k, income: 0, expense: 0, net: 0 });
+      const row = map.get(k);
+      if (it.type === 'income') row.income += Number(it.amount) || 0;
+      else row.expense += Number(it.amount) || 0;
+      row.net = row.income - row.expense;
+    }
+    const arr = Array.from(map.values()).sort((a,b)=> (a.k||'').localeCompare(b.k||''));
+    return arr;
+  }
+
+  function drawComboChart(canvas, tooltipEl, series) {
+    const ctx = canvas.getContext('2d');
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const cssW = canvas.clientWidth || 600;
+    const cssH = canvas.clientHeight || 230;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const grid = isLight ? 'rgba(16,24,40,0.10)' : 'rgba(255,255,255,0.10)';
+    const text = isLight ? 'rgba(16,24,40,0.72)' : 'rgba(255,255,255,0.72)';
+    const incomeC = 'rgba(45,212,191,0.92)';
+    const expenseC = 'rgba(251,113,133,0.92)';
+    const netC = isLight ? 'rgba(17,24,39,0.80)' : 'rgba(255,255,255,0.85)';
+
+    ctx.clearRect(0,0,cssW,cssH);
+
+    const pad = { l: 50, r: 10, t: 10, b: 34 };
+    const W = cssW - pad.l - pad.r;
+    const H = cssH - pad.t - pad.b;
+
+    const n = Math.max(1, series.length);
+    const maxV = Math.max(1, ...series.map(s => Math.max(s.income, s.expense)));
+    const maxNet = Math.max(1, ...series.map(s => Math.abs(s.net)));
+
+    // y grid
+    ctx.strokeStyle = grid;
+    ctx.lineWidth = 1;
+    ctx.font = '12px Inter, system-ui, sans-serif';
+    ctx.fillStyle = text;
+
+    for (let i=0;i<=4;i++){
+      const y = pad.t + H - (H * (i/4));
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y);
+      ctx.lineTo(pad.l + W, y);
+      ctx.stroke();
+      const v = Math.round(maxV * (i/4));
+      ctx.fillText(formatShort(v), 6, y+4);
+    }
+
+    // bars
+    const gap = 8;
+    const groupW = (W - gap*(n-1)) / n;
+    const barW = Math.max(6, Math.floor((groupW - 4) / 2));
+    const hitBoxes = [];
+
+    for (let i=0;i<n;i++){
+      const s = series[i];
+      const x0 = pad.l + i*(groupW + gap);
+
+      const hi = (s.income / maxV) * H;
+      const he = (s.expense / maxV) * H;
+
+      // income bar
+      const xi = x0;
+      const yi = pad.t + H - hi;
+      ctx.fillStyle = incomeC;
+      roundRect(ctx, xi, yi, barW, hi, 8); ctx.fill();
+
+      // expense bar
+      const xe = x0 + barW + 4;
+      const ye = pad.t + H - he;
+      ctx.fillStyle = expenseC;
+      roundRect(ctx, xe, ye, barW, he, 8); ctx.fill();
+
+      // x labels (every 3 or last)
+      const showLabel = (n <= 10) || (i % 3 === 0) || (i === n-1);
+      if (showLabel) {
+        const label = shortDate(s.k);
+        ctx.fillStyle = text;
+        const w = ctx.measureText(label).width;
+        ctx.fillText(label, x0 + groupW/2 - w/2, pad.t + H + 22);
+      }
+
+      // hit area for tooltip
+      hitBoxes.push({ i, x: x0, y: pad.t, w: groupW, h: H });
+    }
+
+    // net line (scaled to maxV for readability)
+    ctx.strokeStyle = netC;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i=0;i<n;i++){
+      const s = series[i];
+      const x0 = pad.l + i*(groupW + gap) + groupW/2;
+      // map net to vertical centered around bottom? We'll draw a line over bars using net mapped to maxV range
+      const yn = pad.t + H - ((s.net + maxV) / (2*maxV)) * H; // net in [-maxV..maxV]
+      if (i === 0) ctx.moveTo(x0, yn);
+      else ctx.lineTo(x0, yn);
+    }
+    ctx.stroke();
+
+    // net line dots
+    for (let i=0;i<n;i++){
+      const s = series[i];
+      const x0 = pad.l + i*(groupW + gap) + groupW/2;
+      const yn = pad.t + H - ((s.net + maxV) / (2*maxV)) * H;
+      ctx.fillStyle = netC;
+      ctx.beginPath();
+      ctx.arc(x0, yn, 3, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    // tooltip interactions
+    attachTooltip(canvas, tooltipEl, hitBoxes, (idx) => {
+      const s = series[idx];
+      return `📅 ${s.k}\nKirim: ${formatMoney(s.income)}\nChiqim: ${formatMoney(s.expense)}\nNet: ${formatMoney(s.net)}`;
+    });
+  }
+
+  function drawBalanceChart(canvas, tooltipEl, series) {
+    const ctx = canvas.getContext('2d');
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const cssW = canvas.clientWidth || 600;
+    const cssH = canvas.clientHeight || 230;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const grid = isLight ? 'rgba(16,24,40,0.10)' : 'rgba(255,255,255,0.10)';
+    const text = isLight ? 'rgba(16,24,40,0.72)' : 'rgba(255,255,255,0.72)';
+    const lineC = isLight ? 'rgba(255,59,48,0.85)' : 'rgba(255,106,0,0.92)';
+
+    ctx.clearRect(0,0,cssW,cssH);
+
+    const pad = { l: 50, r: 10, t: 10, b: 34 };
+    const W = cssW - pad.l - pad.r;
+    const H = cssH - pad.t - pad.b;
+
+    // cumulative balance
+    let bal = 0;
+    const pts = series.map(s => {
+      bal += (s.income - s.expense);
+      return { k: s.k, bal };
+    });
+
+    const values = pts.map(p => p.bal);
+    const minV = Math.min(0, ...values);
+    const maxV = Math.max(1, ...values);
+
+    // grid + y labels
+    ctx.strokeStyle = grid;
+    ctx.lineWidth = 1;
+    ctx.font = '12px Inter, system-ui, sans-serif';
+    ctx.fillStyle = text;
+
+    for (let i=0;i<=4;i++){
+      const y = pad.t + H - (H * (i/4));
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y);
+      ctx.lineTo(pad.l + W, y);
+      ctx.stroke();
+      const v = minV + (maxV - minV) * (i/4);
+      ctx.fillText(formatShort(Math.round(v)), 6, y+4);
+    }
+
+    // x spacing
+    const n = Math.max(1, pts.length);
+    const step = n === 1 ? 0 : (W / (n-1));
+    const hitBoxes = [];
+
+    // zero line
+    const y0 = pad.t + H - ((0 - minV) / (maxV - minV || 1)) * H;
+    ctx.strokeStyle = isLight ? 'rgba(16,24,40,0.22)' : 'rgba(255,255,255,0.18)';
+    ctx.beginPath();
+    ctx.moveTo(pad.l, y0);
+    ctx.lineTo(pad.l + W, y0);
+    ctx.stroke();
+
+    // line
+    ctx.strokeStyle = lineC;
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    for (let i=0;i<n;i++){
+      const x = pad.l + i*step;
+      const y = pad.t + H - ((pts[i].bal - minV) / (maxV - minV || 1)) * H;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+
+      hitBoxes.push({ i, x: x - 10, y: pad.t, w: 20, h: H });
+    }
+    ctx.stroke();
+
+    // fill under line
+    const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + H);
+    grad.addColorStop(0, isLight ? 'rgba(255,59,48,0.18)' : 'rgba(255,106,0,0.16)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.lineTo(pad.l + W, pad.t + H);
+    ctx.lineTo(pad.l, pad.t + H);
+    ctx.closePath();
+    ctx.fill();
+
+    // dots + x labels
+    ctx.fillStyle = lineC;
+    for (let i=0;i<n;i++){
+      const x = pad.l + i*step;
+      const y = pad.t + H - ((pts[i].bal - minV) / (maxV - minV || 1)) * H;
+      ctx.beginPath();
+      ctx.arc(x, y, 3.5, 0, Math.PI*2);
+      ctx.fill();
+
+      const showLabel = (n <= 10) || (i % 3 === 0) || (i === n-1);
+      if (showLabel) {
+        const label = shortDate(pts[i].k);
+        ctx.fillStyle = text;
+        const w = ctx.measureText(label).width;
+        ctx.fillText(label, x - w/2, pad.t + H + 22);
+        ctx.fillStyle = lineC;
+      }
+    }
+
+    attachTooltip(canvas, tooltipEl, hitBoxes, (idx) => {
+      const p = pts[idx];
+      return `📅 ${p.k}\nKumulative balans: ${formatMoney(p.bal)}`;
+    });
+  }
+
+  function attachTooltip(canvas, tipEl, hitBoxes, textFn) {
+    if (!tipEl) return;
+
+    function showAt(idx) {
+      const text = textFn(idx);
+      tipEl.textContent = text;
+      tipEl.classList.add('show');
+    }
+    function hide() {
+      tipEl.classList.remove('show');
+    }
+
+    function pick(x, y) {
+      for (const b of hitBoxes) {
+        if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) return b.i;
+      }
+      return null;
+    }
+
+    let last = null;
+
+    canvas.onpointermove = (e) => {
+      const r = canvas.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      const idx = pick(x, y);
+      if (idx === null) { last = null; hide(); return; }
+      if (idx !== last) {
+        last = idx;
+        showAt(idx);
+      }
+    };
+    canvas.onpointerleave = () => { last = null; hide(); };
+
+    // touch: tap to show, tap empty to hide
+    canvas.onclick = (e) => {
+      const r = canvas.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      const idx = pick(x, y);
+      if (idx === null) { last = null; hide(); return; }
+      last = idx;
+      showAt(idx);
+    };
+  }
+
+  function roundRect(ctx, x,y,w,h,r){
+    const rr = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+rr, y);
+    ctx.arcTo(x+w, y, x+w, y+h, rr);
+    ctx.arcTo(x+w, y+h, x, y+h, rr);
+    ctx.arcTo(x, y+h, x, y, rr);
+    ctx.arcTo(x, y, x+w, y, rr);
+    ctx.closePath();
+  }
+
+  function shortDate(iso){
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+    if (!m) return iso || '';
+    return `${m[3]}.${m[2]}`;
+  }
+
+  function formatShort(n){
+    const v = Number(n) || 0;
+    const av = Math.abs(v);
+    const sign = v < 0 ? '-' : '';
+    if (av >= 1_000_000_000) return `${sign}${Math.round(av/1_000_000_000)}B`;
+    if (av >= 1_000_000) return `${sign}${Math.round(av/1_000_000)}M`;
+    if (av >= 1_000) return `${sign}${Math.round(av/1_000)}K`;
+    return `${v}`;
+  }
+
+  function computeInsights(series) {
+    // series: day grouped
+    if (!series.length) return { maxExpense: null, minExpense: null, maxIncome: null };
+
+    let maxE = series[0], minE = series[0], maxI = series[0];
+    for (const s of series){
+      if ((s.expense||0) > (maxE.expense||0)) maxE = s;
+      if ((s.expense||0) < (minE.expense||0)) minE = s;
+      if ((s.income||0) > (maxI.income||0)) maxI = s;
+    }
+    return { maxExpense: maxE, minExpense: minE, maxIncome: maxI };
+  }
+
+  function renderAnalytics() {
+    const items = filterForAnalytics();
+    const series = groupByDay(items);
+
+    drawComboChart(canvasCombo, tipCombo, series);
+    drawBalanceChart(canvasBalance, tipBalance, series);
+
+    const ins = computeInsights(series);
+    insight1.textContent = ins.maxExpense ? `${ins.maxExpense.k} — ${formatMoney(ins.maxExpense.expense)}` : 'Ma’lumot yo‘q';
+    insight2.textContent = ins.minExpense ? `${ins.minExpense.k} — ${formatMoney(ins.minExpense.expense)}` : 'Ma’lumot yo‘q';
+    insight3.textContent = ins.maxIncome ? `${ins.maxIncome.k} — ${formatMoney(ins.maxIncome.income)}` : 'Ma’lumot yo‘q';
+  }
+
+  function toggleAnalysis() {
+    const open = analysisBody.hidden;
+    analysisBody.hidden = !open;
+    btnToggleAnalysis.querySelector('span:last-child').textContent = open ? 'Tahlilni yopish' : 'Tahlilni ko‘rish';
+    if (open) {
+      setTimeout(() => renderAnalytics(), 30);
+      showToast('Tahlil ochildi');
+    }
+  }
+
+  // ---------- Report generation ----------
+  function getReportSettings() {
+    const rf = reportFrom.value || todayISO();
+    const rt = reportTo.value || todayISO();
+    const type = reportType.value || 'all';
+
+    const startDay = clamp(Number(fiscalStartDay.value) || 1, 1, 28);
+
+    const calcModeSame = !!useReportForCalc.checked;
+    const calc = {
+      incomeFrom: calcModeSame ? rf : (calcIncomeFrom.value || rf),
+      incomeTo: calcModeSame ? rt : (calcIncomeTo.value || rt),
+      expenseFrom: calcModeSame ? rf : (calcExpenseFrom.value || rf),
+      expenseTo: calcModeSame ? rt : (calcExpenseTo.value || rt),
+      sameAsReport: calcModeSame
+    };
+
+    return {
+      reportFrom: rf,
+      reportTo: rt,
+      reportType: type,
+      fiscalStartDay: startDay,
+      includeCharts: !!includeCharts.checked,
+      includeDetails: !!includeDetails.checked,
+      maxDetailRows: clamp(Number(maxDetailRows.value) || 200, 0, 5000),
+      calc
+    };
+  }
+
+  function validateReportSettings(s) {
+    const a = isoToDate(s.reportFrom);
+    const b = isoToDate(s.reportTo);
+    if (!a || !b) return 'Sana noto‘g‘ri';
+    if (a.getTime() > b.getTime()) return 'Boshlanish sanasi tugash sanasidan katta bo‘la olmaydi';
+    // calc ranges
+    const ci1 = isoToDate(s.calc.incomeFrom), ci2 = isoToDate(s.calc.incomeTo);
+    const ce1 = isoToDate(s.calc.expenseFrom), ce2 = isoToDate(s.calc.expenseTo);
+    if (!ci1 || !ci2 || !ce1 || !ce2) return 'Hisoblash sanalari noto‘g‘ri';
+    if (ci1.getTime() > ci2.getTime()) return 'Kirim hisoblash sanasi noto‘g‘ri (from > to)';
+    if (ce1.getTime() > ce2.getTime()) return 'Chiqim hisoblash sanasi noto‘g‘ri (from > to)';
+    return null;
+  }
+
+  function filterByReport(items, s) {
+    let out = items.filter(x => inRange(x.date, s.reportFrom, s.reportTo));
+    if (s.reportType !== 'all') out = out.filter(x => x.type === s.reportType);
+    out.sort((a,b)=> (a.date||'').localeCompare(b.date||'') || (a.createdAt||0) - (b.createdAt||0));
+    return out;
+  }
+
+  function calcByCustomRanges(items, s) {
+    const incItems = items.filter(x => x.type === 'income' && inRange(x.date, s.calc.incomeFrom, s.calc.incomeTo));
+    const expItems = items.filter(x => x.type === 'expense' && inRange(x.date, s.calc.expenseFrom, s.calc.expenseTo));
+    const income = incItems.reduce((t,x)=> t + (Number(x.amount)||0), 0);
+    const expense = expItems.reduce((t,x)=> t + (Number(x.amount)||0), 0);
+    return { income, expense, balance: income - expense };
+  }
+
+  function openReport(mode) {
+    const s = getReportSettings();
+    const err = validateReportSettings(s);
+    if (err) return showToast(err);
+
+    // report items within report range & type
+    const reportItems = filterByReport(state.items, s);
+
+    // totals calculated with custom ranges
+    const totals = calcByCustomRanges(state.items, s);
+
+    // summaries
+    const daySeries = groupByDay(reportItems);
+
+    const months = groupByFiscalMonth(reportItems, s.fiscalStartDay);
+    const monthRows = months.map(m => ({
+      month: m.key,
+      income: m.income,
+      expense: m.expense,
+      net: (m.income||0) - (m.expense||0)
+    }));
+
+    const topIncome = reportItems.filter(x => x.type === 'income').slice().sort((a,b)=> (b.amount||0)-(a.amount||0)).slice(0, 10);
+    const topExpense = reportItems.filter(x => x.type === 'expense').slice().sort((a,b)=> (b.amount||0)-(a.amount||0)).slice(0, 10);
+
+    // charts as images (optional)
+    let imgCombo = '', imgBalance = '';
+    if (s.includeCharts && !analysisBody.hidden) {
+      // ensure latest draw in case user changed range
+      renderAnalytics();
+    }
+    if (s.includeCharts) {
+      try {
+        imgCombo = canvasCombo.toDataURL('image/png');
+        imgBalance = canvasBalance.toDataURL('image/png');
+      } catch (e) {}
+    }
+
+    const now = new Date().toLocaleString();
+    const titleSuffix = mode === 'pdf' ? ' (PDF saqlash)' : mode === 'print' ? ' (Chop etish)' : '';
+
+    const reportCss = `
+      @page { size: A4; margin: 14mm; }
+      body{
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        color:#111827;
+        background:white;
+      }
+      h1{font-size:18px;margin:0}
+      .sub{color:#6b7280;font-size:12px;margin-top:6px}
+      .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+      .box{border:1px solid #e5e7eb;border-radius:12px;padding:10px}
+      .k{font-size:11px;color:#6b7280;font-weight:800}
+      .v{font-size:16px;font-weight:950;margin-top:6px}
+      .v.in{color:#0f766e}
+      .v.ex{color:#be123c}
+      .section{margin-top:16px}
+      .stitle{font-size:14px;font-weight:950;margin:0 0 8px}
+      table{width:100%;border-collapse:collapse}
+      th,td{border-bottom:1px solid #e5e7eb;padding:8px 6px;font-size:11.5px;vertical-align:top}
+      th{color:#374151;text-align:left;background:#f9fafb}
+      .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+      .chart{border:1px solid #e5e7eb;border-radius:12px;padding:10px}
+      .chart img{width:100%;height:auto;display:block}
+      .note{font-size:10.5px;color:#6b7280;margin-top:6px}
+      .bar{position:fixed;right:14px;top:14px;display:flex;gap:8px;z-index:10}
+      .btn{border:1px solid #e5e7eb;border-radius:10px;background:#111827;color:white;padding:8px 10px;font-weight:900;font-size:12px;cursor:pointer}
+      .btn2{background:white;color:#111827}
+      .banner{
+        border:1px solid #fde68a;
+        background:#fffbeb;
+        color:#92400e;
+        border-radius:12px;
+        padding:10px 12px;
+        font-size:12px;
+        margin-top:12px;
+        line-height:1.35;
+      }
+      .pill{
+        display:inline-block;
+        border:1px solid #e5e7eb;
+        border-radius:999px;
+        padding:4px 8px;
+        font-weight:900;
+        font-size:11px;
+        color:#374151;
+        margin-right:6px;
+      }
+      @media print{
+        .bar{display:none}
+        .banner{display:none}
+      }
+    `;
+
+    const bannerHtml = mode === 'pdf'
+      ? `<div class="banner">
+          <span class="pill">PDF saqlash</span>
+          Telefon/kompyuterda PDF olish uchun: <b>“PDF saqlash”</b> tugmasini bosing (Print oynasi chiqadi) → <b>Save as PDF</b> tanlang.
+        </div>`
+      : mode === 'print'
+      ? `<div class="banner"><span class="pill">Chop etish</span> Printerga chiqarish uchun “Chop etish” tugmasi bosiladi.</div>`
+      : '';
+
+    const chartsHtml = (s.includeCharts && imgCombo && imgBalance)
+      ? `<div class="section">
+          <div class="stitle">Grafiklar (diapazon: ${safeText(s.reportFrom)} → ${safeText(s.reportTo)})</div>
+          <div class="two">
+            <div class="chart">
+              <div class="k">Kirim/Chiqim (kunlar bo‘yicha)</div>
+              <img src="${imgCombo}" alt="Combo chart" />
+            </div>
+            <div class="chart">
+              <div class="k">Kumulative balans</div>
+              <img src="${imgBalance}" alt="Balance chart" />
+            </div>
+          </div>
+        </div>`
+      : '';
+
+    const maxRows = s.includeDetails ? s.maxDetailRows : 0;
+
+    const incomeRows = maxRows
+      ? reportItems.filter(x=>x.type==='income').slice(0, maxRows).map(x => `
+          <tr>
+            <td>${safeText(x.date)}</td>
+            <td style="text-align:right">${safeText(formatMoney(x.amount))}</td>
+            <td>${safeText(x.note)}</td>
+          </tr>
+        `).join('')
+      : '';
+
+    const expenseRows = maxRows
+      ? reportItems.filter(x=>x.type==='expense').slice(0, maxRows).map(x => `
+          <tr>
+            <td>${safeText(x.date)}</td>
+            <td style="text-align:right">${safeText(formatMoney(x.amount))}</td>
+            <td>${safeText(x.note)}</td>
+          </tr>
+        `).join('')
+      : '';
+
+    const dailyRows = daySeries.map(d => `
+      <tr>
+        <td>${safeText(d.k)}</td>
+        <td style="text-align:right">${safeText(formatMoney(d.income))}</td>
+        <td style="text-align:right">${safeText(formatMoney(d.expense))}</td>
+        <td style="text-align:right">${safeText(formatMoney(d.net))}</td>
+      </tr>
+    `).join('');
+
+    const monthTableRows = monthRows.map(m => `
+      <tr>
+        <td>${safeText(formatMonthKey(m.month))}</td>
+        <td style="text-align:right">${safeText(formatMoney(m.income))}</td>
+        <td style="text-align:right">${safeText(formatMoney(m.expense))}</td>
+        <td style="text-align:right">${safeText(formatMoney(m.net))}</td>
+      </tr>
+    `).join('');
+
+    const topIncomeRows = topIncome.map(x => `
+      <tr>
+        <td>${safeText(x.date)}</td>
+        <td style="text-align:right">${safeText(formatMoney(x.amount))}</td>
+        <td>${safeText(x.note)}</td>
+      </tr>
+    `).join('');
+    const topExpenseRows = topExpense.map(x => `
+      <tr>
+        <td>${safeText(x.date)}</td>
+        <td style="text-align:right">${safeText(formatMoney(x.amount))}</td>
+        <td>${safeText(x.note)}</td>
+      </tr>
+    `).join('');
+
+    const detailNote = s.includeDetails
+      ? `<div class="note">Eslatma: Detallar maksimum ${safeText(String(maxRows))} ta yozuv bilan cheklanadi. (Ko‘p bo‘lsa — kamaytiring.)</div>`
+      : `<div class="note">Detallar o‘chirilgan. Faqat jamlanmalar ko‘rsatilmoqda.</div>`;
+
+    const calcNote = s.calc.sameAsReport
+      ? `Hisoblash: hisobot diapazoni bo‘yicha`
+      : `Hisoblash: Kirim ${safeText(s.calc.incomeFrom)}→${safeText(s.calc.incomeTo)}, Chiqim ${safeText(s.calc.expenseFrom)}→${safeText(s.calc.expenseTo)}`;
+
+    const reportHtml = `
+      <!doctype html>
+      <html lang="uz">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Kirim–Chiqim Hisoboti${safeText(titleSuffix)}</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+        <style>${reportCss}</style>
+      </head>
+      <body>
+        <div class="bar">
+          <button class="btn" onclick="window.print()">${mode === 'pdf' ? 'PDF saqlash' : 'Chop etish'}</button>
+          <button class="btn btn2" onclick="window.close()">Yopish</button>
+        </div>
+
+        <h1>Kirim–Chiqim Hisoboti</h1>
+        <div class="sub">Yaratilgan: ${safeText(now)} • Yozuvlar (hisobot diapazoni): ${safeText(String(reportItems.length))} ta</div>
+        <div class="sub">${safeText(calcNote)} • Oy boshi kuni: ${safeText(String(s.fiscalStartDay))}</div>
+        ${bannerHtml}
+
+        <div class="grid">
+          <div class="box"><div class="k">Jami kirim (hisoblash bo‘yicha)</div><div class="v in">${safeText(formatMoney(totals.income))}</div></div>
+          <div class="box"><div class="k">Jami chiqim (hisoblash bo‘yicha)</div><div class="v ex">${safeText(formatMoney(totals.expense))}</div></div>
+          <div class="box"><div class="k">Balans</div><div class="v">${safeText(formatMoney(totals.balance))}</div></div>
+        </div>
+
+        ${chartsHtml}
+
+        <div class="section">
+          <div class="stitle">Kunlik jamlanma</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Sana</th>
+                <th style="text-align:right">Kirim</th>
+                <th style="text-align:right">Chiqim</th>
+                <th style="text-align:right">Net</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${dailyRows || '<tr><td colspan="4">Ma’lumot yo‘q</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section">
+          <div class="stitle">Oylik jamlanma (oy boshi kuni: ${safeText(String(s.fiscalStartDay))})</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Oy</th>
+                <th style="text-align:right">Kirim</th>
+                <th style="text-align:right">Chiqim</th>
+                <th style="text-align:right">Net</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${monthTableRows || '<tr><td colspan="4">Ma’lumot yo‘q</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section">
+          <div class="stitle">Top 10 kirimlar</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Sana</th>
+                <th style="text-align:right">Summa</th>
+                <th>Izoh</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${topIncomeRows || '<tr><td colspan="3">Kirim yo‘q</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section">
+          <div class="stitle">Top 10 chiqimlar</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Sana</th>
+                <th style="text-align:right">Summa</th>
+                <th>Izoh</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${topExpenseRows || '<tr><td colspan="3">Chiqim yo‘q</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section">
+          <div class="stitle">Detallar</div>
+          ${detailNote}
+        </div>
+
+        ${s.includeDetails ? `
+        <div class="section">
+          <div class="stitle">Kirimlar (nimadan kelgan)</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Sana</th>
+                <th style="text-align:right">Summa</th>
+                <th>Izoh</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${incomeRows || '<tr><td colspan="3">Kirim yo‘q</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section">
+          <div class="stitle">Chiqimlar (qayerga ishlatilgan)</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Sana</th>
+                <th style="text-align:right">Summa</th>
+                <th>Izoh</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${expenseRows || '<tr><td colspan="3">Chiqim yo‘q</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+        ` : ''}
+
+        <script>
+          // Auto actions
+          (function(){
+            const mode = ${JSON.stringify(mode)};
+            if (mode === 'print' || mode === 'pdf') {
+              setTimeout(()=> window.print(), 400);
+            }
+          })();
+        </script>
+      </body>
+      </html>
+    `;
+
+    const w = window.open('', '_blank');
+    if (!w) return showToast('Brauzer popupni blok qildi. Ruxsat bering va qayta bosing.');
+    w.document.open();
+    w.document.write(reportHtml);
+    w.document.close();
+
+    if (mode === 'view') showToast('Hisobot oynasi ochildi');
+  }
+
+  // ---------- Entry actions ----------
+  function resetForm() {
+    editingId = null;
+    entryForm.reset();
+    dateInput.value = todayISO();
+    btnSave.querySelector('span:last-child').textContent = 'Saqlash';
+    btnCancelEdit.hidden = true;
+    amountInput.focus();
+  }
+
+  function startEdit(id) {
+    const it = state.items.find(x => x.id === id);
+    if (!it) return;
+
+    editingId = id;
+
+    const typeRadio = entryForm.querySelector(`input[name="type"][value="${it.type}"]`);
+    if (typeRadio) typeRadio.checked = true;
+
+    amountInput.value = String(it.amount ?? '');
+    noteInput.value = it.note ?? '';
+    dateInput.value = it.date ?? todayISO();
+
+    btnSave.querySelector('span:last-child').textContent = 'Yangilash';
+    btnCancelEdit.hidden = false;
+
+    showToast('Tahrirlash rejimi yoqildi');
+    amountInput.focus();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function upsertItem(type, amount, note, date) {
+    if (editingId) {
+      const idx = state.items.findIndex(x => x.id === editingId);
+      if (idx >= 0) {
+        state.items[idx] = { ...state.items[idx], type, amount, note, date };
+        save();
+        render();
+        showToast('Yangilandi');
+        resetForm();
+        return;
+      }
+      editingId = null;
+    }
+
+    state.items.push({ id: uid(), type, amount, note, date, createdAt: Date.now() });
+    save();
+    render();
+    showToast('Saqlandi');
+    resetForm();
+  }
+
+  function removeItem(id) {
+    const it = state.items.find(x => x.id === id);
+    if (!it) return;
+
+    const ok = confirm(`Rostdan ham o‘chirasizmi?\n\n${it.type === 'income' ? 'Kirim' : 'Chiqim'}: ${formatMoney(it.amount)}\nIzoh: ${it.note}`);
+    if (!ok) return;
+
+    state.items = state.items.filter(x => x.id !== id);
+    save();
+    render();
+    if (editingId === id) resetForm();
+    showToast('O‘chirildi');
+  }
+
+  function clearAll() {
+    if (state.items.length === 0) return showToast('Tozalash uchun ma’lumot yo‘q');
+    const ok = confirm('Hamma yozuvlarni o‘chirib tashlaysizmi? Bu amalni qaytarib bo‘lmaydi.');
+    if (!ok) return;
+    state.items = [];
+    save();
+    render();
+    resetForm();
+    showToast('Hammasi tozalandi');
+  }
+
+  function exportJSON() {
+    const payload = { exportedAt: new Date().toISOString(), version: 1, items: state.items };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kirim-chiqim_${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast('Eksport tayyor');
+  }
+
+  async function importJSONFile(file) {
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+
+      const items = Array.isArray(data?.items) ? data.items : Array.isArray(data) ? data : null;
+      if (!items) throw new Error('Noto‘g‘ri format');
+
+      const cleaned = items
+        .filter(x => x && (x.type === 'income' || x.type === 'expense'))
+        .map(x => ({
+          id: String(x.id || uid()),
+          type: x.type,
+          amount: Number(x.amount) || 0,
+          note: String(x.note || '').slice(0, 120),
+          date: String(x.date || todayISO()).slice(0, 10),
+          createdAt: Number(x.createdAt) || Date.now()
+        }));
+
+      const map = new Map(state.items.map(x => [x.id, x]));
+      for (const it of cleaned) map.set(it.id, it);
+
+      state.items = Array.from(map.values());
+      save();
+      render();
+      resetForm();
+      showToast('Import bajarildi');
+    } catch (e) {
+      console.error(e);
+      showToast('Import xato: fayl formati noto‘g‘ri');
+    }
+  }
+
+  function render() {
+    renderSummary();
+    renderList();
+    syncReportRangesToData();
+    if (!analysisBody.hidden) renderAnalytics();
+  }
+
+  // ---------- Events ----------
+  entryForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const type = entryForm.querySelector('input[name="type"]:checked')?.value || 'income';
+    const amount = parseAmount(amountInput.value);
+    const note = (noteInput.value || '').trim();
+    const date = (dateInput.value || '').trim() || todayISO();
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      amountInput.focus();
+      return showToast('Summani to‘g‘ri kiriting (0 dan katta)');
+    }
+    if (!note) {
+      noteInput.focus();
+      return showToast('Izohni kiriting');
+    }
+
+    upsertItem(type, Math.round(amount), note, date);
+  });
+
+  btnCancelEdit.addEventListener('click', () => {
+    resetForm();
+    showToast('Tahrirlash bekor qilindi');
+  });
+
+  filterType.addEventListener('change', renderList);
+  searchInput.addEventListener('input', renderList);
+
+  btnClearAll.addEventListener('click', clearAll);
+  btnExport.addEventListener('click', exportJSON);
+
+  btnImport.addEventListener('click', () => fileImport.click());
+  fileImport.addEventListener('change', () => {
+    const file = fileImport.files?.[0];
+    if (file) importJSONFile(file);
+    fileImport.value = '';
+  });
+
+  btnTheme.addEventListener('click', toggleTheme);
+
+  btnToggleAnalysis.addEventListener('click', toggleAnalysis);
+  window.addEventListener('resize', () => { if (!analysisBody.hidden) renderAnalytics(); });
+
+  // Report UI events
+  reportFrom.addEventListener('change', () => { if (useReportForCalc.checked) toggleCalcRangesUI(); if (!analysisBody.hidden) renderAnalytics(); });
+  reportTo.addEventListener('change', () => { if (useReportForCalc.checked) toggleCalcRangesUI(); if (!analysisBody.hidden) renderAnalytics(); });
+  reportType.addEventListener('change', () => { if (!analysisBody.hidden) renderAnalytics(); });
+
+  btnRangeAll.addEventListener('click', () => {
+    const { min, max } = getMinMaxDates();
+    reportFrom.value = min; reportTo.value = max;
+    toggleCalcRangesUI();
+    if (!analysisBody.hidden) renderAnalytics();
+    showToast('Hisobot diapazoni: barchasi');
+  });
+
+  useReportForCalc.addEventListener('change', toggleCalcRangesUI);
+
+  fiscalStartDay.addEventListener('change', () => { showToast(`Oy boshi: ${fiscalStartDay.value}`); });
+
+  btnReportView.addEventListener('click', () => openReport('view'));
+  btnReportPrint.addEventListener('click', () => openReport('print'));
+  btnReportPDF.addEventListener('click', () => openReport('pdf'));
+
+  // ---------- Init ----------
+  function init() {
+    dateInput.value = todayISO();
+
+    const saved = getSavedTheme();
+    if (saved) setTheme(saved);
+
+    load();
+    syncReportRangesToData();
+    toggleCalcRangesUI();
+    render();
+    resetForm();
+
+    // analytics start hidden
+    analysisBody.hidden = true;
+  }
+
+  init();
+})();
+  </script>
+</body>
+</html>
