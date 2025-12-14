@@ -1,21 +1,4 @@
 <!doctype html>
-<script>
-(function () {
-  const PASSWORD = "12345678";
-  const KEY = "kc_access_granted";
-  if (localStorage.getItem(KEY) === "yes") return;
-  while (true) {
-    const p = prompt("Parolni kiriting:");
-    if (p === null) continue;
-    if (p === PASSWORD) {
-      localStorage.setItem(KEY, "yes");
-      break;
-    }
-    alert("Parol noto‘g‘ri");
-  }
-})();
-</script>
-
 <html lang="uz">
 <head>
   <meta charset="utf-8" />
