@@ -657,6 +657,36 @@ canvas{
   gap: 12px;
 }
 
+
+/* Cloud badge */
+.cloud-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.10);
+  font-weight: 900;
+  font-size: 12px;
+  color: var(--text);
+  user-select:none;
+}
+:root[data-theme="light"] .cloud-badge{background: rgba(255,255,255,.75)}
+.cloud-badge .dot{
+  width:10px;height:10px;border-radius:999px;
+  background: rgba(255,255,255,.35);
+  box-shadow: 0 0 0 3px rgba(255,255,255,.06);
+}
+.cloud-badge.ok .dot{
+  background: rgba(45,212,191,.95);
+  box-shadow: 0 0 0 3px rgba(45,212,191,.16);
+}
+.cloud-badge.warn .dot{
+  background: rgba(251,113,133,.95);
+  box-shadow: 0 0 0 3px rgba(251,113,133,.16);
+}
+
 </style>
 </head>
 <body>
@@ -675,6 +705,10 @@ canvas{
           <span class="icon" aria-hidden="true">☾</span>
           <span>Tema</span>
         </button>
+        <div id="cloudBadge" class="cloud-badge warn" title="Bulut (Firebase) holati">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="cloudStatus">Local</span>
+        </div>
       </div>
     </header>
 
@@ -976,9 +1010,47 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
 
   <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
 
-  <script>
+  <script type="module">
+/* Firebase (CDN, modular) — single file uchun */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  doc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+  query,
+  getDocs,
+  writeBatch,
+  enableIndexedDbPersistence
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
 (() => {
   'use strict';
+
+  // ---------- Firebase (Cloud) ----------
+  // Eslatma: Firebase ishlashi uchun sayt HTTPS’da ishlashi kerak (GitHub Pages).
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDLIJg7UfsVYiz9HdhbwblqQ_3ZYZPJ8fg",
+    authDomain: "shahbozbek-4922b.firebaseapp.com",
+    projectId: "shahbozbek-4922b",
+    storageBucket: "shahbozbek-4922b.firebasestorage.app",
+    messagingSenderId: "131010057146",
+    appId: "1:131010057146:web:f9fe30976d19e9d1ea0383",
+    measurementId: "G-3XCQLHNYC2"
+  };
+
+  let fbApp = null;
+  let fbAuth = null;
+  let fbDb = null;
+  let fbUid = null;
+  let fbUnsub = null;
+  let fbReady = false;
+  let fbFirstSnap = true;
+
 
   const STORAGE_KEY = 'kirim_chiqim_v1';
 
@@ -1013,6 +1085,10 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
   const fileImport = $('#fileImport');
 
   const btnTheme = $('#btnTheme');
+
+  const cloudBadge = $('#cloudBadge');
+  const cloudStatus = $('#cloudStatus');
+
 
   const btnToggleAnalysis = $('#btnToggleAnalysisMain');
   const analysisBody = $('#analysisBody');
@@ -1082,6 +1158,159 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
       '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'
     }[ch]));
   }
+
+
+  function setCloudState(state, msg){
+    if (!cloudBadge || !cloudStatus) return;
+    cloudBadge.classList.remove('ok','warn');
+    cloudBadge.classList.add(state === 'ok' ? 'ok' : 'warn');
+    cloudStatus.textContent = msg || (state === 'ok' ? 'Cloud' : 'Local');
+  }
+
+  function canUseFirebaseHere(){
+    // Firebase Web SDK odatda HTTPS talab qiladi (localhost istisno).
+    const proto = location.protocol;
+    if (proto === 'https:') return true;
+    if (proto === 'http:' && (location.hostname === 'localhost' || location.hostname === '127.0.0.1')) return true;
+    return false;
+  }
+
+  function txColRef(){
+    return collection(fbDb, 'users', fbUid, 'transactions');
+  }
+
+  async function ensureFirebase(){
+    if (fbReady) return true;
+
+    if (!canUseFirebaseHere()){
+      setCloudState('warn','Local');
+      console.warn('Firebase uchun HTTPS kerak. Hozirgi protocol:', location.protocol);
+      return false;
+    }
+
+    try {
+      fbApp = initializeApp(FIREBASE_CONFIG);
+      fbAuth = getAuth(fbApp);
+      fbDb = getFirestore(fbApp);
+
+      // Offline cache (IndexedDB) — xato bo‘lsa ham davom etadi
+      try { await enableIndexedDbPersistence(fbDb); } catch (_) {}
+
+      await signInAnonymously(fbAuth);
+
+      onAuthStateChanged(fbAuth, (user) => {
+        if (!user) return;
+        fbUid = user.uid;
+        fbReady = true;
+        setCloudState('ok','Cloud');
+        startRealtimeSync();
+      });
+
+      return true;
+    } catch (e) {
+      console.warn('Firebase init error:', e);
+      setCloudState('warn','Local');
+      showToast('Firebase ulanmadI (Local ishlaydi)');
+      return false;
+    }
+  }
+
+  function startRealtimeSync(){
+    if (!fbReady || !fbDb || !fbUid) return;
+    if (fbUnsub) { try { fbUnsub(); } catch(_){} fbUnsub = null; }
+
+    const qy = query(txColRef());
+    fbUnsub = onSnapshot(qy, async (snap) => {
+      const cloudItems = snap.docs.map(d => {
+        const x = d.data() || {};
+        return {
+          id: d.id,
+          type: x.type === 'income' ? 'income' : 'expense',
+          amount: Number(x.amount) || 0,
+          note: String(x.note || '').slice(0,120),
+          date: String(x.date || todayISO()).slice(0,10),
+          createdAt: Number(x.createdAt) || Date.now()
+        };
+      });
+
+      // Agar cloud bo‘sh, localda ma’lumot bo‘lsa — birinchi marta avtomatik ko‘chirib beradi
+      if (fbFirstSnap && cloudItems.length === 0 && state.items.length > 0) {
+        fbFirstSnap = false;
+        try{
+          await cloudUpsertMany(state.items);
+          showToast('Local → Cloud: ma’lumotlar ko‘chirildi');
+        }catch(e){
+          console.warn(e);
+        }
+        return;
+      }
+
+      fbFirstSnap = false;
+      state.items = cloudItems;
+      save();     // local backup
+      render();   // UI
+    }, (err) => {
+      console.warn('Realtime sync error:', err);
+      setCloudState('warn','Local');
+    });
+  }
+
+  async function cloudUpsertOne(item){
+    if (!fbReady) return;
+    const ref = doc(fbDb, 'users', fbUid, 'transactions', item.id);
+    await setDoc(ref, {
+      type: item.type,
+      amount: item.amount,
+      note: item.note,
+      date: item.date,
+      createdAt: item.createdAt
+    }, { merge: true });
+  }
+
+  async function cloudDeleteOne(id){
+    if (!fbReady) return;
+    const ref = doc(fbDb, 'users', fbUid, 'transactions', id);
+    await deleteDoc(ref);
+  }
+
+  async function cloudUpsertMany(items){
+    if (!fbReady) return;
+    // Batch write (500 limit)
+    const chunkSize = 450;
+    for (let i=0;i<items.length;i+=chunkSize){
+      const batch = writeBatch(fbDb);
+      const chunk = items.slice(i, i+chunkSize);
+      for (const it of chunk){
+        const ref = doc(fbDb, 'users', fbUid, 'transactions', it.id);
+        batch.set(ref, {
+          type: it.type,
+          amount: it.amount,
+          note: it.note,
+          date: it.date,
+          createdAt: it.createdAt
+        }, { merge: true });
+      }
+      await batch.commit();
+    }
+  }
+
+  async function cloudDeleteAll(){
+    if (!fbReady) return;
+    const snap = await getDocs(query(txColRef()));
+    if (snap.empty) return;
+    const ids = snap.docs.map(d => d.id);
+    const chunkSize = 450;
+    for (let i=0;i<ids.length;i+=chunkSize){
+      const batch = writeBatch(fbDb);
+      const chunk = ids.slice(i, i+chunkSize);
+      for (const id of chunk){
+        const ref = doc(fbDb, 'users', fbUid, 'transactions', id);
+        batch.delete(ref);
+      }
+      await batch.commit();
+    }
+  }
+
 
   // ---------- Storage ----------
   function load() {
@@ -2181,38 +2410,61 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
   }
 
   function upsertItem(type, amount, note, date) {
+    let item = null;
+
     if (editingId) {
       const idx = state.items.findIndex(x => x.id === editingId);
       if (idx >= 0) {
         state.items[idx] = { ...state.items[idx], type, amount, note, date };
+        item = state.items[idx];
         save();
         render();
         showToast('Yangilandi');
         resetForm();
+
+        if (fbReady) {
+          cloudUpsertOne(item).catch((e) => {
+            console.warn('Cloud upsert error:', e);
+            showToast('Cloud xato (Local saqlandi)');
+            setCloudState('warn','Local');
+          });
+        }
         return;
       }
       editingId = null;
     }
 
-    state.items.push({
+    item = {
       id: uid(),
       type,
       amount,
       note,
       date,
       createdAt: Date.now()
-    });
+    };
+    state.items.push(item);
     save();
     render();
     showToast('Saqlandi');
     resetForm();
+
+    if (fbReady) {
+      cloudUpsertOne(item).catch((e) => {
+        console.warn('Cloud upsert error:', e);
+        showToast('Cloud xato (Local saqlandi)');
+        setCloudState('warn','Local');
+      });
+    }
   }
 
   function removeItem(id) {
     const it = state.items.find(x => x.id === id);
     if (!it) return;
 
-    const ok = confirm(`Rostdan ham o‘chirasizmi?\n\n${it.type === 'income' ? 'Kirim' : 'Chiqim'}: ${formatMoney(it.amount)}\nIzoh: ${it.note}`);
+    const ok = confirm(`Rostdan ham o‘chirasizmi?
+
+${it.type === 'income' ? 'Kirim' : 'Chiqim'}: ${formatMoney(it.amount)}
+Izoh: ${it.note}`);
     if (!ok) return;
 
     state.items = state.items.filter(x => x.id !== id);
@@ -2222,6 +2474,14 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
     if (editingId === id) resetForm();
 
     showToast('O‘chirildi');
+
+    if (fbReady) {
+      cloudDeleteOne(id).catch((e) => {
+        console.warn('Cloud delete error:', e);
+        showToast('Cloud o‘chirish xato (Local o‘chirildi)');
+        setCloudState('warn','Local');
+      });
+    }
   }
 
   function clearAll() {
@@ -2235,6 +2495,14 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
     render();
     resetForm();
     showToast('Hammasi tozalandi');
+
+    if (fbReady) {
+      cloudDeleteAll().catch((e) => {
+        console.warn('Cloud clear error:', e);
+        showToast('Cloud tozalash xato (Local tozalandi)');
+        setCloudState('warn','Local');
+      });
+    }
   }
 
   function exportJSON() {
@@ -2283,6 +2551,16 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
       render();
       resetForm();
       showToast('Import bajarildi');
+
+      if (fbReady) {
+        cloudUpsertMany(cleaned).then(() => {
+          showToast('Import Cloudga ham saqlandi');
+        }).catch((e) => {
+          console.warn('Cloud import error:', e);
+          showToast('Cloud import xato (Local import bo‘ldi)');
+          setCloudState('warn','Local');
+        });
+      }
     } catch (e) {
       console.error(e);
       showToast('Import xato: fayl formati noto‘g‘ri');
@@ -2361,6 +2639,9 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
 
     // start with analytics hidden, but ready
     toggleAnalysis(false);
+
+    // Cloud sync (Firebase)
+    ensureFirebase();
   }
 
   init();
