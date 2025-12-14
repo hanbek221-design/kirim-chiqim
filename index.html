@@ -1,15 +1,14 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html lang="uz">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
-<title>Kirim–Chiqim Hisobi (LocalStorage)</title>
-<meta content="Oddiy kirim–chiqim hisoblagich. Ma'lumotlar LocalStorage'da saqlanadi. PDF va tahlil grafigi mavjud." name="description"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
-<style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Kirim–Chiqim Hisobi (Cloud Firestore)</title>
+  <meta name="description" content="Oddiy kirim–chiqim hisoblagich. Ma'lumotlar Cloud Firestore'da saqlanadi. PDF va tahlil grafigi mavjud." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
 /* Kirim–Chiqim Hisobi — mobil + desktop + PDF + analytics */
 :root{
   --bg: #0b0f19;
@@ -658,365 +657,363 @@ canvas{
   gap: 12px;
 }
 
-
-
-/* ---------- Auth Gate / Admin ---------- */
-body:not(.authed) .app{opacity:0; pointer-events:none; user-select:none;}
-body.authed #authGate{display:none;}
-
-.auth-gate{
-  position:fixed;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 18px;
-  background: radial-gradient(1200px 600px at 30% 20%, rgba(255,59,48,.12), transparent 55%),
-              radial-gradient(900px 500px at 70% 70%, rgba(255,149,0,.10), transparent 60%),
-              rgba(0,0,0,.55);
-  z-index: 9999;
-  backdrop-filter: blur(8px);
-}
-.auth-card{max-width: 520px; width:100%;}
-.auth-row{display:flex; gap:10px; align-items:center; justify-content:space-between; margin-top:10px; flex-wrap:wrap;}
-.auth-msg{margin-top:10px; font-size: 12px;}
-.user-badge{
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: rgba(0,0,0,.10);
-  color: var(--text);
-  font-size: 12px;
-  margin-right: 8px;
-  max-width: 180px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.range-box{
-  margin-top: 12px;
-  padding: 12px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  background: rgba(0,0,0,.08);
-}
-.range-title{font-size: 13px; margin-bottom: 8px;}
-.range-row{display:grid; grid-template-columns: 1fr 1fr auto; gap: 10px;}
-@media (max-width: 520px){
-  .range-row{grid-template-columns: 1fr; }
-}
-.range-result{margin-top: 8px; font-size: 13px;}
-.admin-list{display:flex; flex-direction:column; gap:10px;}
-.admin-user{
-  display:flex;
-  gap: 10px;
-  align-items:center;
-  justify-content:space-between;
-  padding: 10px 12px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  background: rgba(0,0,0,.06);
-}
-.admin-user .u-meta{display:flex; flex-direction:column; gap:4px;}
-.admin-user .u-actions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;}
 </style>
-<script src="https://telegram.org/js/telegram-web-app.js"></script></head>
-<body><div class="auth-gate" id="authGate"><div class="auth-card card"><h2>Kirish</h2><p class="muted">Kod va parolni kiriting. Hisobingiz bo‘lmasa, admin sizga kod/parol beradi.</p><form id="loginForm"><label class="field"><span class="field-label">Kirish kodi</span><input autocomplete="one-time-code" id="loginCode" inputmode="numeric" placeholder="Kod" type="password"/></label><label class="field"><span class="field-label">Parol</span><input autocomplete="current-password" id="loginPassword" placeholder="Parol" type="password"/></label><div class="auth-row"><button class="btn btn-ghost" id="btnShowCode" type="button">Kod ko‘rinsin/berkinsin</button><button class="btn btn-primary" id="btnLogin" type="submit"><span aria-hidden="true" class="icon">🔐</span><span>Kirish</span></button></div><div class="auth-msg muted" id="authMsg"></div></form></div></div>
-<div class="app">
-<header class="topbar">
-<div class="brand">
-<div aria-hidden="true" class="logo">₸</div>
-<div>
-<h1>Kirim–Chiqim Hisobi</h1>
-<p class="muted">Telefon va kompyuterga mos. Ma’lumotlar Firestore’da saqlanadi (internet kerak).</p>
-</div>
-</div>
-<div class="topbar-actions">
-<button class="btn btn-ghost" id="btnTheme" title="Tema (Light/Dark)" type="button">
-<span aria-hidden="true" class="icon">☾</span>
-<span>Tema</span>
-</button><div class="user-badge" hidden="" id="userBadge"></div><button class="btn btn-ghost" hidden="" id="btnLogout" type="button"><span aria-hidden="true" class="icon">⎋</span><span>Chiqish</span></button>
-</div>
-</header>
-<main class="grid">
-<!-- Summary -->
-<section class="card summary">
-<div class="summary-grid">
-<div class="metric metric-income">
-<div class="metric-label">Jami kirim</div>
-<div class="metric-value" id="sumIncome">0 so'm</div>
-</div>
-<div class="metric metric-expense">
-<div class="metric-label">Jami chiqim</div>
-<div class="metric-value" id="sumExpense">0 so'm</div>
-</div>
-<div class="metric metric-balance">
-<div class="metric-label">Balans</div>
-<div class="metric-value" id="sumBalance">0 so'm</div>
-</div>
-</div>
-<div class="summary-actions"><button class="btn btn-primary" id="btnPdf" title="Chop etish oynasi ochiladi (Save as PDF)" type="button">
-<span aria-hidden="true" class="icon">🧾</span>
-<span>Hisobot / PDF</span>
-</button><button class="btn btn-secondary" id="btnToggleAnalysisMain" type="button">
-<span aria-hidden="true" class="icon">📊</span>
-<span>Tahlilni ko‘rish</span>
-</button></div><div class="range-box" id="expenseRangeBox"><div class="range-title">Harajatni sanadan sanagacha</div><div class="range-row"><input id="rangeFrom" type="date"/><input id="rangeTo" type="date"/><button class="btn btn-secondary" id="btnRangeCalc" type="button"><span aria-hidden="true" class="icon">🧮</span><span>Hisobla</span></button></div><div class="range-result">Chiqim: <b id="rangeExpenseSum">0 so'm</b></div></div>
-<p class="muted" style="margin-top:10px;font-size:12px">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">₸</div>
+        <div>
+          <h1>Kirim–Chiqim Hisobi</h1>
+          <p class="muted">Telefon va kompyuterga mos. Ma'lumotlar Cloud Firestore’da saqlanadi (internet kerak).</p>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="btnTheme" class="btn btn-ghost" type="button" title="Tema (Light/Dark)">
+          <span class="icon" aria-hidden="true">☾</span>
+          <span>Tema</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="grid">
+      <!-- Summary -->
+      <section class="card summary">
+        <div class="summary-grid">
+          <div class="metric metric-income">
+            <div class="metric-label">Jami kirim</div>
+            <div class="metric-value" id="sumIncome">0 so'm</div>
+          </div>
+          <div class="metric metric-expense">
+            <div class="metric-label">Jami chiqim</div>
+            <div class="metric-value" id="sumExpense">0 so'm</div>
+          </div>
+          <div class="metric metric-balance">
+            <div class="metric-label">Balans</div>
+            <div class="metric-value" id="sumBalance">0 so'm</div>
+          </div>
+        </div>
+
+        <div class="summary-actions">
+          <button id="btnPdf" class="btn btn-primary" type="button" title="Chop etish oynasi ochiladi (Save as PDF)">
+            <span class="icon" aria-hidden="true">🧾</span>
+            <span>Hisobot / PDF</span>
+          </button>
+
+          <button id="btnToggleAnalysisMain" class="btn btn-secondary" type="button">
+            <span class="icon" aria-hidden="true">📊</span>
+            <span>Tahlilni ko‘rish</span>
+          </button>
+
+          <button id="btnExport" class="btn btn-secondary" type="button">
+            <span class="icon" aria-hidden="true">⤓</span>
+            <span>Eksport (JSON)</span>
+          </button>
+          <input id="fileImport" type="file" accept="application/json" hidden />
+          <button id="btnImport" class="btn btn-secondary" type="button">
+            <span class="icon" aria-hidden="true">⤒</span>
+            <span>Import</span>
+          </button>
+          <button id="btnClearAll" class="btn btn-danger" type="button">
+            <span class="icon" aria-hidden="true">🗑</span>
+            <span>Hammasini tozalash</span>
+          </button>
+        </div>
+
+        <p class="muted" style="margin-top:10px;font-size:12px">
           “Hisobot / PDF” tugmasi chop etish oynasini ochadi. U yerdan “Save as PDF” qilib saqlaysiz.
         </p>
-</section><section class="card" hidden="" id="adminPanel"><h2 class="card-title">Boshqaruv</h2><div class="two-col"><div class="card"><h3 class="card-title">Yangi foydalanuvchi</h3><form id="createUserForm"><label class="field"><span class="field-label">Kod (masalan 6-12 raqam)</span><input id="newUserCode" inputmode="numeric" placeholder="Masalan: 123456" type="text"/></label><label class="field"><span class="field-label">Parol</span><input id="newUserPassword" placeholder="Parol" type="password"/></label><label class="field"><span class="field-label">Ism (ixtiyoriy)</span><input id="newUserName" placeholder="Masalan: Abdulla" type="text"/></label><button class="btn btn-primary" id="btnCreateUser" type="submit"><span aria-hidden="true" class="icon">➕</span><span>Yaratish</span></button></form></div><div class="card"><h3 class="card-title">Foydalanuvchilar</h3><div class="muted" id="selectedUserInfo">Foydalanuvchini tanlang.</div><div class="admin-list" id="userList"></div></div></div></section>
-<!-- Form -->
-<section class="card form-card">
-<h2 class="card-title">Yangi yozuv</h2>
-<form class="form" id="entryForm">
-<div aria-label="Kirim yoki chiqim tanlang" class="segmented" role="group">
-<label class="seg-item">
-<input checked="" name="type" type="radio" value="income"/>
-<span>Kirim</span>
-</label>
-<label class="seg-item">
-<input name="type" type="radio" value="expense"/>
-<span>Chiqim</span>
-</label>
-</div>
-<div class="two-col">
-<div class="field">
-<label for="amount">Summasi</label>
-<input id="amount" inputmode="decimal" name="amount" placeholder="Masalan: 150000" required=""/>
-<small class="hint">Raqam kiriting (so‘m). Bo‘shliq/vergul bo‘lsa ham bo‘ladi.</small>
-</div>
-<div class="field">
-<label for="date">Sana</label>
-<input id="date" name="date" required="" type="date"/>
-<small class="hint">Default: bugungi sana.</small>
-</div>
-</div>
-<div class="field">
-<label for="note">Izoh (nimaga / qayerdan)</label>
-<input id="note" maxlength="120" name="note" placeholder="Masalan: Oziq-ovqat / Oylik / Transport..." required=""/>
-</div>
-<div class="form-actions">
-<button class="btn btn-primary" id="btnSave" type="submit">
-<span aria-hidden="true" class="icon">💾</span>
-<span>Saqlash</span>
-</button>
-<button class="btn btn-ghost" hidden="" id="btnCancelEdit" type="button">
-<span aria-hidden="true" class="icon">↩</span>
-<span>Bekor qilish</span>
-</button>
-</div>
-</form>
-</section>
-<!-- List -->
-<section class="card list-card">
-<div class="list-head">
-<div>
-<h2 class="card-title">Yozuvlar</h2>
-<p class="muted" id="countLabel">0 ta yozuv</p>
-</div>
-<div class="list-tools">
-<select aria-label="Filtr" class="select" id="filterType">
-<option value="all">Barchasi</option>
-<option value="income">Faqat kirim</option>
-<option value="expense">Faqat chiqim</option>
-</select>
-<input class="search" id="search" placeholder="Izoh bo‘yicha qidirish..." type="search"/>
-</div>
-</div>
-<!-- Desktop: Table -->
-<div class="table-wrap">
-<table aria-label="Kirim chiqim jadvali" class="table">
-<thead>
-<tr>
-<th>Sana</th>
-<th>Turi</th>
-<th>Summasi</th>
-<th>Izoh</th>
-<th class="th-actions">Amal</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
-</div>
-<!-- Mobile: Cards -->
-<div aria-label="Kirim chiqim kartochkalari" class="cards" id="cards"></div>
-<div class="empty" hidden="" id="emptyState">
-<div aria-hidden="true" class="empty-illu">🧾</div>
-<div>
-<div class="empty-title">Hozircha yozuv yo‘q</div>
-<div class="muted">Yuqoridan kirim yoki chiqim kiriting va “Saqlash” bosing.</div>
-</div>
-</div>
-</section>
-<!-- Analytics -->
-<section class="card analysis" id="analysisSection">
-<div class="analysis-head">
-<div>
-<h2 class="card-title" style="margin-bottom:4px">Tahlil (real vaqtda)</h2>
-<div class="muted" style="font-size:12px">“Kirim ko‘p bo‘lgan kunlar”, “Chiqim ko‘p bo‘lgan kunlar” va oxirgi 30 kun grafigi.</div>
-</div>
-<button class="btn btn-secondary" id="btnToggleAnalysis" style="display:none" type="button"></button>
-</div>
-<div hidden="" id="analysisBody">
+      </section>
+
+      <!-- Form -->
+      <section class="card form-card">
+        <h2 class="card-title">Yangi yozuv</h2>
+
+        <form id="entryForm" class="form">
+          <div class="segmented" role="group" aria-label="Kirim yoki chiqim tanlang">
+            <label class="seg-item">
+              <input type="radio" name="type" value="income" checked />
+              <span>Kirim</span>
+            </label>
+            <label class="seg-item">
+              <input type="radio" name="type" value="expense" />
+              <span>Chiqim</span>
+            </label>
+          </div>
+
+          <div class="two-col">
+            <div class="field">
+              <label for="amount">Summasi</label>
+              <input id="amount" name="amount" inputmode="decimal" placeholder="Masalan: 150000" required />
+              <small class="hint">Raqam kiriting (so‘m). Bo‘shliq/vergul bo‘lsa ham bo‘ladi.</small>
+            </div>
+
+            <div class="field">
+              <label for="date">Sana</label>
+              <input id="date" name="date" type="date" required />
+              <small class="hint">Default: bugungi sana.</small>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="note">Izoh (nimaga / qayerdan)</label>
+            <input id="note" name="note" maxlength="120" placeholder="Masalan: Oziq-ovqat / Oylik / Transport..." required />
+          </div>
+
+          <div class="form-actions">
+            <button id="btnSave" class="btn btn-primary" type="submit">
+              <span class="icon" aria-hidden="true">💾</span>
+              <span>Saqlash</span>
+            </button>
+            <button id="btnCancelEdit" class="btn btn-ghost" type="button" hidden>
+              <span class="icon" aria-hidden="true">↩</span>
+              <span>Bekor qilish</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- List -->
+      <section class="card list-card">
+        <div class="list-head">
+          <div>
+            <h2 class="card-title">Yozuvlar</h2>
+            <p class="muted" id="countLabel">0 ta yozuv</p>
+          </div>
+
+          <div class="list-tools">
+            <select id="filterType" class="select" aria-label="Filtr">
+              <option value="all">Barchasi</option>
+              <option value="income">Faqat kirim</option>
+              <option value="expense">Faqat chiqim</option>
+            </select>
+
+            <input id="search" class="search" type="search" placeholder="Izoh bo‘yicha qidirish..." />
+          </div>
+        </div>
+
+        <!-- Desktop: Table -->
+        <div class="table-wrap">
+          <table class="table" aria-label="Kirim chiqim jadvali">
+            <thead>
+              <tr>
+                <th>Sana</th>
+                <th>Turi</th>
+                <th>Summasi</th>
+                <th>Izoh</th>
+                <th class="th-actions">Amal</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Mobile: Cards -->
+        <div id="cards" class="cards" aria-label="Kirim chiqim kartochkalari"></div>
+
+        <div class="empty" id="emptyState" hidden>
+          <div class="empty-illu" aria-hidden="true">🧾</div>
+          <div>
+            <div class="empty-title">Hozircha yozuv yo‘q</div>
+            <div class="muted">Yuqoridan kirim yoki chiqim kiriting va “Saqlash” bosing.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analytics -->
+      <section id="analysisSection" class="card analysis">
+        <div class="analysis-head">
+          <div>
+            <h2 class="card-title" style="margin-bottom:4px">Tahlil (real vaqtda)</h2>
+            <div class="muted" style="font-size:12px">“Kirim ko‘p bo‘lgan kunlar”, “Chiqim ko‘p bo‘lgan kunlar” va oxirgi 30 kun grafigi.</div>
+          </div>
+          <button id="btnToggleAnalysis" class="btn btn-secondary" type="button" style="display:none"></button>
+        </div>
+
+        <div id="analysisBody" hidden>
+          
 <div class="analysis-grid">
-<div class="canvas-wrap canvas-wide">
-<div class="canvas-title">
-<span>Kirim / Chiqim (zamonaviy)</span>
-<div aria-label="Grafik boshqaruvlari" class="chart-controls">
-<select aria-label="Guruhlash" class="chart-select" id="groupSelect">
-<option value="day">Kun</option>
-<option value="week">Hafta</option>
-<option value="month">Oy</option>
-</select>
-<select aria-label="Oraliq" class="chart-select" id="rangeSelect">
-<option value="7">Oxirgi 7</option>
-<option selected="" value="30">Oxirgi 30</option>
-<option value="90">Oxirgi 90</option>
-<option value="all">Hammasi</option>
-</select>
-</div>
-</div>
-<div class="legend">
-<span class="lg"><i class="dot inc"></i> Kirim</span>
-<span class="lg"><i class="dot exp"></i> Chiqim</span>
-<span class="lg"><i class="line bal"></i> Balans (kumulative)</span>
-</div>
-<div class="canvas-rel">
-<canvas class="chart-big" id="chartCombo"></canvas>
-<div class="chart-tip" hidden="" id="chartTip"></div>
-</div>
-<div class="muted" style="margin-top:8px;font-size:12px">
+            <div class="canvas-wrap canvas-wide">
+              <div class="canvas-title">
+                <span>Kirim / Chiqim (zamonaviy)</span>
+                <div class="chart-controls" aria-label="Grafik boshqaruvlari">
+                  <select id="groupSelect" class="chart-select" aria-label="Guruhlash">
+                    <option value="day">Kun</option>
+                    <option value="week">Hafta</option>
+                    <option value="month">Oy</option>
+                  </select>
+                  <select id="rangeSelect" class="chart-select" aria-label="Oraliq">
+                    <option value="7">Oxirgi 7</option>
+                    <option value="30" selected>Oxirgi 30</option>
+                    <option value="90">Oxirgi 90</option>
+                    <option value="all">Hammasi</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="legend">
+                <span class="lg"><i class="dot inc"></i> Kirim</span>
+                <span class="lg"><i class="dot exp"></i> Chiqim</span>
+                <span class="lg"><i class="line bal"></i> Balans (kumulative)</span>
+              </div>
+
+              <div class="canvas-rel">
+                <canvas id="chartCombo" class="chart-big"></canvas>
+                <div id="chartTip" class="chart-tip" hidden></div>
+              </div>
+
+              <div class="muted" style="margin-top:8px;font-size:12px">
                 Maslahat: telefonda bar ustiga bosib qiymatlarni ko‘ring. PDF hisobotda ham grafiklar chiqadi.
               </div>
-</div>
-<div class="canvas-wrap">
-<div class="canvas-title">
-<span>Kumulative balans</span>
-<span class="muted">umumiy trend</span>
-</div>
-<canvas id="chartBalance"></canvas>
-</div>
-</div>
-<div class="insights">
-<div class="insight">
-<div class="k">Eng ko‘p chiqim bo‘lgan kun</div>
-<div class="v" id="insight1">—</div>
-</div>
-<div class="insight">
-<div class="k">Eng kam chiqim bo‘lgan kun</div>
-<div class="v" id="insight2">—</div>
-</div>
-<div class="insight">
-<div class="k">Eng ko‘p kirim bo‘lgan kun</div>
-<div class="v" id="insight3">—</div>
-</div>
-</div>
-<div class="muted" style="margin-top:10px;font-size:12px">
-<div class="section-split"></div>
-<div class="analysis-extra">
-<div class="extra-card">
-<div class="extra-title">
-<span>Oylik jamlanma</span>
-<span class="muted">Kirim / Chiqim / Net</span>
-</div>
-<div class="extra-table-wrap">
-<table aria-label="Oylik jamlanma" class="extra-table">
-<thead>
-<tr>
-<th>Oy</th>
-<th style="text-align:right">Kirim</th>
-<th style="text-align:right">Chiqim</th>
-<th style="text-align:right">Net</th>
-</tr>
-</thead>
-<tbody id="monthTbody"></tbody>
-</table>
-</div>
-<div class="muted" style="margin-top:10px;font-size:12px">
+            </div>
+
+            <div class="canvas-wrap">
+              <div class="canvas-title">
+                <span>Kumulative balans</span>
+                <span class="muted">umumiy trend</span>
+              </div>
+              <canvas id="chartBalance"></canvas>
+            </div>
+          </div>
+
+          <div class="insights">
+
+            <div class="insight">
+              <div class="k">Eng ko‘p chiqim bo‘lgan kun</div>
+              <div class="v" id="insight1">—</div>
+            </div>
+            <div class="insight">
+              <div class="k">Eng kam chiqim bo‘lgan kun</div>
+              <div class="v" id="insight2">—</div>
+            </div>
+            <div class="insight">
+              <div class="k">Eng ko‘p kirim bo‘lgan kun</div>
+              <div class="v" id="insight3">—</div>
+            </div>
+          </div>
+
+          <div class="muted" style="margin-top:10px;font-size:12px">
+            
+          <div class="section-split"></div>
+
+          <div class="analysis-extra">
+            <div class="extra-card">
+              <div class="extra-title">
+                <span>Oylik jamlanma</span>
+                <span class="muted">Kirim / Chiqim / Net</span>
+              </div>
+              <div class="extra-table-wrap">
+                <table class="extra-table" aria-label="Oylik jamlanma">
+                  <thead>
+                    <tr>
+                      <th>Oy</th>
+                      <th style="text-align:right">Kirim</th>
+                      <th style="text-align:right">Chiqim</th>
+                      <th style="text-align:right">Net</th>
+                    </tr>
+                  </thead>
+                  <tbody id="monthTbody"></tbody>
+                </table>
+              </div>
+              <div class="muted" style="margin-top:10px;font-size:12px">
                 Oxirgi 12 oy ko‘rsatiladi (ko‘p bo‘lsa).
               </div>
-</div>
-<div class="extra-card">
-<div class="extra-title">
-<span>Top 10</span>
-<span class="muted">Eng katta summalar</span>
-</div>
-<div class="two-top">
-<div>
-<div class="mini-head">Eng katta kirimlar</div>
-<div class="extra-table-wrap">
-<table aria-label="Top 10 kirim" class="extra-table">
-<thead>
-<tr>
-<th>Sana</th>
-<th style="text-align:right">Summa</th>
-<th>Izoh</th>
-</tr>
-</thead>
-<tbody id="topIncomeTbody"></tbody>
-</table>
-</div>
-</div>
-<div>
-<div class="mini-head">Eng katta chiqimlar</div>
-<div class="extra-table-wrap">
-<table aria-label="Top 10 chiqim" class="extra-table">
-<thead>
-<tr>
-<th>Sana</th>
-<th style="text-align:right">Summa</th>
-<th>Izoh</th>
-</tr>
-</thead>
-<tbody id="topExpenseTbody"></tbody>
-</table>
-</div>
-</div>
-</div>
-</div>
-</div>
+            </div>
+
+            <div class="extra-card">
+              <div class="extra-title">
+                <span>Top 10</span>
+                <span class="muted">Eng katta summalar</span>
+              </div>
+
+              <div class="two-top">
+                <div>
+                  <div class="mini-head">Eng katta kirimlar</div>
+                  <div class="extra-table-wrap">
+                    <table class="extra-table" aria-label="Top 10 kirim">
+                      <thead>
+                        <tr>
+                          <th>Sana</th>
+                          <th style="text-align:right">Summa</th>
+                          <th>Izoh</th>
+                        </tr>
+                      </thead>
+                      <tbody id="topIncomeTbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="mini-head">Eng katta chiqimlar</div>
+                  <div class="extra-table-wrap">
+                    <table class="extra-table" aria-label="Top 10 chiqim">
+                      <thead>
+                        <tr>
+                          <th>Sana</th>
+                          <th style="text-align:right">Summa</th>
+                          <th>Izoh</th>
+                        </tr>
+                      </thead>
+                      <tbody id="topExpenseTbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsatiladi. Hisobot/PDF ichida ham grafiklar chiqadi.
           </div>
-</div>
-</section>
-</main>
-<footer class="footer muted">
-<span>V2 • LocalStorage • mobil + desktop • PDF + tahlil</span>
-</footer>
-</div>
-<div aria-atomic="true" aria-live="polite" class="toast" hidden="" id="toast" role="status"></div>
-<script type="module">import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer muted">
+      <span>V2 • Firestore • mobil + desktop • PDF + tahlil</span>
+    </footer>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+
+  <script type="module">
+// ---------- Firebase imports (module scope) ----------
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import {
-  getFirestore, collection, doc, getDoc, setDoc, onSnapshot, query, where, orderBy, getDocs,
-  serverTimestamp, runTransaction, increment
+  getFirestore,
+  collection,
+  addDoc,
+  setDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+  getDocs,
+  writeBatch,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-import {
-  getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut,
-  createUserWithEmailAndPassword, updatePassword, updateEmail
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-
-const firebaseConfig = {
-  "apiKey": "AIzaSyDLIJg7UfsVYiz9HdhbwblqQ_3ZYZPJ8fg",
-  "authDomain": "shahbozbek-4922b.firebaseapp.com",
-  "projectId": "shahbozbek-4922b",
-  "storageBucket": "shahbozbek-4922b.firebasestorage.app",
-  "messagingSenderId": "131010057146",
-  "appId": "1:131010057146:web:f9fe30976d19e9d1ea0383",
-  "measurementId": "G-3XCQLHNYC2"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-// Secondary auth instance for admin actions (create user / change credentials) without logging out admin
-const secondaryApp = initializeApp(firebaseConfig, "secondary");
-const secondaryAuth = getAuth(secondaryApp);
-
 
 (() => {
   'use strict';
+
+  // ---------- Firebase (Cloud Firestore) ----------
+  // (importlar modul boshida)
+
+  // Sizning Firebase konfiguratsiyangiz (Firebase Console -> Project settings -> Web app)
+  const firebaseConfig = {
+    apiKey: "AIzaSyDLIJg7UfsVYiz9HdhbwblqQ_3ZYZPJ8fg",
+    authDomain: "shahbozbek-4922b.firebaseapp.com",
+    projectId: "shahbozbek-4922b",
+    storageBucket: "shahbozbek-4922b.firebasestorage.app",
+    messagingSenderId: "131010057146",
+    appId: "1:131010057146:web:f9fe30976d19e9d1ea0383",
+    measurementId: "G-3XCQLHNYC2"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const COL_NAME = "transactions"; // Firestore collection nomi
 
   /** @type {{items: Array<{id:string,type:'income'|'expense',amount:number,note:string,date:string,createdAt:number}>}} */
   let state = { items: [] };
@@ -1043,6 +1040,11 @@ const secondaryAuth = getAuth(secondaryApp);
   const filterType = $('#filterType');
   const searchInput = $('#search');
 
+  const btnClearAll = $('#btnClearAll');
+  const btnExport = $('#btnExport');
+  const btnImport = $('#btnImport');
+  const fileImport = $('#fileImport');
+
   const btnTheme = $('#btnTheme');
 
   const btnToggleAnalysis = $('#btnToggleAnalysisMain');
@@ -1050,30 +1052,6 @@ const secondaryAuth = getAuth(secondaryApp);
   const analysisSection = $('#analysisSection');
 
   const btnPdf = $('#btnPdf');
-
-  // Auth / Admin UI
-  const authGate = $('#authGate');
-  const loginForm = $('#loginForm');
-  const loginCode = $('#loginCode');
-  const loginPassword = $('#loginPassword');
-  const btnShowCode = $('#btnShowCode');
-  const authMsg = $('#authMsg');
-  const btnLogout = $('#btnLogout');
-  const userBadge = $('#userBadge');
-
-  const adminPanel = $('#adminPanel');
-  const createUserForm = $('#createUserForm');
-  const newUserCode = $('#newUserCode');
-  const newUserPassword = $('#newUserPassword');
-  const newUserName = $('#newUserName');
-  const userListEl = $('#userList');
-  const selectedUserInfo = $('#selectedUserInfo');
-
-  const rangeFrom = $('#rangeFrom');
-  const rangeTo = $('#rangeTo');
-  const btnRangeCalc = $('#btnRangeCalc');
-  const rangeExpenseSum = $('#rangeExpenseSum');
-
 
   const canvasCombo = $('#chartCombo');
   const canvasBalance = $('#chartBalance');
@@ -1137,363 +1115,49 @@ const secondaryAuth = getAuth(secondaryApp);
       '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'
     }[ch]));
   }
+  // ---------- Cloud Firestore (realtime) ----------
+  let unsubscribe = null;
 
-  // ---------- Auth / Firestore ----------
-  const ADMIN_CODE = '20006123';
-  const ADMIN_EMAIL = 'admin@kirim.local';
-  const EMAIL_DOMAIN = 'kirim.local';
-
-  let currentUser = null;
-  let currentCode = null;
-  let isAdmin = false;
-  let viewUid = null;
-
-  let unsubTx = null;
-  let unsubUsers = null;
-
-  let lastLoginCodeAttempt = null;
-
-  function maskCode(code){
-    const s = String(code || '');
-    if (s.length <= 3) return '***';
-    return '***' + s.slice(-3);
-  }
-  function setAuthMessage(t){ authMsg.textContent = t || ''; }
-  function setAuthed(on){
-    document.body.classList.toggle('authed', !!on);
-    btnLogout.hidden = !on;
-    userBadge.hidden = !on;
-  }
-  function setUserBadge(code){
-    userBadge.textContent = code ? `Kod: ${maskCode(code)}` : '';
-  }
-
-  function normalizeCode(code){
-    return String(code || '').trim().replace(/\s+/g, '');
-  }
-  function codeToEmail(code){
-    const c = normalizeCode(code);
-    if (c === ADMIN_CODE) return ADMIN_EMAIL;
-    if (!/^[0-9]{4,12}$/.test(c)) return null;
-    return `${c}@${EMAIL_DOMAIN}`;
-  }
-  function isAdminUser(user){
-    return !!user?.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-  }
-
-  function userRef(uid){ return doc(db, 'users', uid); }
-  function txRef(uid, id){ return doc(db, 'users', uid, 'transactions', id); }
-  function txCol(uid){ return collection(db, 'users', uid, 'transactions'); }
-
-  async function ensureProfile(uid, code, name=''){
-    const ref = userRef(uid);
-    const snap = await getDoc(ref);
-    if (!snap.exists()){
-      await setDoc(ref, {
-        code: String(code || ''),
-        name: String(name || ''),
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        stats: { incomeTotal: 0, expenseTotal: 0, txCount: 0 }
-      }, { merge: true });
-    } else {
-      const d = snap.data() || {};
-      const upd = { updatedAt: serverTimestamp() };
-      if (!d.code && code) upd.code = String(code);
-      if (!d.name && name) upd.name = String(name);
-      await setDoc(ref, upd, { merge: true });
+  function startRealtime() {
+    // Collection ichidagi hamma yozuvlar real vaqtda keladi
+    if (unsubscribe) {
+      try { unsubscribe(); } catch {}
+      unsubscribe = null;
     }
-  }
 
-  function stopTxListener(){
-    if (unsubTx){ unsubTx(); unsubTx = null; }
-  }
+    const colRef = collection(db, COL_NAME);
 
-  function startTxListener(uid){
-    stopTxListener();
-    viewUid = uid || null;
-    state.items = [];
-    render();
-
-    if (!uid) return;
-
-    const q = query(txCol(uid), orderBy('date','desc'), orderBy('createdAtMs','desc'));
-    unsubTx = onSnapshot(q, (snap) => {
-      const items = [];
-      snap.forEach((d) => {
-        const x = d.data() || {};
+    unsubscribe = onSnapshot(colRef, (snap) => {
+      const items = snap.docs.map((d) => {
+        const data = d.data() || {};
         const createdAtMs =
-          (typeof x.createdAtMs === 'number' ? x.createdAtMs :
-           x.createdAt?.toMillis ? x.createdAt.toMillis() : Date.now());
+          (data.createdAt && typeof data.createdAt.toMillis === 'function' ? data.createdAt.toMillis() : 0)
+          || Number(data.createdAtMs) || 0;
 
-        items.push({
+        return {
           id: d.id,
-          type: x.type === 'expense' ? 'expense' : 'income',
-          amount: Number(x.amount) || 0,
-          note: String(x.note || '').slice(0, 120),
-          date: String(x.date || todayISO()),
+          type: data.type === 'expense' ? 'expense' : 'income',
+          amount: Number(data.amount) || 0,
+          note: String(data.note || '').slice(0, 120),
+          date: String(data.date || todayISO()).slice(0, 10),
           createdAt: createdAtMs
-        });
+        };
       });
+
+      // UI sorting (eski logikaga mos)
+      items.sort((a, b) => {
+        if (a.date !== b.date) return (b.date || '').localeCompare(a.date || '');
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+
       state.items = items;
       render();
+      if (!analysisBody.hidden) renderAnalytics();
     }, (err) => {
-      console.error(err);
-      showToast('Firestore xato: ' + (err?.message || err));
+      console.error('Firestore onSnapshot error:', err);
+      showToast(`Firebase xato: ${err?.code || 'unknown'}`);
     });
   }
-
-  async function addTx(type, amount, note, date){
-    if (!viewUid) throw new Error('Foydalanuvchi tanlanmagan');
-    const id = uid();
-    const tref = txRef(viewUid, id);
-    const uref = userRef(viewUid);
-
-    await runTransaction(db, async (t) => {
-      const uSnap = await t.get(uref);
-      if (!uSnap.exists()){
-        t.set(uref, {
-          code: String(currentCode || ''),
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-          stats: { incomeTotal: 0, expenseTotal: 0, txCount: 0 }
-        }, { merge: true });
-      }
-
-      t.set(tref, {
-        type, amount, note, date,
-        createdAt: serverTimestamp(),
-        createdAtMs: Date.now()
-      });
-
-      const field = type === 'income' ? 'stats.incomeTotal' : 'stats.expenseTotal';
-      t.update(uref, {
-        updatedAt: serverTimestamp(),
-        'stats.txCount': increment(1),
-        [field]: increment(amount)
-      });
-    });
-  }
-
-  async function updateTx(id, type, amount, note, date){
-    if (!viewUid) throw new Error('Foydalanuvchi tanlanmagan');
-    const tref = txRef(viewUid, id);
-    const uref = userRef(viewUid);
-
-    await runTransaction(db, async (t) => {
-      const txSnap = await t.get(tref);
-      if (!txSnap.exists()) return;
-      const old = txSnap.data() || {};
-      const oldType = old.type === 'expense' ? 'expense' : 'income';
-      const oldAmount = Number(old.amount) || 0;
-
-      const oldField = oldType === 'income' ? 'stats.incomeTotal' : 'stats.expenseTotal';
-      const newField = type === 'income' ? 'stats.incomeTotal' : 'stats.expenseTotal';
-
-      // revert old
-      t.update(uref, { [oldField]: increment(-oldAmount) });
-      // apply new
-      t.update(uref, { [newField]: increment(amount), updatedAt: serverTimestamp() });
-
-      t.update(tref, {
-        type, amount, note, date,
-        updatedAt: serverTimestamp(),
-        updatedAtMs: Date.now()
-      });
-    });
-  }
-
-  async function deleteTx(id){
-    if (!viewUid) throw new Error('Foydalanuvchi tanlanmagan');
-    const tref = txRef(viewUid, id);
-    const uref = userRef(viewUid);
-
-    await runTransaction(db, async (t) => {
-      const txSnap = await t.get(tref);
-      if (!txSnap.exists()) return;
-      const old = txSnap.data() || {};
-      const oldType = old.type === 'expense' ? 'expense' : 'income';
-      const oldAmount = Number(old.amount) || 0;
-
-      const field = oldType === 'income' ? 'stats.incomeTotal' : 'stats.expenseTotal';
-
-      t.delete(tref);
-      t.update(uref, {
-        updatedAt: serverTimestamp(),
-        'stats.txCount': increment(-1),
-        [field]: increment(-oldAmount)
-      });
-    });
-  }
-
-  async function calcExpenseRange(){
-    if (!viewUid) return showToast('Foydalanuvchi tanlanmagan');
-    const from = (rangeFrom.value || '').trim();
-    const to = (rangeTo.value || '').trim();
-    if (!from || !to) return showToast('Sana oralig‘ini tanlang');
-    if (from > to) return showToast('Boshlanish sanasi tugash sanasidan katta bo‘la olmaydi');
-
-    try{
-      const q = query(txCol(viewUid), where('date','>=', from), where('date','<=', to), orderBy('date','asc'));
-      const snap = await getDocs(q);
-      let sum = 0;
-      snap.forEach((d) => {
-        const x = d.data() || {};
-        if (x.type === 'expense') sum += Number(x.amount) || 0;
-      });
-      rangeExpenseSum.textContent = formatMoney(sum);
-    }catch(err){
-      console.error(err);
-      showToast('Hisoblash xatosi: ' + (err?.message || err));
-    }
-  }
-
-  function clearAdminList(){
-    userListEl.innerHTML = '';
-  }
-
-  function renderAdminUserRow(u){
-    const wrap = document.createElement('div');
-    wrap.className = 'admin-user';
-
-    const meta = document.createElement('div');
-    meta.className = 'u-meta';
-
-    const title = document.createElement('div');
-    const name = u.name ? ` — ${u.name}` : '';
-    title.textContent = `${u.code || '—'}${name}`;
-
-    const stats = u.stats || {};
-    const inc = Number(stats.incomeTotal)||0;
-    const exp = Number(stats.expenseTotal)||0;
-    const bal = inc - exp;
-    const cnt = Number(stats.txCount)||0;
-
-    const sub = document.createElement('div');
-    sub.className = 'muted';
-    sub.textContent = `Yozuvlar: ${cnt} | Kirim: ${formatMoney(inc)} | Chiqim: ${formatMoney(exp)} | Balans: ${formatMoney(bal)}`;
-
-    meta.appendChild(title);
-    meta.appendChild(sub);
-
-    const actions = document.createElement('div');
-    actions.className = 'u-actions';
-
-    const btnView = document.createElement('button');
-    btnView.type = 'button';
-    btnView.className = 'btn btn-secondary';
-    btnView.textContent = 'Ko‘rish';
-    btnView.addEventListener('click', () => {
-      selectedUserInfo.textContent = `Tanlangan: ${u.code || '—'}${name}`;
-      startTxListener(u.id);
-      rangeExpenseSum.textContent = formatMoney(0);
-      if (!rangeFrom.value) rangeFrom.value = todayISO();
-      if (!rangeTo.value) rangeTo.value = todayISO();
-    });
-
-    const btnChPass = document.createElement('button');
-    btnChPass.type = 'button';
-    btnChPass.className = 'btn btn-ghost';
-    btnChPass.textContent = 'Parol';
-    btnChPass.addEventListener('click', async () => {
-      const oldP = prompt('Joriy parolni kiriting (admin bilsa):');
-      if (!oldP) return;
-      const newP = prompt('Yangi parolni kiriting:');
-      if (!newP || newP.length < 6) return showToast('Parol kamida 6 ta belgidan iborat bo‘lsin');
-
-      try{
-        await signInWithEmailAndPassword(secondaryAuth, codeToEmail(u.code), oldP);
-        await updatePassword(secondaryAuth.currentUser, newP);
-        await signOut(secondaryAuth);
-        showToast('Parol yangilandi');
-      }catch(err){
-        console.error(err);
-        showToast('Parol yangilashda xato: ' + (err?.message || err));
-      }
-    });
-
-    const btnChCode = document.createElement('button');
-    btnChCode.type = 'button';
-    btnChCode.className = 'btn btn-ghost';
-    btnChCode.textContent = 'Kod';
-    btnChCode.addEventListener('click', async () => {
-      const pass = prompt('Joriy parolni kiriting (kod o‘zgarishi uchun):');
-      if (!pass) return;
-      const newC = normalizeCode(prompt('Yangi kod (4-12 raqam):') || '');
-      if (!/^[0-9]{4,12}$/.test(newC)) return showToast('Kod 4-12 raqam bo‘lishi kerak');
-      const oldEmail = codeToEmail(u.code);
-      const newEmail = codeToEmail(newC);
-      if (!newEmail) return showToast('Yangi kod noto‘g‘ri');
-
-      try{
-        await signInWithEmailAndPassword(secondaryAuth, oldEmail, pass);
-        await updateEmail(secondaryAuth.currentUser, newEmail);
-        await setDoc(userRef(u.id), { code: newC, updatedAt: serverTimestamp() }, { merge: true });
-        await signOut(secondaryAuth);
-        showToast('Kod yangilandi');
-      }catch(err){
-        console.error(err);
-        showToast('Kod yangilashda xato: ' + (err?.message || err));
-      }
-    });
-
-    actions.appendChild(btnView);
-    actions.appendChild(btnChCode);
-    actions.appendChild(btnChPass);
-
-    wrap.appendChild(meta);
-    wrap.appendChild(actions);
-    return wrap;
-  }
-
-  function startUsersListener(){
-    if (unsubUsers){ unsubUsers(); unsubUsers = null; }
-    clearAdminList();
-
-    const q = query(collection(db, 'users'), orderBy('createdAt','desc'));
-    unsubUsers = onSnapshot(q, (snap) => {
-      clearAdminList();
-      snap.forEach((d) => {
-        const x = d.data() || {};
-        // skip admin's own profile if exists
-        const row = renderAdminUserRow({
-          id: d.id,
-          code: x.code || '',
-          name: x.name || '',
-          stats: x.stats || {}
-        });
-        userListEl.appendChild(row);
-      });
-    }, (err) => {
-      console.error(err);
-      showToast('Foydalanuvchilarni yuklashda xato: ' + (err?.message || err));
-    });
-  }
-
-  function stopUsersListener(){
-    if (unsubUsers){ unsubUsers(); unsubUsers = null; }
-    clearAdminList();
-  }
-
-  async function doLogin(code, password){
-    const email = codeToEmail(code);
-    if (!email) throw new Error('Kod noto‘g‘ri');
-    if (!password || password.length < 6) throw new Error('Parol kamida 6 ta bo‘lsin');
-
-    lastLoginCodeAttempt = normalizeCode(code);
-    await signInWithEmailAndPassword(auth, email, password);
-  }
-
-  async function doLogout(){
-    stopTxListener();
-    stopUsersListener();
-    selectedUserInfo.textContent = 'Foydalanuvchini tanlang.';
-    await signOut(auth);
-  }
-
-
-
-  function save(){/* Firestore mode: no local save */}
 
   // ---------- Theme ----------
   function getSavedTheme() {
@@ -2563,43 +2227,97 @@ const secondaryAuth = getAuth(secondaryApp);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  async function upsertItem(type, amount, note, date) {
-    try {
-      if (!currentUser) return showToast('Avval tizimga kiring');
-      if (isAdmin && !viewUid) return showToast('Foydalanuvchini tanlang');
+  function upsertItem(type, amount, note, date) {
+    // Firestore’ga yozish (localStorage ishlatilmaydi)
+    if (editingId) {
+      const id = editingId;
+      editingId = null;
 
-      if (editingId) {
-        const id = editingId;
-        editingId = null;
-        await updateTx(id, type, amount, note, date);
+      updateDoc(doc(db, COL_NAME, id), {
+        type,
+        amount,
+        note,
+        date,
+        updatedAt: serverTimestamp(),
+        updatedAtMs: Date.now()
+      }).then(() => {
         showToast('Yangilandi');
         resetForm();
-        return;
-      }
+      }).catch((e) => {
+        console.error(e);
+        showToast('Yangilashda xato (Rules/ulanishni tekshiring)');
+      });
 
-      await addTx(type, amount, note, date);
+      return;
+    }
+
+    addDoc(collection(db, COL_NAME), {
+      type,
+      amount,
+      note,
+      date,
+      createdAt: serverTimestamp(),
+      createdAtMs: Date.now(),
+      updatedAt: serverTimestamp(),
+      updatedAtMs: Date.now()
+    }).then(() => {
       showToast('Saqlandi');
       resetForm();
-    } catch (err) {
-      console.error(err);
-      showToast('Saqlashda xato: ' + (err?.message || err));
-    }
+    }).catch((e) => {
+      console.error(e);
+      showToast('Saqlashda xato (Rules/ulanishni tekshiring)');
+    });
   }
 
-  async function removeItem(id) {
+  function removeItem(id) {
     const it = state.items.find(x => x.id === id);
     if (!it) return;
 
-    const ok = confirm(`Rostdan ham o‘chirasizmi?\n\n${it.type === 'income' ? 'Kirim' : 'Chiqim'}: ${formatMoney(it.amount)}\nIzoh: ${it.note}`);
+    const ok = confirm(`Rostdan ham o‘chirasizmi?
+
+${it.type === 'income' ? 'Kirim' : 'Chiqim'}: ${formatMoney(it.amount)}
+Izoh: ${it.note}`);
+    if (!ok) return;
+
+    deleteDoc(doc(db, COL_NAME, id))
+      .then(() => showToast('O‘chirildi'))
+      .catch((e) => {
+        console.error(e);
+        showToast('O‘chirishda xato (Rules/ulanishni tekshiring)');
+      });
+  }
+
+  async function clearAll() {
+    if (state.items.length === 0) return showToast('Tozalash uchun ma’lumot yo‘q');
+
+    const ok = confirm('Hamma yozuvlarni o‘chirib tashlaysizmi? Bu amalni qaytarib bo‘lmaydi.');
     if (!ok) return;
 
     try {
-      await deleteTx(id);
-      if (editingId === id) resetForm();
-      showToast('O‘chirildi');
-    } catch (err) {
-      console.error(err);
-      showToast('O‘chirishda xato: ' + (err?.message || err));
+      const snap = await getDocs(collection(db, COL_NAME));
+      if (snap.empty) return showToast('Tozalash uchun ma’lumot yo‘q');
+
+      let batch = writeBatch(db);
+      let ops = 0;
+
+      for (const d of snap.docs) {
+        batch.delete(d.ref);
+        ops++;
+
+        // Firestore batch limit: 500. Biz xavfsizroq 450 qilamiz.
+        if (ops >= 450) {
+          await batch.commit();
+          batch = writeBatch(db);
+          ops = 0;
+        }
+      }
+
+      if (ops > 0) await batch.commit();
+      showToast('Hammasi tozalandi');
+      resetForm();
+    } catch (e) {
+      console.error(e);
+      showToast('Tozalashda xato (Rules/ulanishni tekshiring)');
     }
   }
 
@@ -2633,20 +2351,49 @@ const secondaryAuth = getAuth(secondaryApp);
       const cleaned = items
         .filter(x => x && (x.type === 'income' || x.type === 'expense'))
         .map(x => ({
-          id: String(x.id || uid()),
+          id: String(x.id || '').trim(),
           type: x.type,
           amount: Number(x.amount) || 0,
           note: String(x.note || '').slice(0, 120),
           date: String(x.date || todayISO()).slice(0, 10),
           createdAt: Number(x.createdAt) || Date.now()
-        }));
+        }))
+        .filter(x => x.amount > 0 && x.note);
 
-      const map = new Map(state.items.map(x => [x.id, x]));
-      for (const it of cleaned) map.set(it.id, it);
+      if (cleaned.length === 0) return showToast('Import uchun yaroqli yozuv topilmadi');
 
-      state.items = Array.from(map.values());
-      save();
-      render();
+      const ok = confirm(`Import qilinsinmi?
+
+Topildi: ${cleaned.length} ta yozuv`);
+      if (!ok) return;
+
+      const colRef = collection(db, COL_NAME);
+
+      let batch = writeBatch(db);
+      let ops = 0;
+
+      for (const it of cleaned) {
+        const ref = it.id ? doc(db, COL_NAME, it.id) : doc(colRef);
+        batch.set(ref, {
+          type: it.type,
+          amount: Math.round(it.amount),
+          note: it.note,
+          date: it.date,
+          createdAtMs: it.createdAt,
+          importedAt: serverTimestamp(),
+          importedAtMs: Date.now()
+        }, { merge: true });
+
+        ops++;
+        if (ops >= 450) {
+          await batch.commit();
+          batch = writeBatch(db);
+          ops = 0;
+        }
+      }
+
+      if (ops > 0) await batch.commit();
+
       resetForm();
       showToast('Import bajarildi');
     } catch (e) {
@@ -2691,63 +2438,17 @@ const secondaryAuth = getAuth(secondaryApp);
   filterType.addEventListener('change', renderList);
   searchInput.addEventListener('input', renderList);
 
+  btnClearAll.addEventListener('click', clearAll);
+  btnExport.addEventListener('click', exportJSON);
+
+  btnImport.addEventListener('click', () => fileImport.click());
+  fileImport.addEventListener('change', () => {
+    const file = fileImport.files?.[0];
+    if (file) importJSONFile(file);
+    fileImport.value = '';
+  });
+
   btnTheme.addEventListener('click', toggleTheme);
-
-  btnLogout.addEventListener('click', doLogout);
-
-  btnShowCode.addEventListener('click', () => {
-    loginCode.type = (loginCode.type === 'password') ? 'text' : 'password';
-  });
-
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    setAuthMessage('');
-    const code = normalizeCode(loginCode.value);
-    const pass = loginPassword.value || '';
-
-    try{
-      await doLogin(code, pass);
-    }catch(err){
-      console.error(err);
-      setAuthMessage(err?.message || String(err));
-      showToast('Kirishda xato: ' + (err?.message || err));
-    }
-  });
-
-  btnRangeCalc.addEventListener('click', calcExpenseRange);
-
-  createUserForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!isAdmin) return;
-
-    const code = normalizeCode(newUserCode.value);
-    const pass = newUserPassword.value || '';
-    const name = (newUserName.value || '').trim();
-
-    if (!/^[0-9]{4,12}$/.test(code)) return showToast('Kod 4-12 raqam bo‘lishi kerak');
-    if (!pass || pass.length < 6) return showToast('Parol kamida 6 ta bo‘lsin');
-
-    const email = codeToEmail(code);
-    try{
-      const cred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
-      await setDoc(userRef(cred.user.uid), {
-        code,
-        name,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        stats: { incomeTotal: 0, expenseTotal: 0, txCount: 0 }
-      }, { merge: true });
-
-      await signOut(secondaryAuth);
-      newUserCode.value = '';
-      newUserPassword.value = '';
-      newUserName.value = '';
-      showToast('Yangi foydalanuvchi yaratildi');
-    }catch(err){
-      console.error(err);
-      showToast('Yaratishda xato: ' + (err?.message || err));
-    }
-  });
 
   btnToggleAnalysis.addEventListener('click', () => toggleAnalysis());
   rangeSelect?.addEventListener('change', () => { if (!analysisBody.hidden) renderAnalytics(); });
@@ -2760,78 +2461,27 @@ const secondaryAuth = getAuth(secondaryApp);
   });
 
   // ---------- Init ----------
-  async function init() {
-    // Telegram WebApp init (if running inside Telegram)
-    try{
-      const tg = window.Telegram?.WebApp;
-      tg?.ready();
-      tg?.expand();
-      tg?.disableVerticalSwipes?.();
-    }catch(_){}
-
+  function init() {
     dateInput.value = todayISO();
-    rangeFrom.value = todayISO();
-    rangeTo.value = todayISO();
 
     const saved = getSavedTheme();
     if (saved) setTheme(saved);
 
     bindChartEvents();
+
+    // Firestore real-time ulanish
+    startRealtime();
+
+    // UI initial render (snapshot kelguncha bo‘sh ko‘rinadi)
     render();
     resetForm();
 
+    // start with analytics hidden, but ready
     toggleAnalysis(false);
-
-    // Auth state
-    onAuthStateChanged(auth, async (user) => {
-      currentUser = user || null;
-      if (!user) {
-        isAdmin = false;
-        currentCode = null;
-        viewUid = null;
-        setAuthed(false);
-        setUserBadge('');
-        adminPanel.hidden = true;
-        stopTxListener();
-        stopUsersListener();
-        state.items = [];
-        render();
-        return;
-      }
-
-      // Determine code
-      currentCode = lastLoginCodeAttempt || (user.email ? user.email.split('@')[0] : '');
-      isAdmin = isAdminUser(user) || (normalizeCode(lastLoginCodeAttempt) === ADMIN_CODE);
-
-      setAuthed(true);
-      setUserBadge(currentCode);
-
-      // Ensure profile for non-admin users (optional for admin too)
-      try{
-        if (!isAdmin) await ensureProfile(user.uid, currentCode);
-      }catch(err){
-        console.error(err);
-      }
-
-      if (isAdmin) {
-        adminPanel.hidden = false;
-        selectedUserInfo.textContent = 'Foydalanuvchini tanlang.';
-        state.items = [];
-        render();
-        startUsersListener();
-        stopTxListener();
-        viewUid = null;
-      } else {
-        adminPanel.hidden = true;
-        stopUsersListener();
-        startTxListener(user.uid);
-      }
-    });
   }
 
   init();
 })();
-
 </script>
 </body>
 </html>
