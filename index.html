@@ -2483,5 +2483,96 @@ Topildi: ${cleaned.length} ta yozuv`);
   init();
 })();
 </script>
-</body>
-</html>
+
+<!-- ===== ADDED: SMART REMINDERS + AI LOGIC ===== -->
+<script type="module">
+import { collection, addDoc, updateDoc, getDocs, doc, serverTimestamp } 
+  from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+// Ding
+const __ding = new Audio('./ding.mp3');
+let __dingOnce=false;
+function playDingOnce(){ if(__dingOnce) return; __dingOnce=true; __ding.play().catch(()=>{}); }
+
+// Helpers
+function todayISO(){ const d=new Date(); const o=d.getTimezoneOffset(); return new Date(d.getTime()-o*60000).toISOString().slice(0,10); }
+function aiText(r, paid){
+  if(r.remainingAmount<=0){
+    return r.remindDate>=todayISO()
+      ? "A’lo! To‘lovni juda tez yopdingiz. Shunday davom eting."
+      : "To‘lov yopildi. Keyingi safar biroz tezroq bo‘lsa yanada foydali bo‘ladi.";
+  }
+  if(r.type==="expense"){
+    return `Siz ${paid} so‘m to‘ladingiz. Yana ${r.remainingAmount} so‘m qoldi. Tezroq yopishni maslahat beraman.`;
+  }
+  return `Siz ${paid} so‘m oldingiz. Yana ${r.remainingAmount} so‘m olishingiz kerak. Yana eslataman.`;
+}
+
+// Hook into existing save (transactions) by also creating reminders
+document.getElementById('entryForm')?.addEventListener('submit', async (e)=>{
+  const f=new FormData(e.target);
+  const amount=Number(String(f.get('amount')||'').replace(/\D/g,''));
+  const note=String(f.get('note')||'');
+  const date=String(f.get('date')||todayISO());
+  const type=String(f.get('type')||'income');
+  if(!amount) return;
+  await addDoc(collection(db,'reminders'),{
+    type, totalAmount:amount, paidAmount:0, remainingAmount:amount,
+    person:note, remindDate:date, status:'pending', seen:false,
+    createdAt:serverTimestamp()
+  });
+});
+
+// Modal (lightweight)
+const bg=document.createElement('div');
+bg.id='__remBg';
+bg.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:9999';
+bg.innerHTML=`<div style="background:#141827;color:#fff;border-radius:16px;padding:16px;max-width:420px;width:92%">
+  <div id="__remText"></div>
+  <input id="__remInp" placeholder="Qancha to‘landingiz / oldingiz" style="width:100%;padding:10px;margin-top:8px">
+  <button id="__remPart" style="width:100%;margin-top:8px">Shuncha</button>
+  <button id="__remFull" style="width:100%;margin-top:8px">To‘liq</button>
+  <button id="__remSeen" style="width:100%;margin-top:8px">Ko‘rdim</button>
+</div>`;
+document.body.appendChild(bg);
+
+let curId=null, cur=null;
+async function checkReminders(){
+  const snap=await getDocs(collection(db,'reminders'));
+  snap.forEach(d=>{
+    const r=d.data();
+    if(r.status==='pending' && !r.seen && r.remindDate<=todayISO()){
+      curId=d.id; cur=r;
+      document.getElementById('__remText').innerText=
+        `${r.person} bilan ${r.remainingAmount} so‘m ${r.type==='expense'?'to‘lash':'olish'} kerak`;
+      bg.style.display='flex';
+      playDingOnce();
+    }
+  });
+}
+checkReminders();
+
+document.getElementById('__remSeen').onclick=async()=>{
+  await updateDoc(doc(db,'reminders',curId),{seen:true});
+  bg.style.display='none';
+};
+document.getElementById('__remFull').onclick=async()=>{
+  await updateDoc(doc(db,'reminders',curId),{
+    paidAmount:cur.totalAmount, remainingAmount:0, status:'done', seen:true
+  });
+  alert(aiText({...cur,remainingAmount:0},cur.totalAmount));
+  bg.style.display='none';
+};
+document.getElementById('__remPart').onclick=async()=>{
+  const v=Number(String(document.getElementById('__remInp').value||'').replace(/\D/g,''));
+  if(!v) return;
+  const paid=cur.paidAmount+v;
+  const rem=Math.max(0,cur.totalAmount-paid);
+  await updateDoc(doc(db,'reminders',curId),{paidAmount:paid, remainingAmount:rem});
+  alert(aiText({...cur,remainingAmount:rem},v));
+  bg.style.display='none';
+};
+</script>
+<!-- ===== END ADDED ===== -->
+
+</body></html>
