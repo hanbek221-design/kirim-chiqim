@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Kirim–Chiqim Hisobi (LocalStorage)</title>
-  <meta name="description" content="Oddiy kirim–chiqim hisoblagich. Ma'lumotlar LocalStorage'da saqlanadi. PDF va tahlil grafigi mavjud." />
+  <title>Kirim–Chiqim Hisobi (Cloud Firestore)</title>
+  <meta name="description" content="Oddiy kirim–chiqim hisoblagich. Ma'lumotlar Cloud Firestore'da saqlanadi. PDF va tahlil grafigi mavjud." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -657,36 +657,6 @@ canvas{
   gap: 12px;
 }
 
-
-/* Cloud badge */
-.cloud-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: rgba(0,0,0,.10);
-  font-weight: 900;
-  font-size: 12px;
-  color: var(--text);
-  user-select:none;
-}
-:root[data-theme="light"] .cloud-badge{background: rgba(255,255,255,.75)}
-.cloud-badge .dot{
-  width:10px;height:10px;border-radius:999px;
-  background: rgba(255,255,255,.35);
-  box-shadow: 0 0 0 3px rgba(255,255,255,.06);
-}
-.cloud-badge.ok .dot{
-  background: rgba(45,212,191,.95);
-  box-shadow: 0 0 0 3px rgba(45,212,191,.16);
-}
-.cloud-badge.warn .dot{
-  background: rgba(251,113,133,.95);
-  box-shadow: 0 0 0 3px rgba(251,113,133,.16);
-}
-
 </style>
 </head>
 <body>
@@ -696,7 +666,7 @@ canvas{
         <div class="logo" aria-hidden="true">₸</div>
         <div>
           <h1>Kirim–Chiqim Hisobi</h1>
-          <p class="muted">Telefon va kompyuterga mos. Internet shart emas — LocalStorage’da saqlanadi.</p>
+          <p class="muted">Telefon va kompyuterga mos. Ma'lumotlar Cloud Firestore’da saqlanadi (internet kerak).</p>
         </div>
       </div>
 
@@ -705,10 +675,6 @@ canvas{
           <span class="icon" aria-hidden="true">☾</span>
           <span>Tema</span>
         </button>
-        <div id="cloudBadge" class="cloud-badge warn" title="Bulut (Firebase) holati">
-          <span class="dot" aria-hidden="true"></span>
-          <span id="cloudStatus">Local</span>
-        </div>
       </div>
     </header>
 
@@ -1004,36 +970,37 @@ Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsati
     </main>
 
     <footer class="footer muted">
-      <span>V2 • LocalStorage • mobil + desktop • PDF + tahlil</span>
+      <span>V2 • Firestore • mobil + desktop • PDF + tahlil</span>
     </footer>
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
 
   <script type="module">
-/* Firebase (CDN, modular) — single file uchun */
+// ---------- Firebase imports (module scope) ----------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import {
   getFirestore,
   collection,
-  doc,
+  addDoc,
   setDoc,
+  doc,
   updateDoc,
   deleteDoc,
   onSnapshot,
-  query,
   getDocs,
   writeBatch,
-  enableIndexedDbPersistence
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 (() => {
   'use strict';
 
-  // ---------- Firebase (Cloud) ----------
-  // Eslatma: Firebase ishlashi uchun sayt HTTPS’da ishlashi kerak (GitHub Pages).
-  const FIREBASE_CONFIG = {
+  // ---------- Firebase (Cloud Firestore) ----------
+  // (importlar modul boshida)
+
+  // Sizning Firebase konfiguratsiyangiz (Firebase Console -> Project settings -> Web app)
+  const firebaseConfig = {
     apiKey: "AIzaSyDLIJg7UfsVYiz9HdhbwblqQ_3ZYZPJ8fg",
     authDomain: "shahbozbek-4922b.firebaseapp.com",
     projectId: "shahbozbek-4922b",
@@ -1043,16 +1010,10 @@ import {
     measurementId: "G-3XCQLHNYC2"
   };
 
-  let fbApp = null;
-  let fbAuth = null;
-  let fbDb = null;
-  let fbUid = null;
-  let fbUnsub = null;
-  let fbReady = false;
-  let fbFirstSnap = true;
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-
-  const STORAGE_KEY = 'kirim_chiqim_v1';
+  const COL_NAME = "transactions"; // Firestore collection nomi
 
   /** @type {{items: Array<{id:string,type:'income'|'expense',amount:number,note:string,date:string,createdAt:number}>}} */
   let state = { items: [] };
@@ -1085,10 +1046,6 @@ import {
   const fileImport = $('#fileImport');
 
   const btnTheme = $('#btnTheme');
-
-  const cloudBadge = $('#cloudBadge');
-  const cloudStatus = $('#cloudStatus');
-
 
   const btnToggleAnalysis = $('#btnToggleAnalysisMain');
   const analysisBody = $('#analysisBody');
@@ -1158,187 +1115,48 @@ import {
       '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'
     }[ch]));
   }
+  // ---------- Cloud Firestore (realtime) ----------
+  let unsubscribe = null;
 
-
-  function setCloudState(state, msg){
-    if (!cloudBadge || !cloudStatus) return;
-    cloudBadge.classList.remove('ok','warn');
-    cloudBadge.classList.add(state === 'ok' ? 'ok' : 'warn');
-    cloudStatus.textContent = msg || (state === 'ok' ? 'Cloud' : 'Local');
-  }
-
-  function canUseFirebaseHere(){
-    // Firebase Web SDK odatda HTTPS talab qiladi (localhost istisno).
-    const proto = location.protocol;
-    if (proto === 'https:') return true;
-    if (proto === 'http:' && (location.hostname === 'localhost' || location.hostname === '127.0.0.1')) return true;
-    return false;
-  }
-
-  function txColRef(){
-    return collection(fbDb, 'users', fbUid, 'transactions');
-  }
-
-  async function ensureFirebase(){
-    if (fbReady) return true;
-
-    if (!canUseFirebaseHere()){
-      setCloudState('warn','Local');
-      console.warn('Firebase uchun HTTPS kerak. Hozirgi protocol:', location.protocol);
-      return false;
+  function startRealtime() {
+    // Collection ichidagi hamma yozuvlar real vaqtda keladi
+    if (unsubscribe) {
+      try { unsubscribe(); } catch {}
+      unsubscribe = null;
     }
 
-    try {
-      fbApp = initializeApp(FIREBASE_CONFIG);
-      fbAuth = getAuth(fbApp);
-      fbDb = getFirestore(fbApp);
+    const colRef = collection(db, COL_NAME);
 
-      // Offline cache (IndexedDB) — xato bo‘lsa ham davom etadi
-      try { await enableIndexedDbPersistence(fbDb); } catch (_) {}
+    unsubscribe = onSnapshot(colRef, (snap) => {
+      const items = snap.docs.map((d) => {
+        const data = d.data() || {};
+        const createdAtMs =
+          (data.createdAt && typeof data.createdAt.toMillis === 'function' ? data.createdAt.toMillis() : 0)
+          || Number(data.createdAtMs) || 0;
 
-      await signInAnonymously(fbAuth);
-
-      onAuthStateChanged(fbAuth, (user) => {
-        if (!user) return;
-        fbUid = user.uid;
-        fbReady = true;
-        setCloudState('ok','Cloud');
-        startRealtimeSync();
-      });
-
-      return true;
-    } catch (e) {
-      console.warn('Firebase init error:', e);
-      setCloudState('warn','Local');
-      showToast('Firebase ulanmadI (Local ishlaydi)');
-      return false;
-    }
-  }
-
-  function startRealtimeSync(){
-    if (!fbReady || !fbDb || !fbUid) return;
-    if (fbUnsub) { try { fbUnsub(); } catch(_){} fbUnsub = null; }
-
-    const qy = query(txColRef());
-    fbUnsub = onSnapshot(qy, async (snap) => {
-      const cloudItems = snap.docs.map(d => {
-        const x = d.data() || {};
         return {
           id: d.id,
-          type: x.type === 'income' ? 'income' : 'expense',
-          amount: Number(x.amount) || 0,
-          note: String(x.note || '').slice(0,120),
-          date: String(x.date || todayISO()).slice(0,10),
-          createdAt: Number(x.createdAt) || Date.now()
+          type: data.type === 'expense' ? 'expense' : 'income',
+          amount: Number(data.amount) || 0,
+          note: String(data.note || '').slice(0, 120),
+          date: String(data.date || todayISO()).slice(0, 10),
+          createdAt: createdAtMs
         };
       });
 
-      // Agar cloud bo‘sh, localda ma’lumot bo‘lsa — birinchi marta avtomatik ko‘chirib beradi
-      if (fbFirstSnap && cloudItems.length === 0 && state.items.length > 0) {
-        fbFirstSnap = false;
-        try{
-          await cloudUpsertMany(state.items);
-          showToast('Local → Cloud: ma’lumotlar ko‘chirildi');
-        }catch(e){
-          console.warn(e);
-        }
-        return;
-      }
+      // UI sorting (eski logikaga mos)
+      items.sort((a, b) => {
+        if (a.date !== b.date) return (b.date || '').localeCompare(a.date || '');
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
 
-      fbFirstSnap = false;
-      state.items = cloudItems;
-      save();     // local backup
-      render();   // UI
+      state.items = items;
+      render();
+      if (!analysisBody.hidden) renderAnalytics();
     }, (err) => {
-      console.warn('Realtime sync error:', err);
-      setCloudState('warn','Local');
+      console.error('Firestore onSnapshot error:', err);
+      showToast(`Firebase xato: ${err?.code || 'unknown'}`);
     });
-  }
-
-  async function cloudUpsertOne(item){
-    if (!fbReady) return;
-    const ref = doc(fbDb, 'users', fbUid, 'transactions', item.id);
-    await setDoc(ref, {
-      type: item.type,
-      amount: item.amount,
-      note: item.note,
-      date: item.date,
-      createdAt: item.createdAt
-    }, { merge: true });
-  }
-
-  async function cloudDeleteOne(id){
-    if (!fbReady) return;
-    const ref = doc(fbDb, 'users', fbUid, 'transactions', id);
-    await deleteDoc(ref);
-  }
-
-  async function cloudUpsertMany(items){
-    if (!fbReady) return;
-    // Batch write (500 limit)
-    const chunkSize = 450;
-    for (let i=0;i<items.length;i+=chunkSize){
-      const batch = writeBatch(fbDb);
-      const chunk = items.slice(i, i+chunkSize);
-      for (const it of chunk){
-        const ref = doc(fbDb, 'users', fbUid, 'transactions', it.id);
-        batch.set(ref, {
-          type: it.type,
-          amount: it.amount,
-          note: it.note,
-          date: it.date,
-          createdAt: it.createdAt
-        }, { merge: true });
-      }
-      await batch.commit();
-    }
-  }
-
-  async function cloudDeleteAll(){
-    if (!fbReady) return;
-    const snap = await getDocs(query(txColRef()));
-    if (snap.empty) return;
-    const ids = snap.docs.map(d => d.id);
-    const chunkSize = 450;
-    for (let i=0;i<ids.length;i+=chunkSize){
-      const batch = writeBatch(fbDb);
-      const chunk = ids.slice(i, i+chunkSize);
-      for (const id of chunk){
-        const ref = doc(fbDb, 'users', fbUid, 'transactions', id);
-        batch.delete(ref);
-      }
-      await batch.commit();
-    }
-  }
-
-
-  // ---------- Storage ----------
-  function load() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const data = JSON.parse(raw);
-      if (!data || typeof data !== 'object') return;
-      if (!Array.isArray(data.items)) return;
-
-      state.items = data.items
-        .filter(x => x && (x.type === 'income' || x.type === 'expense'))
-        .map(x => ({
-          id: String(x.id || uid()),
-          type: x.type,
-          amount: Number(x.amount) || 0,
-          note: String(x.note || '').slice(0, 120),
-          date: String(x.date || todayISO()).slice(0, 10),
-          createdAt: Number(x.createdAt) || Date.now()
-        }));
-    } catch (e) {
-      console.warn('Storage load error:', e);
-      state.items = [];
-    }
-  }
-
-  function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
 
   // ---------- Theme ----------
@@ -2410,51 +2228,45 @@ import {
   }
 
   function upsertItem(type, amount, note, date) {
-    let item = null;
-
+    // Firestore’ga yozish (localStorage ishlatilmaydi)
     if (editingId) {
-      const idx = state.items.findIndex(x => x.id === editingId);
-      if (idx >= 0) {
-        state.items[idx] = { ...state.items[idx], type, amount, note, date };
-        item = state.items[idx];
-        save();
-        render();
+      const id = editingId;
+      editingId = null;
+
+      updateDoc(doc(db, COL_NAME, id), {
+        type,
+        amount,
+        note,
+        date,
+        updatedAt: serverTimestamp(),
+        updatedAtMs: Date.now()
+      }).then(() => {
         showToast('Yangilandi');
         resetForm();
+      }).catch((e) => {
+        console.error(e);
+        showToast('Yangilashda xato (Rules/ulanishni tekshiring)');
+      });
 
-        if (fbReady) {
-          cloudUpsertOne(item).catch((e) => {
-            console.warn('Cloud upsert error:', e);
-            showToast('Cloud xato (Local saqlandi)');
-            setCloudState('warn','Local');
-          });
-        }
-        return;
-      }
-      editingId = null;
+      return;
     }
 
-    item = {
-      id: uid(),
+    addDoc(collection(db, COL_NAME), {
       type,
       amount,
       note,
       date,
-      createdAt: Date.now()
-    };
-    state.items.push(item);
-    save();
-    render();
-    showToast('Saqlandi');
-    resetForm();
-
-    if (fbReady) {
-      cloudUpsertOne(item).catch((e) => {
-        console.warn('Cloud upsert error:', e);
-        showToast('Cloud xato (Local saqlandi)');
-        setCloudState('warn','Local');
-      });
-    }
+      createdAt: serverTimestamp(),
+      createdAtMs: Date.now(),
+      updatedAt: serverTimestamp(),
+      updatedAtMs: Date.now()
+    }).then(() => {
+      showToast('Saqlandi');
+      resetForm();
+    }).catch((e) => {
+      console.error(e);
+      showToast('Saqlashda xato (Rules/ulanishni tekshiring)');
+    });
   }
 
   function removeItem(id) {
@@ -2467,41 +2279,45 @@ ${it.type === 'income' ? 'Kirim' : 'Chiqim'}: ${formatMoney(it.amount)}
 Izoh: ${it.note}`);
     if (!ok) return;
 
-    state.items = state.items.filter(x => x.id !== id);
-    save();
-    render();
-
-    if (editingId === id) resetForm();
-
-    showToast('O‘chirildi');
-
-    if (fbReady) {
-      cloudDeleteOne(id).catch((e) => {
-        console.warn('Cloud delete error:', e);
-        showToast('Cloud o‘chirish xato (Local o‘chirildi)');
-        setCloudState('warn','Local');
+    deleteDoc(doc(db, COL_NAME, id))
+      .then(() => showToast('O‘chirildi'))
+      .catch((e) => {
+        console.error(e);
+        showToast('O‘chirishda xato (Rules/ulanishni tekshiring)');
       });
-    }
   }
 
-  function clearAll() {
+  async function clearAll() {
     if (state.items.length === 0) return showToast('Tozalash uchun ma’lumot yo‘q');
 
     const ok = confirm('Hamma yozuvlarni o‘chirib tashlaysizmi? Bu amalni qaytarib bo‘lmaydi.');
     if (!ok) return;
 
-    state.items = [];
-    save();
-    render();
-    resetForm();
-    showToast('Hammasi tozalandi');
+    try {
+      const snap = await getDocs(collection(db, COL_NAME));
+      if (snap.empty) return showToast('Tozalash uchun ma’lumot yo‘q');
 
-    if (fbReady) {
-      cloudDeleteAll().catch((e) => {
-        console.warn('Cloud clear error:', e);
-        showToast('Cloud tozalash xato (Local tozalandi)');
-        setCloudState('warn','Local');
-      });
+      let batch = writeBatch(db);
+      let ops = 0;
+
+      for (const d of snap.docs) {
+        batch.delete(d.ref);
+        ops++;
+
+        // Firestore batch limit: 500. Biz xavfsizroq 450 qilamiz.
+        if (ops >= 450) {
+          await batch.commit();
+          batch = writeBatch(db);
+          ops = 0;
+        }
+      }
+
+      if (ops > 0) await batch.commit();
+      showToast('Hammasi tozalandi');
+      resetForm();
+    } catch (e) {
+      console.error(e);
+      showToast('Tozalashda xato (Rules/ulanishni tekshiring)');
     }
   }
 
@@ -2535,32 +2351,51 @@ Izoh: ${it.note}`);
       const cleaned = items
         .filter(x => x && (x.type === 'income' || x.type === 'expense'))
         .map(x => ({
-          id: String(x.id || uid()),
+          id: String(x.id || '').trim(),
           type: x.type,
           amount: Number(x.amount) || 0,
           note: String(x.note || '').slice(0, 120),
           date: String(x.date || todayISO()).slice(0, 10),
           createdAt: Number(x.createdAt) || Date.now()
-        }));
+        }))
+        .filter(x => x.amount > 0 && x.note);
 
-      const map = new Map(state.items.map(x => [x.id, x]));
-      for (const it of cleaned) map.set(it.id, it);
+      if (cleaned.length === 0) return showToast('Import uchun yaroqli yozuv topilmadi');
 
-      state.items = Array.from(map.values());
-      save();
-      render();
+      const ok = confirm(`Import qilinsinmi?
+
+Topildi: ${cleaned.length} ta yozuv`);
+      if (!ok) return;
+
+      const colRef = collection(db, COL_NAME);
+
+      let batch = writeBatch(db);
+      let ops = 0;
+
+      for (const it of cleaned) {
+        const ref = it.id ? doc(db, COL_NAME, it.id) : doc(colRef);
+        batch.set(ref, {
+          type: it.type,
+          amount: Math.round(it.amount),
+          note: it.note,
+          date: it.date,
+          createdAtMs: it.createdAt,
+          importedAt: serverTimestamp(),
+          importedAtMs: Date.now()
+        }, { merge: true });
+
+        ops++;
+        if (ops >= 450) {
+          await batch.commit();
+          batch = writeBatch(db);
+          ops = 0;
+        }
+      }
+
+      if (ops > 0) await batch.commit();
+
       resetForm();
       showToast('Import bajarildi');
-
-      if (fbReady) {
-        cloudUpsertMany(cleaned).then(() => {
-          showToast('Import Cloudga ham saqlandi');
-        }).catch((e) => {
-          console.warn('Cloud import error:', e);
-          showToast('Cloud import xato (Local import bo‘ldi)');
-          setCloudState('warn','Local');
-        });
-      }
     } catch (e) {
       console.error(e);
       showToast('Import xato: fayl formati noto‘g‘ri');
@@ -2633,15 +2468,16 @@ Izoh: ${it.note}`);
     if (saved) setTheme(saved);
 
     bindChartEvents();
-    load();
+
+    // Firestore real-time ulanish
+    startRealtime();
+
+    // UI initial render (snapshot kelguncha bo‘sh ko‘rinadi)
     render();
     resetForm();
 
     // start with analytics hidden, but ready
     toggleAnalysis(false);
-
-    // Cloud sync (Firebase)
-    ensureFirebase();
   }
 
   init();
