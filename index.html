@@ -1,15 +1,16 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="uz">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Kirim–Chiqim (Firestore Only + Login)</title>
-  <meta name="description" content="Kirim-chiqim hisob. Faqat Firestore. Login: ism + kod. Har login uchun alohida ma'lumot. Real-time, report/print/PDF va zamonaviy grafiklar." />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<title>Kirim–Chiqim Hisobi (LocalStorage)</title>
+<meta content="Oddiy kirim–chiqim hisoblagich. Ma'lumotlar LocalStorage'da saqlanadi. PDF va tahlil grafigi mavjud." name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+/* Kirim–Chiqim Hisobi — mobil + desktop + PDF + analytics */
 :root{
   --bg: #0b0f19;
   --card: rgba(255,255,255,.06);
@@ -23,7 +24,6 @@
 
   --income: #2dd4bf;
   --expense: #fb7185;
-  --warn: #fbbf24;
 
   --shadow: 0 12px 40px rgba(0,0,0,.35);
   --radius: 18px;
@@ -38,6 +38,7 @@
   --text: rgba(16,24,40,.92);
   --muted: rgba(16,24,40,.62);
   --border: rgba(16,24,40,.12);
+
   --shadow: 0 10px 30px rgba(16,24,40,.10);
 }
 
@@ -53,10 +54,8 @@ body{
   color:var(--text);
 }
 
-a{color: inherit}
-
 .app{
-  max-width: 1180px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 22px 16px calc(28px + env(safe-area-inset-bottom));
 }
@@ -69,22 +68,34 @@ a{color: inherit}
   margin-bottom: 16px;
 }
 
-.brand{display:flex; gap:12px; align-items:center;}
+.brand{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
 .logo{
   width:44px;height:44px;
   border-radius: 14px;
   display:grid;
   place-items:center;
-  font-weight: 900;
+  font-weight: 800;
   background: linear-gradient(135deg, rgba(255,59,48,.25), rgba(255,106,0,.18));
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
 
-h1{font-size: 18px; margin:0; line-height: 1.2;}
+h1{
+  font-size: 18px;
+  margin:0;
+  line-height: 1.2;
+}
 p{margin:6px 0 0}
 .muted{color:var(--muted)}
-.footer{margin-top: 18px; text-align:center; font-size: 12px;}
+.footer{
+  margin-top: 18px;
+  text-align:center;
+  font-size: 12px;
+}
 
 .grid{
   display:grid;
@@ -93,10 +104,12 @@ p{margin:6px 0 0}
 }
 
 @media (min-width: 980px){
-  .grid{grid-template-columns: 440px 1fr; align-items:start;}
+  .grid{
+    grid-template-columns: 420px 1fr;
+    align-items:start;
+  }
   .summary{grid-column: 1 / -1;}
   .analysis{grid-column: 1 / -1;}
-  .reporting{grid-column: 1 / -1;}
 }
 
 .card{
@@ -107,10 +120,20 @@ p{margin:6px 0 0}
   padding: 16px;
 }
 
-.card-title{font-size: 15px; margin: 0 0 12px;}
+.card-title{
+  font-size: 15px;
+  margin: 0 0 12px;
+}
 
-.summary-grid{display:grid; grid-template-columns: 1fr; gap: 10px;}
-@media (min-width: 620px){ .summary-grid{grid-template-columns: repeat(3, 1fr);} }
+.summary-grid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+@media (min-width: 620px){
+  .summary-grid{grid-template-columns: repeat(3, 1fr);}
+}
 
 .metric{
   padding: 12px;
@@ -120,7 +143,8 @@ p{margin:6px 0 0}
 }
 :root[data-theme="light"] .metric{background: rgba(16,24,40,.03)}
 .metric-label{color:var(--muted); font-size: 12px}
-.metric-value{font-size: 20px; font-weight: 900; margin-top: 6px; letter-spacing: .2px}
+.metric-value{font-size: 20px; font-weight: 800; margin-top: 6px; letter-spacing: .2px}
+
 .metric-income .metric-value{color: var(--income)}
 .metric-expense .metric-value{color: var(--expense)}
 .metric-balance .metric-value{color: var(--text)}
@@ -132,11 +156,27 @@ p{margin:6px 0 0}
   gap: 10px;
 }
 
-/* Fields */
-.form{display:flex; flex-direction:column; gap: 12px;}
-.field label{display:block; font-size: 12px; color: var(--muted); margin-bottom: 6px;}
-.hint{display:block; font-size: 11px; color: var(--muted); margin-top: 6px;}
-input, select, .search{
+/* Form */
+.form{
+  display:flex;
+  flex-direction:column;
+  gap: 12px;
+}
+
+.field label{
+  display:block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.hint{
+  display:block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+input, select, .select, .search{
   width:100%;
   padding: 12px 12px;
   border-radius: 14px;
@@ -151,8 +191,15 @@ input, select, .search{
   background: rgba(255,255,255,.75);
 }
 input:focus, select:focus, .search:focus{box-shadow: var(--focus); border-color: rgba(255,59,48,.45)}
-.two-col{display:grid; grid-template-columns: 1fr; gap: 12px;}
-@media (min-width: 520px){ .two-col{grid-template-columns: 1fr 1fr;} }
+
+.two-col{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 520px){
+  .two-col{grid-template-columns: 1fr 1fr;}
+}
 
 .segmented{
   display:flex;
@@ -176,13 +223,19 @@ input:focus, select:focus, .search:focus{box-shadow: var(--focus); border-color:
   border: 1px solid transparent;
 }
 .seg-item input{display:none}
-.seg-item span{font-weight: 950; font-size: 13px}
+.seg-item span{font-weight: 900; font-size: 13px}
 .seg-item:has(input:checked){
   background: linear-gradient(135deg, rgba(255,59,48,.22), rgba(255,106,0,.14));
   border-color: rgba(255,59,48,.35);
 }
 
-.form-actions{display:flex; gap: 10px; align-items:center; justify-content:flex-start; flex-wrap: wrap;}
+.form-actions{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  justify-content:flex-start;
+  flex-wrap: wrap;
+}
 
 /* Buttons */
 .btn{
@@ -191,7 +244,7 @@ input:focus, select:focus, .search:focus{box-shadow: var(--focus); border-color:
   color: var(--text);
   padding: 11px 14px;
   border-radius: 14px;
-  font-weight: 950;
+  font-weight: 900;
   cursor:pointer;
   display:inline-flex;
   gap: 10px;
@@ -203,6 +256,7 @@ input:focus, select:focus, .search:focus{box-shadow: var(--focus); border-color:
 .btn:active{transform: scale(.98)}
 .btn:hover{filter: brightness(1.06)}
 .btn .icon{opacity:.95}
+
 .btn-primary{
   border-color: rgba(255,59,48,.35);
   background: linear-gradient(135deg, rgba(255,59,48,.95), rgba(255,106,0,.92));
@@ -218,9 +272,9 @@ input:focus, select:focus, .search:focus{box-shadow: var(--focus); border-color:
   background: linear-gradient(135deg, rgba(251,113,133,.88), rgba(255,59,48,.88));
   color: white;
 }
-.btn-ghost{background: transparent;}
-.btn-mini{padding: 10px 12px; border-radius: 12px; font-weight: 950; font-size: 12px;}
-.btn[disabled]{opacity:.55; cursor:not-allowed}
+.btn-ghost{
+  background: transparent;
+}
 
 /* List header/tools */
 .list-head{
@@ -249,7 +303,7 @@ input:focus, select:focus, .search:focus{box-shadow: var(--focus); border-color:
 .table{
   width:100%;
   border-collapse: collapse;
-  min-width: 920px;
+  min-width: 720px;
   background: rgba(0,0,0,.06);
 }
 :root[data-theme="light"] .table{background: rgba(255,255,255,.7)}
@@ -269,27 +323,42 @@ th{
   backdrop-filter: blur(10px);
 }
 :root[data-theme="light"] th{background: rgba(255,255,255,.9)}
-th.th-actions, td.td-actions{width: 200px}
+th.th-actions, td.td-actions{width: 160px}
 .badge{
   display:inline-flex;
   align-items:center;
   gap: 8px;
   padding: 6px 10px;
   border-radius: 999px;
-  font-weight: 950;
-  border:  1px solid var(--border);
-  white-space: nowrap;
+  font-weight: 900;
+  border: 1px solid var(--border);
 }
 .badge.income{color: var(--income); background: rgba(45,212,191,.12); border-color: rgba(45,212,191,.25)}
 .badge.expense{color: var(--expense); background: rgba(251,113,133,.12); border-color: rgba(251,113,133,.25)}
-.badge.cat{color: var(--text); background: rgba(255,255,255,.06);}
-:root[data-theme="light"] .badge.cat{background: rgba(16,24,40,.04)}
-.amount{font-weight: 1000; letter-spacing: .2px;}
+
+.amount{
+  font-weight: 1000;
+  letter-spacing: .2px;
+}
 .amount.income{color: var(--income)}
 .amount.expense{color: var(--expense)}
 
-.row-actions{display:flex; gap: 8px; justify-content:flex-end;}
-.btn-mini.del{border-color: rgba(251,113,133,.35); background: rgba(251,113,133,.14);}
+.row-actions{
+  display:flex;
+  gap: 8px;
+  justify-content:flex-end;
+}
+.btn-mini{
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-weight: 900;
+  font-size: 12px;
+}
+.btn-mini.edit{border-color: rgba(255,255,255,.18)}
+.btn-mini.del{
+  border-color: rgba(251,113,133,.35);
+  background: rgba(251,113,133,.14);
+}
 :root[data-theme="light"] .btn-mini.del{background: rgba(251,113,133,.10)}
 
 /* Empty */
@@ -303,17 +372,33 @@ th.th-actions, td.td-actions{width: 200px}
   margin-top: 12px;
 }
 .empty-illu{font-size: 26px}
-.empty-title{font-weight: 950}
+.empty-title{font-weight: 900}
 
-/* Mobile cards */
-.cards{display:none;}
-@media (max-width: 800px){
-  .topbar{flex-direction: column; align-items: stretch;}
-  .topbar-actions{display:flex; justify-content:flex-end; gap: 10px; flex-wrap: wrap;}
+/* Mobile cards list */
+.cards{ display:none; }
+
+@media (max-width: 760px){
+  .topbar{
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .topbar-actions{
+    display:flex;
+    justify-content:flex-end;
+  }
+
   .list-tools{ width: 100%; }
-  .select, .search{ min-width: 0; width: 100%; }
+  .select, .search{
+    min-width: 0;
+    width: 100%;
+  }
+
   .table-wrap{ display:none; }
-  .cards{ display:grid; gap: 10px; margin-top: 8px; }
+  .cards{
+    display:grid;
+    gap: 10px;
+    margin-top: 8px;
+  }
   .card-item{
     border: 1px solid var(--border);
     border-radius: 16px;
@@ -321,64 +406,169 @@ th.th-actions, td.td-actions{width: 200px}
     background: rgba(0,0,0,.06);
   }
   :root[data-theme="light"] .card-item{background: rgba(16,24,40,.03)}
-  .card-top{display:flex; align-items:center; justify-content:space-between; gap: 10px;}
-  .card-meta{display:flex; align-items:center; gap: 8px; flex-wrap: wrap;}
-  .card-date{font-size: 12px; color: var(--muted); font-weight: 950;}
-  .card-amount{font-weight: 1000; letter-spacing: .2px;}
-  .card-note{margin-top: 8px; color: var(--text); font-weight: 650; line-height: 1.25; word-break: break-word;}
-  .card-actions{margin-top: 10px; display:flex; gap: 8px; justify-content:flex-start; flex-wrap: wrap;}
+  .card-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+  }
+  .card-meta{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .card-date{
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 900;
+  }
+  .card-amount{
+    font-weight: 1000;
+    letter-spacing: .2px;
+  }
+  .card-note{
+    margin-top: 8px;
+    color: var(--text);
+    font-weight: 650;
+    line-height: 1.25;
+    word-break: break-word;
+  }
+  .card-actions{
+    margin-top: 10px;
+    display:flex;
+    gap: 8px;
+    justify-content:flex-start;
+    flex-wrap: wrap;
+  }
 }
 
 /* Analytics */
-.analysis{display:none}
-.analysis.open{display:block}
-.analysis-head{display:flex; align-items:center; justify-content:space-between; gap: 12px; flex-wrap: wrap;}
-.analysis-grid{display:grid; grid-template-columns: 1fr; gap: 12px; margin-top: 12px;}
-@media (min-width: 900px){ .analysis-grid{ grid-template-columns: 1fr 1fr; } }
-
+.analysis-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.analysis-grid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+@media (min-width: 900px){
+  .analysis-grid{ grid-template-columns: 1fr 1fr; }
+}
 .canvas-wrap{
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 10px;
   background: rgba(0,0,0,.06);
-  position: relative;
 }
 :root[data-theme="light"] .canvas-wrap{background: rgba(16,24,40,.03)}
-.canvas-title{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; color: var(--muted); font-weight: 950; font-size: 12px;}
-canvas{width: 100%; height: 260px; display:block;}
-@media (max-width: 800px){ canvas{ height: 220px; } }
-
-.insights{margin-top: 12px; display:grid; grid-template-columns: 1fr; gap: 10px;}
-@media (min-width: 900px){ .insights{ grid-template-columns: repeat(3, 1fr); } }
-.insight{border: 1px solid var(--border); border-radius: 16px; padding: 12px; background: rgba(0,0,0,.06);}
-:root[data-theme="light"] .insight{background: rgba(16,24,40,.03)}
-.insight .k{color: var(--muted); font-size: 12px; font-weight: 950}
-.insight .v{margin-top: 6px; font-size: 14px; font-weight: 1000}
-
-/* Report settings */
-.pillrow{display:flex; flex-wrap:wrap; gap: 8px; margin-top: 10px;}
-.pill{
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 8px 10px;
-  background: rgba(0,0,0,.08);
+.canvas-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom: 8px;
+  color: var(--muted);
   font-weight: 900;
   font-size: 12px;
 }
-:root[data-theme="light"] .pill{background: rgba(16,24,40,.03)}
-.switch{
-  display:flex;
-  align-items:center;
+canvas{
+  width: 100%;
+  height: 220px;
+  display:block;
+}
+@media (max-width: 760px){
+  canvas{ height: 200px; }
+}
+.insights{
+  margin-top: 12px;
+  display:grid;
+  grid-template-columns: 1fr;
   gap: 10px;
-  padding: 10px 12px;
+}
+@media (min-width: 900px){
+  .insights{ grid-template-columns: repeat(3, 1fr); }
+}
+.insight{
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 16px;
+  padding: 12px;
   background: rgba(0,0,0,.06);
 }
-:root[data-theme="light"] .switch{background: rgba(16,24,40,.03)}
-.switch input{width: 20px; height: 20px; margin:0;}
-.small-actions{display:flex; gap: 10px; flex-wrap:wrap; align-items:center; margin-top: 10px;}
-.hr{height:1px; background: var(--border); margin: 12px 0}
+:root[data-theme="light"] .insight{background: rgba(16,24,40,.03)}
+.insight .k{color: var(--muted); font-size: 12px; font-weight: 900}
+.insight .v{margin-top: 6px; font-size: 14px; font-weight: 1000}
+
+
+/* Modern chart controls + tooltip */
+.canvas-wide{ grid-column: 1 / -1; }
+
+.chart-controls{
+  display:flex;
+  gap: 8px;
+  align-items:center;
+}
+.chart-select{
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.10);
+  color: var(--text);
+  font-weight: 900;
+  font-size: 12px;
+  outline: none;
+}
+:root[data-theme="light"] .chart-select{ background: rgba(255,255,255,.8); }
+.chart-select:focus{ box-shadow: var(--focus); border-color: rgba(255,59,48,.45); }
+
+.legend{
+  display:flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 8px 0 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+.lg{ display:inline-flex; align-items:center; gap: 8px; }
+.dot{
+  width: 10px; height: 10px; border-radius: 999px; display:inline-block;
+}
+.dot.inc{ background: rgba(45,212,191,.95); box-shadow: 0 0 0 3px rgba(45,212,191,.14); }
+.dot.exp{ background: rgba(251,113,133,.95); box-shadow: 0 0 0 3px rgba(251,113,133,.14); }
+.line{
+  width: 18px; height: 3px; border-radius: 999px; display:inline-block;
+}
+.line.bal{ background: linear-gradient(90deg, rgba(255,59,48,.95), rgba(255,106,0,.95)); }
+
+.canvas-rel{ position: relative; }
+.chart-big{ height: 280px; }
+@media (max-width: 760px){ .chart-big{ height: 240px; } }
+
+.chart-tip{
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  max-width: min(320px, calc(100% - 20px));
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-size: 12px;
+  z-index: 5;
+}
+:root[data-theme="light"] .chart-tip{ background: rgba(255,255,255,.92); }
+.chart-tip .t1{ font-weight: 1000; margin-bottom: 6px; }
+.chart-tip .t2{ display:grid; grid-template-columns: auto 1fr; gap: 4px 10px; color: var(--muted); }
+.chart-tip b{ color: var(--text); }
 
 /* Toast */
 .toast{
@@ -393,1845 +583,2255 @@ canvas{width: 100%; height: 260px; display:block;}
   backdrop-filter: blur(10px);
   color: var(--text);
   box-shadow: var(--shadow);
-  max-width: min(680px, calc(100vw - 24px));
+  max-width: min(640px, calc(100vw - 24px));
   z-index: 9999;
 }
 :root[data-theme="light"] .toast{background: rgba(255,255,255,.92)}
 
-/* Login overlay */
-.overlay{
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(900px 700px at 20% 0%, rgba(255,106,0,.25), transparent 60%),
-              radial-gradient(900px 700px at 80% 10%, rgba(45,212,191,.20), transparent 55%),
-              rgba(0,0,0,.72);
-  backdrop-filter: blur(14px);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 18px;
-  z-index: 10000;
+  
+/* Analytics extras */
+.section-split{
+  height: 1px;
+  background: var(--border);
+  margin: 14px 0;
 }
-.overlay.hidden{display:none}
-.login-card{
-  width: min(520px, 100%);
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  box-shadow: var(--shadow);
-  background: linear-gradient(180deg, var(--card2), var(--card));
-  padding: 16px;
+.analysis-extra{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 10px;
 }
-.login-head{display:flex; align-items:center; gap:12px; margin-bottom: 10px;}
-.login-head .lgo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-weight:900;border:1px solid var(--border);background:linear-gradient(135deg, rgba(255,59,48,.25), rgba(255,106,0,.18));}
-.login-title{margin:0;font-size:16px}
-.login-sub{margin:6px 0 0; font-size:12px; color: var(--muted); line-height: 1.35;}
-.login-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top: 12px;}
-.login-note{margin-top:10px; font-size:11px; color: var(--muted); line-height:1.35;}
-.inline-badge{
-  display:inline-flex; align-items:center; gap:8px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-weight: 900;
-  font-size: 12px;
-  background: rgba(255,255,255,.06);
+@media (min-width: 980px){
+  .analysis-extra{ grid-template-columns: 1fr 1fr; }
 }
-.statbar{
-  display:flex; align-items:center; gap: 10px; flex-wrap:wrap; justify-content:flex-end;
-}
-.dotlive{
-  width:10px;height:10px;border-radius:50%;
-  background: rgba(251,191,36,.85);
-  box-shadow: 0 0 0 4px rgba(251,191,36,.10);
-}
-.dotlive.ok{background: rgba(45,212,191,.9); box-shadow: 0 0 0 4px rgba(45,212,191,.10);}
-.dotlive.bad{background: rgba(251,113,133,.9); box-shadow: 0 0 0 4px rgba(251,113,133,.10);}
-
-.modal{
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.65);
-  backdrop-filter: blur(10px);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding: 18px;
-  z-index: 11000;
-}
-.modal.open{display:flex}
-.modal-card{
-  width: min(980px, 100%);
-  max-height: calc(100vh - 36px);
-  overflow:auto;
-  border-radius: 22px;
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, var(--card2), var(--card));
-  box-shadow: var(--shadow);
-  padding: 16px;
-}
-.modal-head{display:flex; align-items:flex-start; justify-content:space-between; gap: 12px; flex-wrap:wrap;}
-.modal-head h3{margin:0; font-size: 15px;}
-.modal-actions{display:flex; gap: 10px; flex-wrap:wrap;}
-.report-box{
+.extra-card{
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 12px;
   background: rgba(0,0,0,.06);
 }
-:root[data-theme="light"] .report-box{background: rgba(16,24,40,.03)}
-.kv{display:flex; justify-content:space-between; gap: 12px; flex-wrap:wrap; margin: 6px 0;}
-.kv .k{color: var(--muted); font-weight: 950}
-.kv .v{font-weight: 1000}
-  </style>
+:root[data-theme="light"] .extra-card{background: rgba(16,24,40,.03)}
+.extra-title{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap: 10px;
+  font-weight: 1000;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+.extra-table-wrap{
+  overflow:auto;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+.extra-table{
+  width:100%;
+  border-collapse: collapse;
+  min-width: 520px;
+  background: rgba(0,0,0,.04);
+}
+:root[data-theme="light"] .extra-table{background: rgba(255,255,255,.65)}
+.extra-table th, .extra-table td{
+  padding: 10px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  vertical-align: top;
+}
+.extra-table th{
+  position: sticky;
+  top: 0;
+  background: rgba(0,0,0,.12);
+  color: var(--muted);
+  text-align:left;
+}
+:root[data-theme="light"] .extra-table th{background: rgba(255,255,255,.9)}
+.mini-head{
+  font-weight: 1000;
+  color: var(--muted);
+  font-size: 12px;
+  margin: 8px 0 8px;
+}
+.two-top{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
 
-  <!-- Chart.js (modern charts) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-  <!-- jsPDF + AutoTable (PDF save alohida) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-</head>
 
-<body>
+/* ---------- Auth Gate / Admin ---------- */
+body:not(.authed) .app{opacity:0; pointer-events:none; user-select:none;}
+body.authed #authGate{display:none;}
 
-  <!-- LOGIN OVERLAY -->
-  <div id="overlay" class="overlay">
-    <div class="login-card">
-      <div class="login-head">
-        <div class="lgo" aria-hidden="true">₸</div>
-        <div>
-          <h2 class="login-title">Kirish</h2>
-          <p class="login-sub">Ism va kod bilan kiring. Har bir login uchun ma’lumotlar alohida saqlanadi (Firestore).</p>
-        </div>
+.auth-gate{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 18px;
+  background: radial-gradient(1200px 600px at 30% 20%, rgba(255,59,48,.12), transparent 55%),
+              radial-gradient(900px 500px at 70% 70%, rgba(255,149,0,.10), transparent 60%),
+              rgba(0,0,0,.55);
+  z-index: 9999;
+  backdrop-filter: blur(8px);
+}
+.auth-card{max-width: 520px; width:100%;}
+.auth-row{display:flex; gap:10px; align-items:center; justify-content:space-between; margin-top:10px; flex-wrap:wrap;}
+.auth-msg{margin-top:10px; font-size: 12px;}
+.user-badge{
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.10);
+  color: var(--text);
+  font-size: 12px;
+  margin-right: 8px;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.range-box{
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.08);
+}
+.range-title{font-size: 13px; margin-bottom: 8px;}
+.range-row{display:grid; grid-template-columns: 1fr 1fr auto; gap: 10px;}
+@media (max-width: 520px){
+  .range-row{grid-template-columns: 1fr; }
+}
+.range-result{margin-top: 8px; font-size: 13px;}
+.admin-list{display:flex; flex-direction:column; gap:10px;}
+.admin-user{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  justify-content:space-between;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.06);
+}
+.admin-user .u-meta{display:flex; flex-direction:column; gap:4px;}
+.admin-user .u-actions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;}
+</style>
+<script src="https://telegram.org/js/telegram-web-app.js"></script></head>
+<body><div class="auth-gate" id="authGate"><div class="auth-card card"><h2>Kirish</h2><p class="muted">Kod va parolni kiriting. Hisobingiz bo‘lmasa, admin sizga kod/parol beradi.</p><form id="loginForm"><label class="field"><span class="field-label">Kirish kodi</span><input autocomplete="one-time-code" id="loginCode" inputmode="numeric" placeholder="Kod" type="password"/></label><label class="field"><span class="field-label">Parol</span><input autocomplete="current-password" id="loginPassword" placeholder="Parol" type="password"/></label><div class="auth-row"><button class="btn btn-ghost" id="btnShowCode" type="button">Kod ko‘rinsin/berkinsin</button><button class="btn btn-primary" id="btnLogin" type="submit"><span aria-hidden="true" class="icon">🔐</span><span>Kirish</span></button></div><div class="auth-msg muted" id="authMsg"></div></form></div></div>
+<div class="app">
+<header class="topbar">
+<div class="brand">
+<div aria-hidden="true" class="logo">₸</div>
+<div>
+<h1>Kirim–Chiqim Hisobi</h1>
+<p class="muted">Telefon va kompyuterga mos. Ma’lumotlar Firestore’da saqlanadi (internet kerak).</p>
+</div>
+</div>
+<div class="topbar-actions">
+<button class="btn btn-ghost" id="btnTheme" title="Tema (Light/Dark)" type="button">
+<span aria-hidden="true" class="icon">☾</span>
+<span>Tema</span>
+</button><div class="user-badge" hidden="" id="userBadge"></div><button class="btn btn-ghost" hidden="" id="btnLogout" type="button"><span aria-hidden="true" class="icon">⎋</span><span>Chiqish</span></button>
+</div>
+</header>
+<main class="grid">
+<!-- Summary -->
+<section class="card summary">
+<div class="summary-grid">
+<div class="metric metric-income">
+<div class="metric-label">Jami kirim</div>
+<div class="metric-value" id="sumIncome">0 so'm</div>
+</div>
+<div class="metric metric-expense">
+<div class="metric-label">Jami chiqim</div>
+<div class="metric-value" id="sumExpense">0 so'm</div>
+</div>
+<div class="metric metric-balance">
+<div class="metric-label">Balans</div>
+<div class="metric-value" id="sumBalance">0 so'm</div>
+</div>
+</div>
+<div class="summary-actions"><button class="btn btn-primary" id="btnPdf" title="Chop etish oynasi ochiladi (Save as PDF)" type="button">
+<span aria-hidden="true" class="icon">🧾</span>
+<span>Hisobot / PDF</span>
+</button><button class="btn btn-secondary" id="btnToggleAnalysisMain" type="button">
+<span aria-hidden="true" class="icon">📊</span>
+<span>Tahlilni ko‘rish</span>
+</button></div><div class="range-box" id="expenseRangeBox"><div class="range-title">Harajatni sanadan sanagacha</div><div class="range-row"><input id="rangeFrom" type="date"/><input id="rangeTo" type="date"/><button class="btn btn-secondary" id="btnRangeCalc" type="button"><span aria-hidden="true" class="icon">🧮</span><span>Hisobla</span></button></div><div class="range-result">Chiqim: <b id="rangeExpenseSum">0 so'm</b></div></div>
+<p class="muted" style="margin-top:10px;font-size:12px">
+          “Hisobot / PDF” tugmasi chop etish oynasini ochadi. U yerdan “Save as PDF” qilib saqlaysiz.
+        </p>
+</section><section class="card" hidden="" id="adminPanel"><h2 class="card-title">Boshqaruv</h2><div class="two-col"><div class="card"><h3 class="card-title">Yangi foydalanuvchi</h3><form id="createUserForm"><label class="field"><span class="field-label">Kod (masalan 6-12 raqam)</span><input id="newUserCode" inputmode="numeric" placeholder="Masalan: 123456" type="text"/></label><label class="field"><span class="field-label">Parol</span><input id="newUserPassword" placeholder="Parol" type="password"/></label><label class="field"><span class="field-label">Ism (ixtiyoriy)</span><input id="newUserName" placeholder="Masalan: Abdulla" type="text"/></label><button class="btn btn-primary" id="btnCreateUser" type="submit"><span aria-hidden="true" class="icon">➕</span><span>Yaratish</span></button></form></div><div class="card"><h3 class="card-title">Foydalanuvchilar</h3><div class="muted" id="selectedUserInfo">Foydalanuvchini tanlang.</div><div class="admin-list" id="userList"></div></div></div></section>
+<!-- Form -->
+<section class="card form-card">
+<h2 class="card-title">Yangi yozuv</h2>
+<form class="form" id="entryForm">
+<div aria-label="Kirim yoki chiqim tanlang" class="segmented" role="group">
+<label class="seg-item">
+<input checked="" name="type" type="radio" value="income"/>
+<span>Kirim</span>
+</label>
+<label class="seg-item">
+<input name="type" type="radio" value="expense"/>
+<span>Chiqim</span>
+</label>
+</div>
+<div class="two-col">
+<div class="field">
+<label for="amount">Summasi</label>
+<input id="amount" inputmode="decimal" name="amount" placeholder="Masalan: 150000" required=""/>
+<small class="hint">Raqam kiriting (so‘m). Bo‘shliq/vergul bo‘lsa ham bo‘ladi.</small>
+</div>
+<div class="field">
+<label for="date">Sana</label>
+<input id="date" name="date" required="" type="date"/>
+<small class="hint">Default: bugungi sana.</small>
+</div>
+</div>
+<div class="field">
+<label for="note">Izoh (nimaga / qayerdan)</label>
+<input id="note" maxlength="120" name="note" placeholder="Masalan: Oziq-ovqat / Oylik / Transport..." required=""/>
+</div>
+<div class="form-actions">
+<button class="btn btn-primary" id="btnSave" type="submit">
+<span aria-hidden="true" class="icon">💾</span>
+<span>Saqlash</span>
+</button>
+<button class="btn btn-ghost" hidden="" id="btnCancelEdit" type="button">
+<span aria-hidden="true" class="icon">↩</span>
+<span>Bekor qilish</span>
+</button>
+</div>
+</form>
+</section>
+<!-- List -->
+<section class="card list-card">
+<div class="list-head">
+<div>
+<h2 class="card-title">Yozuvlar</h2>
+<p class="muted" id="countLabel">0 ta yozuv</p>
+</div>
+<div class="list-tools">
+<select aria-label="Filtr" class="select" id="filterType">
+<option value="all">Barchasi</option>
+<option value="income">Faqat kirim</option>
+<option value="expense">Faqat chiqim</option>
+</select>
+<input class="search" id="search" placeholder="Izoh bo‘yicha qidirish..." type="search"/>
+</div>
+</div>
+<!-- Desktop: Table -->
+<div class="table-wrap">
+<table aria-label="Kirim chiqim jadvali" class="table">
+<thead>
+<tr>
+<th>Sana</th>
+<th>Turi</th>
+<th>Summasi</th>
+<th>Izoh</th>
+<th class="th-actions">Amal</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+<!-- Mobile: Cards -->
+<div aria-label="Kirim chiqim kartochkalari" class="cards" id="cards"></div>
+<div class="empty" hidden="" id="emptyState">
+<div aria-hidden="true" class="empty-illu">🧾</div>
+<div>
+<div class="empty-title">Hozircha yozuv yo‘q</div>
+<div class="muted">Yuqoridan kirim yoki chiqim kiriting va “Saqlash” bosing.</div>
+</div>
+</div>
+</section>
+<!-- Analytics -->
+<section class="card analysis" id="analysisSection">
+<div class="analysis-head">
+<div>
+<h2 class="card-title" style="margin-bottom:4px">Tahlil (real vaqtda)</h2>
+<div class="muted" style="font-size:12px">“Kirim ko‘p bo‘lgan kunlar”, “Chiqim ko‘p bo‘lgan kunlar” va oxirgi 30 kun grafigi.</div>
+</div>
+<button class="btn btn-secondary" id="btnToggleAnalysis" style="display:none" type="button"></button>
+</div>
+<div hidden="" id="analysisBody">
+<div class="analysis-grid">
+<div class="canvas-wrap canvas-wide">
+<div class="canvas-title">
+<span>Kirim / Chiqim (zamonaviy)</span>
+<div aria-label="Grafik boshqaruvlari" class="chart-controls">
+<select aria-label="Guruhlash" class="chart-select" id="groupSelect">
+<option value="day">Kun</option>
+<option value="week">Hafta</option>
+<option value="month">Oy</option>
+</select>
+<select aria-label="Oraliq" class="chart-select" id="rangeSelect">
+<option value="7">Oxirgi 7</option>
+<option selected="" value="30">Oxirgi 30</option>
+<option value="90">Oxirgi 90</option>
+<option value="all">Hammasi</option>
+</select>
+</div>
+</div>
+<div class="legend">
+<span class="lg"><i class="dot inc"></i> Kirim</span>
+<span class="lg"><i class="dot exp"></i> Chiqim</span>
+<span class="lg"><i class="line bal"></i> Balans (kumulative)</span>
+</div>
+<div class="canvas-rel">
+<canvas class="chart-big" id="chartCombo"></canvas>
+<div class="chart-tip" hidden="" id="chartTip"></div>
+</div>
+<div class="muted" style="margin-top:8px;font-size:12px">
+                Maslahat: telefonda bar ustiga bosib qiymatlarni ko‘ring. PDF hisobotda ham grafiklar chiqadi.
+              </div>
+</div>
+<div class="canvas-wrap">
+<div class="canvas-title">
+<span>Kumulative balans</span>
+<span class="muted">umumiy trend</span>
+</div>
+<canvas id="chartBalance"></canvas>
+</div>
+</div>
+<div class="insights">
+<div class="insight">
+<div class="k">Eng ko‘p chiqim bo‘lgan kun</div>
+<div class="v" id="insight1">—</div>
+</div>
+<div class="insight">
+<div class="k">Eng kam chiqim bo‘lgan kun</div>
+<div class="v" id="insight2">—</div>
+</div>
+<div class="insight">
+<div class="k">Eng ko‘p kirim bo‘lgan kun</div>
+<div class="v" id="insight3">—</div>
+</div>
+</div>
+<div class="muted" style="margin-top:10px;font-size:12px">
+<div class="section-split"></div>
+<div class="analysis-extra">
+<div class="extra-card">
+<div class="extra-title">
+<span>Oylik jamlanma</span>
+<span class="muted">Kirim / Chiqim / Net</span>
+</div>
+<div class="extra-table-wrap">
+<table aria-label="Oylik jamlanma" class="extra-table">
+<thead>
+<tr>
+<th>Oy</th>
+<th style="text-align:right">Kirim</th>
+<th style="text-align:right">Chiqim</th>
+<th style="text-align:right">Net</th>
+</tr>
+</thead>
+<tbody id="monthTbody"></tbody>
+</table>
+</div>
+<div class="muted" style="margin-top:10px;font-size:12px">
+                Oxirgi 12 oy ko‘rsatiladi (ko‘p bo‘lsa).
+              </div>
+</div>
+<div class="extra-card">
+<div class="extra-title">
+<span>Top 10</span>
+<span class="muted">Eng katta summalar</span>
+</div>
+<div class="two-top">
+<div>
+<div class="mini-head">Eng katta kirimlar</div>
+<div class="extra-table-wrap">
+<table aria-label="Top 10 kirim" class="extra-table">
+<thead>
+<tr>
+<th>Sana</th>
+<th style="text-align:right">Summa</th>
+<th>Izoh</th>
+</tr>
+</thead>
+<tbody id="topIncomeTbody"></tbody>
+</table>
+</div>
+</div>
+<div>
+<div class="mini-head">Eng katta chiqimlar</div>
+<div class="extra-table-wrap">
+<table aria-label="Top 10 chiqim" class="extra-table">
+<thead>
+<tr>
+<th>Sana</th>
+<th style="text-align:right">Summa</th>
+<th>Izoh</th>
+</tr>
+</thead>
+<tbody id="topExpenseTbody"></tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+Eslatma: Grafiklar ko‘p kun bo‘lsa “oxirgi 30 kun” bo‘yicha ko‘rsatiladi. Hisobot/PDF ichida ham grafiklar chiqadi.
+          </div>
+</div>
+</section>
+</main>
+<footer class="footer muted">
+<span>V2 • LocalStorage • mobil + desktop • PDF + tahlil</span>
+</footer>
+</div>
+<div aria-atomic="true" aria-live="polite" class="toast" hidden="" id="toast" role="status"></div>
+<script type="module">import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import {
+  getFirestore, collection, doc, getDoc, setDoc, onSnapshot, query, where, orderBy, getDocs,
+  serverTimestamp, runTransaction, increment
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import {
+  getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut,
+  createUserWithEmailAndPassword, updatePassword, updateEmail
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+const firebaseConfig = {
+  "apiKey": "AIzaSyDLIJg7UfsVYiz9HdhbwblqQ_3ZYZPJ8fg",
+  "authDomain": "shahbozbek-4922b.firebaseapp.com",
+  "projectId": "shahbozbek-4922b",
+  "storageBucket": "shahbozbek-4922b.firebasestorage.app",
+  "messagingSenderId": "131010057146",
+  "appId": "1:131010057146:web:f9fe30976d19e9d1ea0383",
+  "measurementId": "G-3XCQLHNYC2"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// Secondary auth instance for admin actions (create user / change credentials) without logging out admin
+const secondaryApp = initializeApp(firebaseConfig, "secondary");
+const secondaryAuth = getAuth(secondaryApp);
+
+
+(() => {
+  'use strict';
+
+  /** @type {{items: Array<{id:string,type:'income'|'expense',amount:number,note:string,date:string,createdAt:number}>}} */
+  let state = { items: [] };
+
+  const $ = (sel) => document.querySelector(sel);
+
+  const sumIncomeEl = $('#sumIncome');
+  const sumExpenseEl = $('#sumExpense');
+  const sumBalanceEl = $('#sumBalance');
+
+  const tbody = $('#tbody');
+  const cardsEl = $('#cards');
+
+  const emptyState = $('#emptyState');
+  const countLabel = $('#countLabel');
+
+  const entryForm = $('#entryForm');
+  const amountInput = $('#amount');
+  const noteInput = $('#note');
+  const dateInput = $('#date');
+  const btnSave = $('#btnSave');
+  const btnCancelEdit = $('#btnCancelEdit');
+
+  const filterType = $('#filterType');
+  const searchInput = $('#search');
+
+  const btnTheme = $('#btnTheme');
+
+  const btnToggleAnalysis = $('#btnToggleAnalysisMain');
+  const analysisBody = $('#analysisBody');
+  const analysisSection = $('#analysisSection');
+
+  const btnPdf = $('#btnPdf');
+
+  // Auth / Admin UI
+  const authGate = $('#authGate');
+  const loginForm = $('#loginForm');
+  const loginCode = $('#loginCode');
+  const loginPassword = $('#loginPassword');
+  const btnShowCode = $('#btnShowCode');
+  const authMsg = $('#authMsg');
+  const btnLogout = $('#btnLogout');
+  const userBadge = $('#userBadge');
+
+  const adminPanel = $('#adminPanel');
+  const createUserForm = $('#createUserForm');
+  const newUserCode = $('#newUserCode');
+  const newUserPassword = $('#newUserPassword');
+  const newUserName = $('#newUserName');
+  const userListEl = $('#userList');
+  const selectedUserInfo = $('#selectedUserInfo');
+
+  const rangeFrom = $('#rangeFrom');
+  const rangeTo = $('#rangeTo');
+  const btnRangeCalc = $('#btnRangeCalc');
+  const rangeExpenseSum = $('#rangeExpenseSum');
+
+
+  const canvasCombo = $('#chartCombo');
+  const canvasBalance = $('#chartBalance');
+  const chartTip = $('#chartTip');
+  const rangeSelect = $('#rangeSelect');
+  const groupSelect = $('#groupSelect');
+
+  const insight1 = $('#insight1');
+  const insight2 = $('#insight2');
+  const insight3 = $('#insight3');
+
+  const monthTbody = $('#monthTbody');
+  const topIncomeTbody = $('#topIncomeTbody');
+  const topExpenseTbody = $('#topExpenseTbody');
+
+  const toast = $('#toast');
+  let toastTimer = null;
+
+  let editingId = null;
+
+  // ---------- Utils ----------
+  const fmt = new Intl.NumberFormat('uz-UZ');
+
+  function formatMoney(n) {
+    const v = Number.isFinite(n) ? n : 0;
+    return `${fmt.format(v)} so'm`;
+  }
+
+  function parseAmount(str) {
+    // Accept: "150 000", "150,000", "150000", "150000.50"
+    if (typeof str !== 'string') return NaN;
+    const cleaned = str.trim().replace(/\s+/g, '').replace(/,/g, '.');
+    const num = Number(cleaned);
+    return Number.isFinite(num) ? num : NaN;
+  }
+
+  function uid() {
+    return `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`;
+  }
+
+  function todayISO() {
+    const d = new Date();
+    const off = d.getTimezoneOffset();
+    const local = new Date(d.getTime() - off * 60_000);
+    return local.toISOString().slice(0, 10);
+  }
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.hidden = false;
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.hidden = true;
+      toast.textContent = '';
+      toastTimer = null;
+    }, 2600);
+  }
+
+  function safeText(s) {
+    return String(s ?? '').replace(/[<>&"]/g, (ch) => ({
+      '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'
+    }[ch]));
+  }
+
+  // ---------- Auth / Firestore ----------
+  const ADMIN_CODE = '20006123';
+  const ADMIN_EMAIL = 'admin@kirim.local';
+  const EMAIL_DOMAIN = 'kirim.local';
+
+  let currentUser = null;
+  let currentCode = null;
+  let isAdmin = false;
+  let viewUid = null;
+
+  let unsubTx = null;
+  let unsubUsers = null;
+
+  let lastLoginCodeAttempt = null;
+
+  function maskCode(code){
+    const s = String(code || '');
+    if (s.length <= 3) return '***';
+    return '***' + s.slice(-3);
+  }
+  function setAuthMessage(t){ authMsg.textContent = t || ''; }
+  function setAuthed(on){
+    document.body.classList.toggle('authed', !!on);
+    btnLogout.hidden = !on;
+    userBadge.hidden = !on;
+  }
+  function setUserBadge(code){
+    userBadge.textContent = code ? `Kod: ${maskCode(code)}` : '';
+  }
+
+  function normalizeCode(code){
+    return String(code || '').trim().replace(/\s+/g, '');
+  }
+  function codeToEmail(code){
+    const c = normalizeCode(code);
+    if (c === ADMIN_CODE) return ADMIN_EMAIL;
+    if (!/^[0-9]{4,12}$/.test(c)) return null;
+    return `${c}@${EMAIL_DOMAIN}`;
+  }
+  function isAdminUser(user){
+    return !!user?.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  }
+
+  function userRef(uid){ return doc(db, 'users', uid); }
+  function txRef(uid, id){ return doc(db, 'users', uid, 'transactions', id); }
+  function txCol(uid){ return collection(db, 'users', uid, 'transactions'); }
+
+  async function ensureProfile(uid, code, name=''){
+    const ref = userRef(uid);
+    const snap = await getDoc(ref);
+    if (!snap.exists()){
+      await setDoc(ref, {
+        code: String(code || ''),
+        name: String(name || ''),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        stats: { incomeTotal: 0, expenseTotal: 0, txCount: 0 }
+      }, { merge: true });
+    } else {
+      const d = snap.data() || {};
+      const upd = { updatedAt: serverTimestamp() };
+      if (!d.code && code) upd.code = String(code);
+      if (!d.name && name) upd.name = String(name);
+      await setDoc(ref, upd, { merge: true });
+    }
+  }
+
+  function stopTxListener(){
+    if (unsubTx){ unsubTx(); unsubTx = null; }
+  }
+
+  function startTxListener(uid){
+    stopTxListener();
+    viewUid = uid || null;
+    state.items = [];
+    render();
+
+    if (!uid) return;
+
+    const q = query(txCol(uid), orderBy('date','desc'), orderBy('createdAtMs','desc'));
+    unsubTx = onSnapshot(q, (snap) => {
+      const items = [];
+      snap.forEach((d) => {
+        const x = d.data() || {};
+        const createdAtMs =
+          (typeof x.createdAtMs === 'number' ? x.createdAtMs :
+           x.createdAt?.toMillis ? x.createdAt.toMillis() : Date.now());
+
+        items.push({
+          id: d.id,
+          type: x.type === 'expense' ? 'expense' : 'income',
+          amount: Number(x.amount) || 0,
+          note: String(x.note || '').slice(0, 120),
+          date: String(x.date || todayISO()),
+          createdAt: createdAtMs
+        });
+      });
+      state.items = items;
+      render();
+    }, (err) => {
+      console.error(err);
+      showToast('Firestore xato: ' + (err?.message || err));
+    });
+  }
+
+  async function addTx(type, amount, note, date){
+    if (!viewUid) throw new Error('Foydalanuvchi tanlanmagan');
+    const id = uid();
+    const tref = txRef(viewUid, id);
+    const uref = userRef(viewUid);
+
+    await runTransaction(db, async (t) => {
+      const uSnap = await t.get(uref);
+      if (!uSnap.exists()){
+        t.set(uref, {
+          code: String(currentCode || ''),
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          stats: { incomeTotal: 0, expenseTotal: 0, txCount: 0 }
+        }, { merge: true });
+      }
+
+      t.set(tref, {
+        type, amount, note, date,
+        createdAt: serverTimestamp(),
+        createdAtMs: Date.now()
+      });
+
+      const field = type === 'income' ? 'stats.incomeTotal' : 'stats.expenseTotal';
+      t.update(uref, {
+        updatedAt: serverTimestamp(),
+        'stats.txCount': increment(1),
+        [field]: increment(amount)
+      });
+    });
+  }
+
+  async function updateTx(id, type, amount, note, date){
+    if (!viewUid) throw new Error('Foydalanuvchi tanlanmagan');
+    const tref = txRef(viewUid, id);
+    const uref = userRef(viewUid);
+
+    await runTransaction(db, async (t) => {
+      const txSnap = await t.get(tref);
+      if (!txSnap.exists()) return;
+      const old = txSnap.data() || {};
+      const oldType = old.type === 'expense' ? 'expense' : 'income';
+      const oldAmount = Number(old.amount) || 0;
+
+      const oldField = oldType === 'income' ? 'stats.incomeTotal' : 'stats.expenseTotal';
+      const newField = type === 'income' ? 'stats.incomeTotal' : 'stats.expenseTotal';
+
+      // revert old
+      t.update(uref, { [oldField]: increment(-oldAmount) });
+      // apply new
+      t.update(uref, { [newField]: increment(amount), updatedAt: serverTimestamp() });
+
+      t.update(tref, {
+        type, amount, note, date,
+        updatedAt: serverTimestamp(),
+        updatedAtMs: Date.now()
+      });
+    });
+  }
+
+  async function deleteTx(id){
+    if (!viewUid) throw new Error('Foydalanuvchi tanlanmagan');
+    const tref = txRef(viewUid, id);
+    const uref = userRef(viewUid);
+
+    await runTransaction(db, async (t) => {
+      const txSnap = await t.get(tref);
+      if (!txSnap.exists()) return;
+      const old = txSnap.data() || {};
+      const oldType = old.type === 'expense' ? 'expense' : 'income';
+      const oldAmount = Number(old.amount) || 0;
+
+      const field = oldType === 'income' ? 'stats.incomeTotal' : 'stats.expenseTotal';
+
+      t.delete(tref);
+      t.update(uref, {
+        updatedAt: serverTimestamp(),
+        'stats.txCount': increment(-1),
+        [field]: increment(-oldAmount)
+      });
+    });
+  }
+
+  async function calcExpenseRange(){
+    if (!viewUid) return showToast('Foydalanuvchi tanlanmagan');
+    const from = (rangeFrom.value || '').trim();
+    const to = (rangeTo.value || '').trim();
+    if (!from || !to) return showToast('Sana oralig‘ini tanlang');
+    if (from > to) return showToast('Boshlanish sanasi tugash sanasidan katta bo‘la olmaydi');
+
+    try{
+      const q = query(txCol(viewUid), where('date','>=', from), where('date','<=', to), orderBy('date','asc'));
+      const snap = await getDocs(q);
+      let sum = 0;
+      snap.forEach((d) => {
+        const x = d.data() || {};
+        if (x.type === 'expense') sum += Number(x.amount) || 0;
+      });
+      rangeExpenseSum.textContent = formatMoney(sum);
+    }catch(err){
+      console.error(err);
+      showToast('Hisoblash xatosi: ' + (err?.message || err));
+    }
+  }
+
+  function clearAdminList(){
+    userListEl.innerHTML = '';
+  }
+
+  function renderAdminUserRow(u){
+    const wrap = document.createElement('div');
+    wrap.className = 'admin-user';
+
+    const meta = document.createElement('div');
+    meta.className = 'u-meta';
+
+    const title = document.createElement('div');
+    const name = u.name ? ` — ${u.name}` : '';
+    title.textContent = `${u.code || '—'}${name}`;
+
+    const stats = u.stats || {};
+    const inc = Number(stats.incomeTotal)||0;
+    const exp = Number(stats.expenseTotal)||0;
+    const bal = inc - exp;
+    const cnt = Number(stats.txCount)||0;
+
+    const sub = document.createElement('div');
+    sub.className = 'muted';
+    sub.textContent = `Yozuvlar: ${cnt} | Kirim: ${formatMoney(inc)} | Chiqim: ${formatMoney(exp)} | Balans: ${formatMoney(bal)}`;
+
+    meta.appendChild(title);
+    meta.appendChild(sub);
+
+    const actions = document.createElement('div');
+    actions.className = 'u-actions';
+
+    const btnView = document.createElement('button');
+    btnView.type = 'button';
+    btnView.className = 'btn btn-secondary';
+    btnView.textContent = 'Ko‘rish';
+    btnView.addEventListener('click', () => {
+      selectedUserInfo.textContent = `Tanlangan: ${u.code || '—'}${name}`;
+      startTxListener(u.id);
+      rangeExpenseSum.textContent = formatMoney(0);
+      if (!rangeFrom.value) rangeFrom.value = todayISO();
+      if (!rangeTo.value) rangeTo.value = todayISO();
+    });
+
+    const btnChPass = document.createElement('button');
+    btnChPass.type = 'button';
+    btnChPass.className = 'btn btn-ghost';
+    btnChPass.textContent = 'Parol';
+    btnChPass.addEventListener('click', async () => {
+      const oldP = prompt('Joriy parolni kiriting (admin bilsa):');
+      if (!oldP) return;
+      const newP = prompt('Yangi parolni kiriting:');
+      if (!newP || newP.length < 6) return showToast('Parol kamida 6 ta belgidan iborat bo‘lsin');
+
+      try{
+        await signInWithEmailAndPassword(secondaryAuth, codeToEmail(u.code), oldP);
+        await updatePassword(secondaryAuth.currentUser, newP);
+        await signOut(secondaryAuth);
+        showToast('Parol yangilandi');
+      }catch(err){
+        console.error(err);
+        showToast('Parol yangilashda xato: ' + (err?.message || err));
+      }
+    });
+
+    const btnChCode = document.createElement('button');
+    btnChCode.type = 'button';
+    btnChCode.className = 'btn btn-ghost';
+    btnChCode.textContent = 'Kod';
+    btnChCode.addEventListener('click', async () => {
+      const pass = prompt('Joriy parolni kiriting (kod o‘zgarishi uchun):');
+      if (!pass) return;
+      const newC = normalizeCode(prompt('Yangi kod (4-12 raqam):') || '');
+      if (!/^[0-9]{4,12}$/.test(newC)) return showToast('Kod 4-12 raqam bo‘lishi kerak');
+      const oldEmail = codeToEmail(u.code);
+      const newEmail = codeToEmail(newC);
+      if (!newEmail) return showToast('Yangi kod noto‘g‘ri');
+
+      try{
+        await signInWithEmailAndPassword(secondaryAuth, oldEmail, pass);
+        await updateEmail(secondaryAuth.currentUser, newEmail);
+        await setDoc(userRef(u.id), { code: newC, updatedAt: serverTimestamp() }, { merge: true });
+        await signOut(secondaryAuth);
+        showToast('Kod yangilandi');
+      }catch(err){
+        console.error(err);
+        showToast('Kod yangilashda xato: ' + (err?.message || err));
+      }
+    });
+
+    actions.appendChild(btnView);
+    actions.appendChild(btnChCode);
+    actions.appendChild(btnChPass);
+
+    wrap.appendChild(meta);
+    wrap.appendChild(actions);
+    return wrap;
+  }
+
+  function startUsersListener(){
+    if (unsubUsers){ unsubUsers(); unsubUsers = null; }
+    clearAdminList();
+
+    const q = query(collection(db, 'users'), orderBy('createdAt','desc'));
+    unsubUsers = onSnapshot(q, (snap) => {
+      clearAdminList();
+      snap.forEach((d) => {
+        const x = d.data() || {};
+        // skip admin's own profile if exists
+        const row = renderAdminUserRow({
+          id: d.id,
+          code: x.code || '',
+          name: x.name || '',
+          stats: x.stats || {}
+        });
+        userListEl.appendChild(row);
+      });
+    }, (err) => {
+      console.error(err);
+      showToast('Foydalanuvchilarni yuklashda xato: ' + (err?.message || err));
+    });
+  }
+
+  function stopUsersListener(){
+    if (unsubUsers){ unsubUsers(); unsubUsers = null; }
+    clearAdminList();
+  }
+
+  async function doLogin(code, password){
+    const email = codeToEmail(code);
+    if (!email) throw new Error('Kod noto‘g‘ri');
+    if (!password || password.length < 6) throw new Error('Parol kamida 6 ta bo‘lsin');
+
+    lastLoginCodeAttempt = normalizeCode(code);
+    await signInWithEmailAndPassword(auth, email, password);
+  }
+
+  async function doLogout(){
+    stopTxListener();
+    stopUsersListener();
+    selectedUserInfo.textContent = 'Foydalanuvchini tanlang.';
+    await signOut(auth);
+  }
+
+
+
+  function save(){/* Firestore mode: no local save */}
+
+  // ---------- Theme ----------
+  function getSavedTheme() {
+    return localStorage.getItem('kirim_chiqim_theme') || '';
+  }
+  function setTheme(theme) {
+    if (theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('kirim_chiqim_theme', theme);
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.removeItem('kirim_chiqim_theme');
+    }
+  }
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    if (current === 'light') setTheme('');
+    else setTheme('light');
+    showToast(`Tema: ${document.documentElement.getAttribute('data-theme') === 'light' ? 'Light' : 'Dark'}`);
+  }
+
+  // ---------- Filtering ----------
+  function getFilteredItems() {
+    const ft = filterType.value;
+    const q = (searchInput.value || '').trim().toLowerCase();
+
+    let items = [...state.items];
+
+    if (ft !== 'all') items = items.filter(x => x.type === ft);
+
+    if (q) {
+      items = items.filter(x =>
+        (x.note || '').toLowerCase().includes(q)
+        || (x.date || '').includes(q)
+      );
+    }
+
+    items.sort((a, b) => {
+      if (a.date !== b.date) return (b.date || '').localeCompare(a.date || '');
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    });
+
+    return items;
+  }
+
+  // ---------- Summary ----------
+  function calcTotals(items = state.items) {
+    const income = items.filter(x => x.type === 'income').reduce((s, x) => s + (Number(x.amount) || 0), 0);
+    const expense = items.filter(x => x.type === 'expense').reduce((s, x) => s + (Number(x.amount) || 0), 0);
+    return { income, expense, balance: income - expense };
+  }
+
+  function renderSummary() {
+    const { income, expense, balance } = calcTotals(state.items);
+    sumIncomeEl.textContent = formatMoney(income);
+    sumExpenseEl.textContent = formatMoney(expense);
+    sumBalanceEl.textContent = formatMoney(balance);
+  }
+
+  // ---------- Render list ----------
+  function renderTableRows(items) {
+    tbody.innerHTML = '';
+    for (const it of items) {
+      const tr = document.createElement('tr');
+
+      const tdDate = document.createElement('td');
+      tdDate.textContent = it.date || '';
+      tr.appendChild(tdDate);
+
+      const tdType = document.createElement('td');
+      const badge = document.createElement('span');
+      badge.className = `badge ${it.type}`;
+      badge.textContent = it.type === 'income' ? 'Kirim' : 'Chiqim';
+      tdType.appendChild(badge);
+      tr.appendChild(tdType);
+
+      const tdAmount = document.createElement('td');
+      const amt = document.createElement('span');
+      amt.className = `amount ${it.type}`;
+      amt.textContent = formatMoney(it.amount);
+      tdAmount.appendChild(amt);
+      tr.appendChild(tdAmount);
+
+      const tdNote = document.createElement('td');
+      tdNote.textContent = it.note || '';
+      tr.appendChild(tdNote);
+
+      const tdActions = document.createElement('td');
+      tdActions.className = 'td-actions';
+
+      const actions = document.createElement('div');
+      actions.className = 'row-actions';
+
+      const btnE = document.createElement('button');
+      btnE.type = 'button';
+      btnE.className = 'btn btn-mini edit';
+      btnE.textContent = 'Tahrirlash';
+      btnE.addEventListener('click', () => startEdit(it.id));
+
+      const btnD = document.createElement('button');
+      btnD.type = 'button';
+      btnD.className = 'btn btn-mini del';
+      btnD.textContent = 'O‘chirish';
+      btnD.addEventListener('click', () => removeItem(it.id));
+
+      actions.appendChild(btnE);
+      actions.appendChild(btnD);
+      tdActions.appendChild(actions);
+      tr.appendChild(tdActions);
+
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderCards(items) {
+    cardsEl.innerHTML = '';
+    for (const it of items) {
+      const card = document.createElement('div');
+      card.className = 'card-item';
+
+      const top = document.createElement('div');
+      top.className = 'card-top';
+
+      const meta = document.createElement('div');
+      meta.className = 'card-meta';
+
+      const date = document.createElement('div');
+      date.className = 'card-date';
+      date.textContent = it.date || '';
+
+      const badge = document.createElement('span');
+      badge.className = `badge ${it.type}`;
+      badge.textContent = it.type === 'income' ? 'Kirim' : 'Chiqim';
+
+      meta.appendChild(date);
+      meta.appendChild(badge);
+
+      const amount = document.createElement('div');
+      amount.className = `card-amount amount ${it.type}`;
+      amount.textContent = formatMoney(it.amount);
+
+      top.appendChild(meta);
+      top.appendChild(amount);
+
+      const note = document.createElement('div');
+      note.className = 'card-note';
+      note.textContent = it.note || '';
+
+      const actions = document.createElement('div');
+      actions.className = 'card-actions';
+
+      const btnE = document.createElement('button');
+      btnE.type = 'button';
+      btnE.className = 'btn btn-mini edit';
+      btnE.textContent = 'Tahrirlash';
+      btnE.addEventListener('click', () => startEdit(it.id));
+
+      const btnD = document.createElement('button');
+      btnD.type = 'button';
+      btnD.className = 'btn btn-mini del';
+      btnD.textContent = 'O‘chirish';
+      btnD.addEventListener('click', () => removeItem(it.id));
+
+      actions.appendChild(btnE);
+      actions.appendChild(btnD);
+
+      card.appendChild(top);
+      card.appendChild(note);
+      card.appendChild(actions);
+
+      cardsEl.appendChild(card);
+    }
+  }
+
+  function renderList() {
+    const items = getFilteredItems();
+    countLabel.textContent = `${items.length} ta yozuv`;
+
+    emptyState.hidden = items.length !== 0;
+
+    renderTableRows(items);
+    renderCards(items);
+  }
+
+  // ---------- Analytics ----------
+  function groupByDate(items) {
+    // returns array sorted by date asc: {date, income, expense}
+    const map = new Map();
+    for (const it of items) {
+      const d = it.date || todayISO();
+      if (!map.has(d)) map.set(d, { date: d, income: 0, expense: 0 });
+      const row = map.get(d);
+      if (it.type === 'income') row.income += Number(it.amount) || 0;
+      else row.expense += Number(it.amount) || 0;
+    }
+    const arr = Array.from(map.values());
+    arr.sort((a,b)=> (a.date||'').localeCompare(b.date||''));
+    return arr;
+  }
+
+  function lastNDaysSeries(grouped, n=30) {
+    if (grouped.length <= n) return grouped;
+    return grouped.slice(grouped.length - n);
+  }
+
+  function drawBarChart(canvas, series, valueKey, opts) {
+    const ctx = canvas.getContext('2d');
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+
+    const cssW = canvas.clientWidth || 600;
+    const cssH = canvas.clientHeight || 220;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const W = cssW;
+    const H = cssH;
+
+    // theme colors
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const bg = isLight ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)';
+    const grid = isLight ? 'rgba(16,24,40,0.10)' : 'rgba(255,255,255,0.10)';
+    const text = isLight ? 'rgba(16,24,40,0.72)' : 'rgba(255,255,255,0.72)';
+    const bar = opts.barColor;
+    const accent = opts.accentColor;
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,W,H);
+
+    const padding = { left: 44, right: 12, top: 12, bottom: 34 };
+    const plotW = W - padding.left - padding.right;
+    const plotH = H - padding.top - padding.bottom;
+
+    const values = series.map(x => Number(x[valueKey]) || 0);
+    const maxV = Math.max(1, ...values);
+    const steps = 4;
+    const stepV = maxV / steps;
+
+    // grid + y labels
+    ctx.font = '12px Inter, system-ui, sans-serif';
+    ctx.fillStyle = text;
+    ctx.strokeStyle = grid;
+    ctx.lineWidth = 1;
+
+    for (let i=0;i<=steps;i++){
+      const y = padding.top + plotH - (plotH * (i/steps));
+      ctx.beginPath();
+      ctx.moveTo(padding.left, y);
+      ctx.lineTo(padding.left + plotW, y);
+      ctx.stroke();
+
+      const v = Math.round(stepV*i);
+      ctx.fillText(formatShort(v), 6, y+4);
+    }
+
+    // bars
+    const n = series.length || 1;
+    const gap = 6;
+    const barW = Math.max(6, Math.floor((plotW - gap*(n-1)) / n));
+
+    for (let i=0;i<n;i++){
+      const v = values[i];
+      const h = (v / maxV) * plotH;
+      const x = padding.left + i*(barW + gap);
+      const y = padding.top + plotH - h;
+
+      // gradient bar
+      const grad = ctx.createLinearGradient(0, y, 0, y+h);
+      grad.addColorStop(0, bar);
+      grad.addColorStop(1, accent);
+
+      ctx.fillStyle = grad;
+      roundRect(ctx, x, y, barW, h, 8);
+      ctx.fill();
+
+      // x label every 3 items or last
+      const showLabel = (n <= 10) || (i % 3 === 0) || (i === n-1);
+      if (showLabel) {
+        ctx.fillStyle = text;
+        const label = shortDate(series[i].date);
+        const lx = x + barW/2 - (ctx.measureText(label).width/2);
+        ctx.fillText(label, lx, padding.top + plotH + 22);
+      }
+    }
+
+    // title hint
+    ctx.fillStyle = text;
+    ctx.font = '11px Inter, system-ui, sans-serif';
+    ctx.fillText(opts.footerHint || '', padding.left, H - 6);
+  }
+
+  function roundRect(ctx, x,y,w,h,r){
+    const rr = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+rr, y);
+    ctx.arcTo(x+w, y, x+w, y+h, rr);
+    ctx.arcTo(x+w, y+h, x, y+h, rr);
+    ctx.arcTo(x, y+h, x, y, rr);
+    ctx.arcTo(x, y, x+w, y, rr);
+    ctx.closePath();
+  }
+
+  function shortDate(iso){
+    if (!iso) return '';
+    // ISO yyyy-mm-dd -> dd.mm
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+    if (!m) return iso;
+    return `${m[3]}.${m[2]}`;
+  }
+
+  function formatShort(n){
+    const v = Number(n) || 0;
+    if (v >= 1_000_000_000) return `${Math.round(v/1_000_000_000)}B`;
+    if (v >= 1_000_000) return `${Math.round(v/1_000_000)}M`;
+    if (v >= 1_000) return `${Math.round(v/1_000)}K`;
+    return `${v}`;
+  }
+
+  function computeInsights(grouped){
+    if (!grouped.length) return {
+      maxExpenseDay: null,
+      minExpenseDay: null,
+      maxIncomeDay: null
+    };
+
+    let maxE = grouped[0], minE = grouped[0], maxI = grouped[0];
+    for (const d of grouped){
+      if ((d.expense||0) > (maxE.expense||0)) maxE = d;
+      if ((d.expense||0) < (minE.expense||0)) minE = d;
+      if ((d.income||0) > (maxI.income||0)) maxI = d;
+    }
+    return { maxExpenseDay: maxE, minExpenseDay: minE, maxIncomeDay: maxI };
+  }
+
+
+  function groupByMonth(items) {
+    // returns array sorted by month asc: {month:'YYYY-MM', income, expense}
+    const map = new Map();
+    for (const it of items) {
+      const d = it.date || todayISO();
+      const ym = String(d).slice(0,7); // YYYY-MM
+      if (!map.has(ym)) map.set(ym, { month: ym, income: 0, expense: 0 });
+      const row = map.get(ym);
+      if (it.type === 'income') row.income += Number(it.amount) || 0;
+      else row.expense += Number(it.amount) || 0;
+    }
+    const arr = Array.from(map.values());
+    arr.sort((a,b)=> (a.month||'').localeCompare(b.month||''));
+    return arr;
+  }
+
+  function formatMonth(ym) {
+    // 'YYYY-MM' -> 'MM.YYYY'
+    const m = /^(\d{4})-(\d{2})$/.exec(ym || '');
+    if (!m) return ym || '';
+    return `${m[2]}.${m[1]}`;
+  }
+
+  function renderMonthlyTable() {
+    if (!monthTbody) return;
+    const months = groupByMonth(state.items);
+    monthTbody.innerHTML = '';
+
+    if (months.length === 0) {
+      monthTbody.innerHTML = `<tr><td colspan="4">Ma’lumot yo‘q</td></tr>`;
+      return;
+    }
+
+    const view = months.length > 12 ? months.slice(months.length - 12) : months;
+
+    for (const m of view) {
+      const net = (m.income || 0) - (m.expense || 0);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${safeText(formatMonth(m.month))}</td>
+        <td style="text-align:right"><span class="amount income">${safeText(formatMoney(m.income))}</span></td>
+        <td style="text-align:right"><span class="amount expense">${safeText(formatMoney(m.expense))}</span></td>
+        <td style="text-align:right"><span class="amount">${safeText(formatMoney(net))}</span></td>
+      `;
+      monthTbody.appendChild(tr);
+    }
+  }
+
+  function renderTopTables() {
+    if (!topIncomeTbody || !topExpenseTbody) return;
+
+    const incomes = state.items
+      .filter(x => x.type === 'income')
+      .slice()
+      .sort((a,b)=> (Number(b.amount)||0) - (Number(a.amount)||0))
+      .slice(0, 10);
+
+    const expenses = state.items
+      .filter(x => x.type === 'expense')
+      .slice()
+      .sort((a,b)=> (Number(b.amount)||0) - (Number(a.amount)||0))
+      .slice(0, 10);
+
+    topIncomeTbody.innerHTML = incomes.length ? '' : `<tr><td colspan="3">Kirim yo‘q</td></tr>`;
+    topExpenseTbody.innerHTML = expenses.length ? '' : `<tr><td colspan="3">Chiqim yo‘q</td></tr>`;
+
+    for (const it of incomes) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${safeText(it.date || '')}</td>
+        <td style="text-align:right"><span class="amount income">${safeText(formatMoney(it.amount))}</span></td>
+        <td>${safeText(it.note || '')}</td>
+      `;
+      topIncomeTbody.appendChild(tr);
+    }
+
+    for (const it of expenses) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${safeText(it.date || '')}</td>
+        <td style="text-align:right"><span class="amount expense">${safeText(formatMoney(it.amount))}</span></td>
+        <td>${safeText(it.note || '')}</td>
+      `;
+      topExpenseTbody.appendChild(tr);
+    }
+  }
+
+    // ---------- Modern Charts ----------
+  function parseISODate(iso){
+    if (!iso) return new Date();
+    return new Date(`${iso}T00:00:00`);
+  }
+  function toISODate(d){
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const da = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${da}`;
+  }
+  function startOfWeekMonday(d){
+    const x = new Date(d);
+    const day = x.getDay();
+    const diff = (day === 0 ? -6 : 1 - day);
+    x.setDate(x.getDate() + diff);
+    x.setHours(0,0,0,0);
+    return x;
+  }
+  function startOfMonth(d){
+    const x = new Date(d.getFullYear(), d.getMonth(), 1);
+    x.setHours(0,0,0,0);
+    return x;
+  }
+
+  function groupSeries(items, mode){
+    const map = new Map();
+    for (const it of items){
+      const d = parseISODate(it.date || todayISO());
+      let key, ts, label;
+
+      if (mode === 'month'){
+        const m = startOfMonth(d);
+        ts = m.getTime();
+        const ym = `${m.getFullYear()}-${String(m.getMonth()+1).padStart(2,'0')}`;
+        key = ym;
+        label = formatMonth(ym);
+      } else if (mode === 'week'){
+        const w = startOfWeekMonday(d);
+        ts = w.getTime();
+        key = toISODate(w);
+        label = shortDate(key);
+      } else {
+        const iso = toISODate(d);
+        ts = d.getTime();
+        key = iso;
+        label = shortDate(iso);
+      }
+
+      if (!map.has(key)) map.set(key, { key, label, ts, income:0, expense:0 });
+      const row = map.get(key);
+      if (it.type === 'income') row.income += Number(it.amount) || 0;
+      else row.expense += Number(it.amount) || 0;
+    }
+    const arr = Array.from(map.values());
+    arr.sort((a,b)=> (a.ts||0) - (b.ts||0));
+    return arr;
+  }
+
+  function applyRange(series){
+    const v = rangeSelect?.value || '30';
+    if (v === 'all') return series;
+    const n = Math.max(1, Number(v) || 30);
+    return series.length > n ? series.slice(series.length - n) : series;
+  }
+
+  const comboHit = { series: [], centers: [], pad: null, plotW:0, plotH:0, W:0, H:0 };
+
+  function drawComboChart(canvas, series){
+    const ctx = canvas.getContext('2d');
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+
+    const cssW = canvas.clientWidth || 800;
+    const cssH = canvas.clientHeight || 260;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    const W = cssW, H = cssH;
+
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const grid = isLight ? 'rgba(16,24,40,0.10)' : 'rgba(255,255,255,0.10)';
+    const text = isLight ? 'rgba(16,24,40,0.72)' : 'rgba(255,255,255,0.72)';
+
+    const pad = { l: 54, r: 14, t: 12, b: 36 };
+    const plotW = W - pad.l - pad.r;
+    const plotH = H - pad.t - pad.b;
+
+    ctx.clearRect(0,0,W,H);
+
+    const values = series.flatMap(s => [s.income, s.expense]).map(v => Number(v)||0);
+    const maxV = Math.max(1, ...values);
+
+    // grid + y labels
+    const steps = 4;
+    ctx.font = '12px Inter, system-ui, sans-serif';
+    ctx.fillStyle = text;
+    ctx.strokeStyle = grid;
+    ctx.lineWidth = 1;
+
+    for (let i=0;i<=steps;i++){
+      const y = pad.t + plotH - (plotH * (i/steps));
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y);
+      ctx.lineTo(pad.l + plotW, y);
+      ctx.stroke();
+
+      const v = Math.round((maxV/steps)*i);
+      ctx.fillText(formatShort(v), 6, y+4);
+    }
+
+    const n = Math.max(1, series.length);
+    const groupW = plotW / n;
+    const gap = Math.max(6, Math.min(12, groupW * 0.14));
+    const barW = Math.max(6, Math.min(18, (groupW - gap) / 2));
+
+    comboHit.series = series;
+    comboHit.centers = [];
+    comboHit.pad = pad;
+    comboHit.plotW = plotW;
+    comboHit.plotH = plotH;
+    comboHit.W = W;
+    comboHit.H = H;
+
+    for (let i=0;i<n;i++){
+      const s = series[i];
+      const cx = pad.l + (i + 0.5) * groupW;
+      comboHit.centers.push(cx);
+
+      const incH = (s.income / maxV) * plotH;
+      const expH = (s.expense / maxV) * plotH;
+
+      const x1 = cx - barW - gap/2;
+      const x2 = cx + gap/2;
+
+      // income bar
+      const y1 = pad.t + plotH - incH;
+      const g1 = ctx.createLinearGradient(0, y1, 0, y1 + incH);
+      g1.addColorStop(0, 'rgba(45,212,191,0.98)');
+      g1.addColorStop(1, 'rgba(45,212,191,0.18)');
+      ctx.fillStyle = g1;
+      roundRect(ctx, x1, y1, barW, incH, 10);
+      ctx.fill();
+
+      // expense bar
+      const y2 = pad.t + plotH - expH;
+      const g2 = ctx.createLinearGradient(0, y2, 0, y2 + expH);
+      g2.addColorStop(0, 'rgba(251,113,133,0.98)');
+      g2.addColorStop(1, 'rgba(251,113,133,0.18)');
+      ctx.fillStyle = g2;
+      roundRect(ctx, x2, y2, barW, expH, 10);
+      ctx.fill();
+
+      // x labels
+      const showLabel = (n <= 10) || (i % 3 === 0) || (i === n-1);
+      if (showLabel) {
+        ctx.fillStyle = text;
+        const label = s.label || '';
+        const lw = ctx.measureText(label).width;
+        ctx.fillText(label, cx - lw/2, pad.t + plotH + 22);
+      }
+    }
+
+    ctx.strokeStyle = grid;
+    ctx.strokeRect(pad.l + 0.5, pad.t + 0.5, plotW - 1, plotH - 1);
+  }
+
+  function drawBalanceChart(canvas, series){
+    const ctx = canvas.getContext('2d');
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+
+    const cssW = canvas.clientWidth || 600;
+    const cssH = canvas.clientHeight || 220;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    const W = cssW, H = cssH;
+
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const grid = isLight ? 'rgba(16,24,40,0.10)' : 'rgba(255,255,255,0.10)';
+    const text = isLight ? 'rgba(16,24,40,0.72)' : 'rgba(255,255,255,0.72)';
+
+    const pad = { l: 54, r: 14, t: 12, b: 34 };
+    const plotW = W - pad.l - pad.r;
+    const plotH = H - pad.t - pad.b;
+
+    ctx.clearRect(0,0,W,H);
+
+    // cumulative
+    let cum = 0;
+    const pts = series.map(s => {
+      cum += (Number(s.income)||0) - (Number(s.expense)||0);
+      return { label: s.label, value: cum };
+    });
+
+    const vals = pts.map(p=>p.value);
+    const minV = Math.min(0, ...vals);
+    const maxV = Math.max(0, ...vals);
+    const span = Math.max(1, maxV - minV);
+
+    // grid
+    ctx.font = '12px Inter, system-ui, sans-serif';
+    ctx.fillStyle = text;
+    ctx.strokeStyle = grid;
+    ctx.lineWidth = 1;
+
+    const steps = 4;
+    for (let i=0;i<=steps;i++){
+      const y = pad.t + plotH - (plotH * (i/steps));
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y);
+      ctx.lineTo(pad.l + plotW, y);
+      ctx.stroke();
+
+      const v = minV + (span/steps)*i;
+      ctx.fillText(formatShort(Math.round(v)), 6, y+4);
+    }
+
+    // zero line
+    const y0 = pad.t + plotH - ((0 - minV)/span)*plotH;
+    ctx.strokeStyle = isLight ? 'rgba(16,24,40,0.18)' : 'rgba(255,255,255,0.18)';
+    ctx.beginPath();
+    ctx.moveTo(pad.l, y0);
+    ctx.lineTo(pad.l + plotW, y0);
+    ctx.stroke();
+
+    const n = Math.max(1, pts.length);
+    const stepX = plotW / Math.max(1, n-1);
+
+    const grad = ctx.createLinearGradient(pad.l, 0, pad.l + plotW, 0);
+    grad.addColorStop(0, 'rgba(255,59,48,0.95)');
+    grad.addColorStop(1, 'rgba(255,106,0,0.95)');
+
+    // line
+    ctx.lineWidth = 2.6;
+    ctx.strokeStyle = grad;
+    ctx.beginPath();
+    for (let i=0;i<n;i++){
+      const x = pad.l + i * stepX;
+      const y = pad.t + plotH - ((pts[i].value - minV)/span)*plotH;
+      if (i===0) ctx.moveTo(x,y);
+      else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+
+    // fill
+    const fillGrad = ctx.createLinearGradient(0, pad.t, 0, pad.t + plotH);
+    fillGrad.addColorStop(0, 'rgba(255,59,48,0.18)');
+    fillGrad.addColorStop(1, 'rgba(255,106,0,0.02)');
+    ctx.fillStyle = fillGrad;
+    ctx.lineTo(pad.l + (n-1)*stepX, y0);
+    ctx.lineTo(pad.l, y0);
+    ctx.closePath();
+    ctx.fill();
+
+    // points
+    for (let i=0;i<n;i++){
+      const x = pad.l + i * stepX;
+      const y = pad.t + plotH - ((pts[i].value - minV)/span)*plotH;
+      ctx.fillStyle = isLight ? 'white' : 'rgba(0,0,0,0.35)';
+      ctx.beginPath(); ctx.arc(x,y,4.2,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(x,y,2.5,0,Math.PI*2); ctx.fill();
+    }
+
+    // x labels sparse
+    ctx.fillStyle = text;
+    for (let i=0;i<n;i++){
+      const show = (n <= 10) || (i % 3 === 0) || (i === n-1);
+      if (!show) continue;
+      const x = pad.l + i * stepX;
+      const label = pts[i].label || '';
+      const lw = ctx.measureText(label).width;
+      ctx.fillText(label, x - lw/2, pad.t + plotH + 22);
+    }
+
+    ctx.strokeStyle = grid;
+    ctx.strokeRect(pad.l + 0.5, pad.t + 0.5, plotW - 1, plotH - 1);
+  }
+
+  function setTipContent(s){
+    if (!chartTip) return;
+    const net = (Number(s.income)||0) - (Number(s.expense)||0);
+    chartTip.innerHTML = `
+      <div class="t1">${safeText(s.key || '')}</div>
+      <div class="t2">
+        <span>Kirim</span><b>${safeText(formatMoney(s.income))}</b>
+        <span>Chiqim</span><b>${safeText(formatMoney(s.expense))}</b>
+        <span>Net</span><b>${safeText(formatMoney(net))}</b>
       </div>
+    `;
+  }
+  function showTip(s){
+    if (!chartTip) return;
+    setTipContent(s);
+    chartTip.hidden = false;
+  }
+  function hideTip(){
+    if (!chartTip) return;
+    chartTip.hidden = true;
+  }
 
-      <div class="form">
-        <div class="field">
-          <label for="loginName">Ism (login)</label>
-          <input id="loginName" placeholder="Masalan: Shahboz" autocomplete="username" />
-          <small class="hint">Ism — username. Masalan “shahboz” va “Shahboz” bir xil hisoblanadi.</small>
+  function nearestIndexFromX(x){
+    const centers = comboHit.centers || [];
+    if (!centers.length) return -1;
+    let best = 0, bestD = Infinity;
+    for (let i=0;i<centers.length;i++){
+      const d = Math.abs(centers[i] - x);
+      if (d < bestD){ bestD = d; best = i; }
+    }
+    return best;
+  }
+
+  function bindChartEvents(){
+    if (!canvasCombo) return;
+
+    const onMove = (clientX, clientY) => {
+      if (!comboHit.series.length) return;
+      const rect = canvasCombo.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+
+      const p = comboHit.pad;
+      if (!p) return;
+
+      if (x < p.l || x > (p.l + comboHit.plotW) || y < p.t || y > (p.t + comboHit.plotH)){
+        hideTip();
+        return;
+      }
+
+      const idx = nearestIndexFromX(x);
+      const s = comboHit.series[idx];
+      if (!s) return;
+
+      showTip(s);
+      const tipW = chartTip.offsetWidth || 240;
+      const tipH = chartTip.offsetHeight || 80;
+
+      let tx = Math.min(comboHit.W - tipW - 10, Math.max(10, x + 12));
+      let ty = Math.min(comboHit.H - tipH - 10, Math.max(10, y - tipH - 12));
+
+      chartTip.style.left = `${tx}px`;
+      chartTip.style.top = `${ty}px`;
+    };
+
+    canvasCombo.addEventListener('mousemove', (e) => onMove(e.clientX, e.clientY));
+    canvasCombo.addEventListener('mouseleave', hideTip);
+
+    canvasCombo.addEventListener('touchstart', (e) => {
+      const t = e.touches?.[0];
+      if (t) onMove(t.clientX, t.clientY);
+    }, { passive: true });
+
+    canvasCombo.addEventListener('touchmove', (e) => {
+      const t = e.touches?.[0];
+      if (t) onMove(t.clientX, t.clientY);
+    }, { passive: true });
+
+    canvasCombo.addEventListener('touchend', () => {
+      setTimeout(hideTip, 1200);
+    }, { passive: true });
+  }
+
+  function computeInsightsFromSeries(series){
+    if (!series.length) return { maxExpense: null, minExpense: null, maxIncome: null };
+    let maxE = series[0], minE = series[0], maxI = series[0];
+    for (const s of series){
+      if ((s.expense||0) > (maxE.expense||0)) maxE = s;
+      if ((s.expense||0) < (minE.expense||0)) minE = s;
+      if ((s.income||0) > (maxI.income||0)) maxI = s;
+    }
+    return { maxExpense: maxE, minExpense: minE, maxIncome: maxI };
+  }
+
+  function renderAnalytics() {
+    const groupMode = groupSelect?.value || 'day';
+    const all = groupSeries(state.items, groupMode);
+    const view = applyRange(all);
+
+    drawComboChart(canvasCombo, view);
+    drawBalanceChart(canvasBalance, view);
+
+    const ins = computeInsightsFromSeries(view);
+    insight1.textContent = ins.maxExpense ? `${ins.maxExpense.key} — ${formatMoney(ins.maxExpense.expense)}` : 'Ma’lumot yo‘q';
+    insight2.textContent = ins.minExpense ? `${ins.minExpense.key} — ${formatMoney(ins.minExpense.expense)}` : 'Ma’lumot yo‘q';
+    insight3.textContent = ins.maxIncome ? `${ins.maxIncome.key} — ${formatMoney(ins.maxIncome.income)}` : 'Ma’lumot yo‘q';
+
+    renderMonthlyTable();
+    renderTopTables();
+  }
+
+
+  function toggleAnalysis(open) {
+    const isOpen = open ?? analysisBody.hidden;
+    analysisBody.hidden = !isOpen;
+    btnToggleAnalysis.querySelector('span:last-child').textContent = isOpen ? 'Tahlilni yopish' : 'Tahlilni ko‘rish';
+    if (isOpen) {
+      // ensure charts size is correct after unhide
+      setTimeout(() => renderAnalytics(), 30);
+      analysisSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  // ---------- PDF / Print report ----------
+  function openPrintReport() {
+    // Use all items (not filtered) for full report; you can change to filtered if desired.
+    const items = [...state.items].sort((a,b)=>{
+      if (a.date !== b.date) return (a.date||'').localeCompare(b.date||'');
+      return (a.createdAt||0) - (b.createdAt||0);
+    });
+
+    const { income, expense, balance } = calcTotals(items);
+
+    const grouped = groupByDate(items);
+    const limited = lastNDaysSeries(grouped, 30);
+
+    // Ensure charts rendered before exporting
+    renderAnalytics();
+
+    const imgIncome = canvasCombo.toDataURL('image/png');
+    const imgExpense = canvasBalance.toDataURL('image/png');
+
+    const incomeRows = items.filter(x=>x.type==='income').map(x => `
+      <tr>
+        <td>${safeText(x.date)}</td>
+        <td style="text-align:right">${safeText(formatMoney(x.amount))}</td>
+        <td>${safeText(x.note)}</td>
+      </tr>
+    `).join('');
+
+    const expenseRows = items.filter(x=>x.type==='expense').map(x => `
+      <tr>
+        <td>${safeText(x.date)}</td>
+        <td style="text-align:right">${safeText(formatMoney(x.amount))}</td>
+        <td>${safeText(x.note)}</td>
+      </tr>
+    `).join('');
+
+
+    const months = groupByMonth(items);
+    const monthRows = (months.length ? months : []).map(m => `
+      <tr>
+        <td>${safeText(formatMonth(m.month))}</td>
+        <td style="text-align:right">${safeText(formatMoney(m.income))}</td>
+        <td style="text-align:right">${safeText(formatMoney(m.expense))}</td>
+        <td style="text-align:right">${safeText(formatMoney((m.income||0)-(m.expense||0)))}</td>
+      </tr>
+    `).join('');
+
+    const topIncome = items.filter(x=>x.type==='income').slice().sort((a,b)=> (Number(b.amount)||0)-(Number(a.amount)||0)).slice(0,10);
+    const topExpense = items.filter(x=>x.type==='expense').slice().sort((a,b)=> (Number(b.amount)||0)-(Number(a.amount)||0)).slice(0,10);
+
+    const topIncomeRows = topIncome.map(x => `
+      <tr>
+        <td>${safeText(x.date)}</td>
+        <td style="text-align:right">${safeText(formatMoney(x.amount))}</td>
+        <td>${safeText(x.note)}</td>
+      </tr>
+    `).join('');
+
+    const topExpenseRows = topExpense.map(x => `
+      <tr>
+        <td>${safeText(x.date)}</td>
+        <td style="text-align:right">${safeText(formatMoney(x.amount))}</td>
+        <td>${safeText(x.note)}</td>
+      </tr>
+    `).join('');
+
+        const dailyRows = grouped.map(d => `
+      <tr>
+        <td>${safeText(d.date)}</td>
+        <td style="text-align:right">${safeText(formatMoney(d.income))}</td>
+        <td style="text-align:right">${safeText(formatMoney(d.expense))}</td>
+        <td style="text-align:right">${safeText(formatMoney((d.income||0)-(d.expense||0)))}</td>
+      </tr>
+    `).join('');
+
+    const now = new Date();
+    const generatedAt = now.toLocaleString();
+
+    const reportCss = `
+      @page { size: A4; margin: 14mm; }
+      body{
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        color:#111827;
+        background:white;
+      }
+      h1{font-size:18px;margin:0}
+      .sub{color:#6b7280;font-size:12px;margin-top:6px}
+      .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+      .box{border:1px solid #e5e7eb;border-radius:12px;padding:10px}
+      .k{font-size:11px;color:#6b7280;font-weight:700}
+      .v{font-size:16px;font-weight:900;margin-top:6px}
+      .v.in{color:#0f766e}
+      .v.ex{color:#be123c}
+      .section{margin-top:16px}
+      .stitle{font-size:14px;font-weight:900;margin:0 0 8px}
+      table{width:100%;border-collapse:collapse}
+      th,td{border-bottom:1px solid #e5e7eb;padding:8px 6px;font-size:11.5px;vertical-align:top}
+      th{color:#374151;text-align:left;background:#f9fafb}
+      .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+      .chart{border:1px solid #e5e7eb;border-radius:12px;padding:10px}
+      .chart img{width:100%;height:auto;display:block}
+      .note{font-size:10.5px;color:#6b7280;margin-top:6px}
+      .printbar{position:fixed;right:14px;top:14px;display:flex;gap:8px}
+      .btn{border:1px solid #e5e7eb;border-radius:10px;background:#111827;color:white;padding:8px 10px;font-weight:800;font-size:12px;cursor:pointer}
+      .btn2{background:white;color:#111827}
+      @media print{
+        .printbar{display:none}
+      }
+    `;
+
+    const reportHtml = `
+      <!doctype html>
+      <html lang="uz">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Kirim–Chiqim Hisoboti</title>
+        <style>${reportCss}</style>
+      </head>
+      <body>
+        <div class="printbar">
+          <button class="btn" onclick="window.print()">Chop etish / PDF</button>
+          <button class="btn btn2" onclick="window.close()">Yopish</button>
         </div>
 
-        <div class="field">
-          <label for="loginCode">Kod (parol)</label>
-          <input id="loginCode" placeholder="Kamida 6 ta belgi" minlength="6" type="password" autocomplete="current-password" />
-          <small class="hint">Parol kamida 6 ta belgi bo‘lsin.</small>
+        <h1>Kirim–Chiqim Hisoboti</h1>
+        <div class="sub">Yaratilgan: ${safeText(generatedAt)} • Yozuvlar: ${items.length} ta</div>
+
+        <div class="grid">
+          <div class="box"><div class="k">Jami kirim</div><div class="v in">${safeText(formatMoney(income))}</div></div>
+          <div class="box"><div class="k">Jami chiqim</div><div class="v ex">${safeText(formatMoney(expense))}</div></div>
+          <div class="box"><div class="k">Balans</div><div class="v">${safeText(formatMoney(balance))}</div></div>
         </div>
 
-        <div class="login-actions">
-          <button id="btnLogin" class="btn btn-primary" type="button">
-            <span class="icon" aria-hidden="true">🔐</span>
-            <span>Kirish</span>
-          </button>
-          <button id="btnSignup" class="btn btn-secondary" type="button">
-            <span class="icon" aria-hidden="true">🆕</span>
-            <span>Ro‘yxatdan o‘tish</span>
-          </button>
-        </div>
-
-        <div class="login-note">
-          Bu login <b>Firebase Auth (Email/Password)</b> orqali ishlaydi: email avtomatik generatsiya qilinadi.<br/>
-          Ishlashi uchun sayt <b>HTTPS</b>da bo‘lishi kerak: <span class="inline-badge">GitHub Pages</span> yoki <span class="inline-badge">Firebase Hosting</span>.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="app" id="app" style="display:none">
-    <header class="topbar">
-      <div class="brand">
-        <div class="logo" aria-hidden="true">₸</div>
-        <div>
-          <h1>Kirim–Chiqim Hisobi</h1>
-          <p class="muted">Faqat Firestore • Login: ism + kod • Real-time • Report/Print/PDF • Modern Charts</p>
-        </div>
-      </div>
-
-      <div class="topbar-actions statbar">
-        <span class="inline-badge">
-          <span id="cloudDot" class="dotlive"></span>
-          <span id="cloudText">Cloud: ulanmoqda…</span>
-        </span>
-        <span class="inline-badge" id="whoami">👤 —</span>
-        <button id="btnTheme" class="btn btn-ghost" type="button" title="Tema (Light/Dark)">
-          <span class="icon" aria-hidden="true">☾</span>
-          <span>Tema</span>
-        </button>
-        <button id="btnLogout" class="btn btn-secondary" type="button" title="Chiqish">
-          <span class="icon" aria-hidden="true">⎋</span>
-          <span>Chiqish</span>
-        </button>
-      </div>
-    </header>
-
-    <main class="grid">
-      <section class="card summary">
-        <div class="summary-grid">
-          <div class="metric metric-income">
-            <div class="metric-label">Jami kirim (tanlangan hisoblash bo‘yicha)</div>
-            <div class="metric-value" id="sumIncome">0 so'm</div>
-          </div>
-          <div class="metric metric-expense">
-            <div class="metric-label">Jami chiqim (tanlangan hisoblash bo‘yicha)</div>
-            <div class="metric-value" id="sumExpense">0 so'm</div>
-          </div>
-          <div class="metric metric-balance">
-            <div class="metric-label">Balans</div>
-            <div class="metric-value" id="sumBalance">0 so'm</div>
-          </div>
-        </div>
-
-        <div class="summary-actions">
-          <button id="btnToggleAnalysis" class="btn btn-secondary" type="button">
-            <span class="icon" aria-hidden="true">📊</span>
-            <span>Tahlilni ko‘rish</span>
-          </button>
-
-          <button id="btnOpenReport" class="btn btn-secondary" type="button">
-            <span class="icon" aria-hidden="true">🧾</span>
-            <span>Hisobot / Chop / PDF</span>
-          </button>
-
-          <button id="btnClearAll" class="btn btn-danger" type="button">
-            <span class="icon" aria-hidden="true">🗑</span>
-            <span>Hammasini o‘chirish</span>
-          </button>
-        </div>
-
-        <div class="pillrow">
-          <span class="pill">Firestore Only</span>
-          <span class="pill">Email/Password Auth</span>
-          <span class="pill">Sana diapazoni</span>
-          <span class="pill">Chop / PDF alohida</span>
-          <span class="pill">Grafiklar</span>
-        </div>
-      </section>
-
-      <!-- Left: Entry -->
-      <section class="card form-card">
-        <h2 class="card-title">Yangi yozuv</h2>
-
-        <form id="entryForm" class="form">
-          <div class="segmented" role="group" aria-label="Kirim yoki chiqim tanlang">
-            <label class="seg-item">
-              <input type="radio" name="type" value="income" checked />
-              <span>Kirim</span>
-            </label>
-            <label class="seg-item">
-              <input type="radio" name="type" value="expense" />
-              <span>Chiqim</span>
-            </label>
-          </div>
-
-          <div class="two-col">
-            <div class="field">
-              <label for="amount">Summasi</label>
-              <input id="amount" name="amount" inputmode="decimal" placeholder="Masalan: 150000" required />
-              <small class="hint">Raqam kiriting (so‘m). Bo‘shliq/vergul bo‘lsa ham bo‘ladi.</small>
+        <div class="section">
+          <div class="stitle">Tahlil grafiklari (kunlar bo‘yicha)</div>
+          <div class="two">
+            <div class="chart">
+              <div class="k">Kirim / Chiqim (tanlangan oraliq)</div>
+              <img src="${imgIncome}" alt="Kirim/Chiqim grafigi" />
             </div>
-
-            <div class="field">
-              <label for="date">Sana</label>
-              <input id="date" name="date" type="date" required />
-              <small class="hint">Default: bugungi sana.</small>
+            <div class="chart">
+              <div class="k">Balans (kumulative)</div>
+              <img src="${imgExpense}" alt="Balans grafigi" />
             </div>
           </div>
-
-          <div class="two-col">
-            <div class="field">
-              <label for="category">Kategoriya</label>
-              <input id="category" list="catList" placeholder="Masalan: Oziq-ovqat" />
-              <datalist id="catList">
-                <option value="Maosh"></option>
-                <option value="Savdo"></option>
-                <option value="Bonus"></option>
-                <option value="Qarz qaytdi"></option>
-                <option value="Oziq-ovqat"></option>
-                <option value="Transport"></option>
-                <option value="Ijara"></option>
-                <option value="Kommunal"></option>
-                <option value="Aloqa/Internet"></option>
-                <option value="Sog'liq"></option>
-                <option value="Ta'lim"></option>
-                <option value="Kiyim-kechak"></option>
-                <option value="Ko'ngilochar"></option>
-                <option value="Kredit/Qarz"></option>
-                <option value="Biznes"></option>
-                <option value="Sovg'a"></option>
-                <option value="Boshqa"></option>
-              </datalist>
-              <small class="hint">Ixtiyoriy. Kiritmasangiz “Boshqa”.</small>
-            </div>
-
-            <div class="field">
-              <label for="note">Izoh (qayerdan / nimaga)</label>
-              <input id="note" name="note" maxlength="160" placeholder="Masalan: Oylik / Market / Benzin..." required />
-              <small class="hint">Majburiy.</small>
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <button id="btnSave" class="btn btn-primary" type="submit">
-              <span class="icon" aria-hidden="true">💾</span>
-              <span>Saqlash</span>
-            </button>
-            <button id="btnCancelEdit" class="btn btn-ghost" type="button" hidden>
-              <span class="icon" aria-hidden="true">↩</span>
-              <span>Bekor</span>
-            </button>
-          </div>
-        </form>
-      </section>
-
-      <!-- Right: List -->
-      <section class="card list-card">
-        <div class="list-head">
-          <div>
-            <h2 class="card-title" style="margin-bottom:6px">Yozuvlar</h2>
-            <div class="muted" id="listHint" style="font-size:12px;font-weight:900">Real-time: oxirgi 200 ta. Ko‘proq bo‘lsa “Yana yuklash” bosing.</div>
-          </div>
-          <div class="list-tools">
-            <select id="filterType" class="select">
-              <option value="all">Hammasi</option>
-              <option value="income">Kirim</option>
-              <option value="expense">Chiqim</option>
-            </select>
-            <input id="filterCategory" class="search" placeholder="Kategoriya (filter)..." />
-            <input id="searchNote" class="search" placeholder="Izoh bo‘yicha qidirish..." />
-            <button id="btnReload" class="btn btn-mini" type="button" title="Yangilash">↻ Yangilash</button>
-          </div>
+          <div class="note">Eslatma: Grafika ko‘rinishi brauzerga bog‘liq. PDF olish uchun “Chop etish / PDF” tugmasini bosing.</div>
         </div>
 
-        <div class="table-wrap">
-          <table class="table">
+        <div class="section">
+          <div class="stitle">Kunlik jamlanma</div>
+          <table>
             <thead>
               <tr>
                 <th>Sana</th>
-                <th>Turi</th>
-                <th>Kategoriya</th>
-                <th>Izoh</th>
-                <th>Summa</th>
-                <th class="th-actions" style="text-align:right">Amallar</th>
+                <th style="text-align:right">Kirim</th>
+                <th style="text-align:right">Chiqim</th>
+                <th style="text-align:right">Net (balans)</th>
               </tr>
             </thead>
-            <tbody id="tbody"></tbody>
+            <tbody>
+              ${dailyRows || '<tr><td colspan="4">Ma’lumot yo‘q</td></tr>'}
+            </tbody>
           </table>
         </div>
 
-        <div id="cards" class="cards"></div>
-
-        <div id="emptyBox" class="empty" style="display:none">
-          <div class="empty-illu">📭</div>
-          <div>
-            <div class="empty-title">Hali yozuv yo‘q</div>
-            <div class="muted" style="font-size:12px;margin-top:2px">Chapdan kirim/chiqim qo‘shing.</div>
-          </div>
+        <div class="section">
+          <div class="stitle">Kirimlar (nimadan kelgan)</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Sana</th>
+                <th style="text-align:right">Summa</th>
+                <th>Izoh</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${incomeRows || '<tr><td colspan="3">Kirim yo‘q</td></tr>'}
+            </tbody>
+          </table>
         </div>
 
-        <div class="small-actions">
-          <button id="btnLoadMore" class="btn btn-secondary" type="button">
-            <span class="icon" aria-hidden="true">➕</span>
-            <span>Yana yuklash</span>
-          </button>
-
-          <button id="btnExportCsv" class="btn btn-secondary" type="button">
-            <span class="icon" aria-hidden="true">⬇</span>
-            <span>CSV export</span>
-          </button>
-
-          <label class="btn btn-secondary" for="csvFile" style="cursor:pointer">
-            <span class="icon" aria-hidden="true">⬆</span>
-            <span>CSV import</span>
-          </label>
-          <input id="csvFile" type="file" accept=".csv,text/csv" style="display:none" />
+        <div class="section">
+          <div class="stitle">Chiqimlar (qayerga ishlatilgan)</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Sana</th>
+                <th style="text-align:right">Summa</th>
+                <th>Izoh</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${expenseRows || '<tr><td colspan="3">Chiqim yo‘q</td></tr>'}
+            </tbody>
+          </table>
         </div>
+      </body>
+      </html>
+    `;
 
-        <div class="muted" style="font-size:12px;margin-top:10px">
-          Eslatma: bu sahifa Firestore’ga ulanib ishlaydi. <b>file://</b> bilan ochmang. GitHub Pages/Firebase Hosting kerak.
-        </div>
-      </section>
+    const w = window.open('', '_blank');
+    if (!w) {
+      showToast('Brauzer popupni blok qildi. Ruxsat bering va qayta bosing.');
+      return;
+    }
+    w.document.open();
+    w.document.write(reportHtml);
+    w.document.close();
+  }
 
-      <!-- Analytics (collapsible) -->
-      <section class="card analysis" id="analysisCard">
-        <div class="analysis-head">
-          <div>
-            <h2 class="card-title" style="margin-bottom:6px">Tahlil (tanlangan sana oralig‘i bo‘yicha)</h2>
-            <div class="muted" style="font-size:12px;font-weight:900" id="analysisRangeText">—</div>
-          </div>
-          <div class="small-actions">
-            <button id="btnRefreshAnalysis" class="btn btn-mini" type="button">↻ Yangilash</button>
-          </div>
-        </div>
+  // ---------- Actions ----------
+  function resetForm() {
+    editingId = null;
+    entryForm.reset();
+    dateInput.value = todayISO();
+    btnSave.querySelector('span:last-child').textContent = 'Saqlash';
+    btnCancelEdit.hidden = true;
+    amountInput.focus();
+  }
 
-        <div class="analysis-grid">
-          <div class="canvas-wrap">
-            <div class="canvas-title">
-              <span>Kunlik kirim/chiqim (Line)</span>
-              <span class="muted" id="lineMeta"></span>
-            </div>
-            <canvas id="lineChart"></canvas>
-          </div>
+  function startEdit(id) {
+    const it = state.items.find(x => x.id === id);
+    if (!it) return;
 
-          <div class="canvas-wrap">
-            <div class="canvas-title">
-              <span>Kategoriyalar bo‘yicha chiqim (Doughnut)</span>
-              <span class="muted" id="donutMeta"></span>
-            </div>
-            <canvas id="donutChart"></canvas>
-          </div>
-        </div>
+    editingId = id;
 
-        <div class="insights" id="insights"></div>
-      </section>
+    const typeRadio = entryForm.querySelector(`input[name="type"][value="${it.type}"]`);
+    if (typeRadio) typeRadio.checked = true;
 
-      <!-- Reporting settings -->
-      <section class="card reporting">
-        <h2 class="card-title">Hisobot sozlamalari (sana tanlab)</h2>
+    amountInput.value = String(it.amount ?? '');
+    noteInput.value = it.note ?? '';
+    dateInput.value = it.date ?? todayISO();
 
-        <div class="two-col">
-          <div class="field">
-            <label for="reportFrom">Hisobot: qaysi sanadan</label>
-            <input id="reportFrom" type="date" />
-          </div>
-          <div class="field">
-            <label for="reportTo">Hisobot: qaysi sanagacha</label>
-            <input id="reportTo" type="date" />
-          </div>
-        </div>
+    btnSave.querySelector('span:last-child').textContent = 'Yangilash';
+    btnCancelEdit.hidden = false;
 
-        <div class="small-actions">
-          <button id="btnRangeAll" class="btn btn-secondary" type="button">
-            <span class="icon" aria-hidden="true">∞</span>
-            <span>Barchasi</span>
-          </button>
-          <button id="btnRangeThisMonth" class="btn btn-secondary" type="button" title="Siz tanlagan 'Oy boshi kuni' bo‘yicha">
-            <span class="icon" aria-hidden="true">🗓</span>
-            <span>Hozirgi oy</span>
-          </button>
-          <div class="field" style="flex:1;min-width:220px;margin:0">
-            <label for="reportType">Hisobot turi</label>
-            <select id="reportType">
-              <option value="all">Kirim + Chiqim</option>
-              <option value="income">Faqat kirim</option>
-              <option value="expense">Faqat chiqim</option>
-            </select>
-          </div>
-        </div>
+    showToast('Tahrirlash rejimi yoqildi');
+    amountInput.focus();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
-        <div class="hr"></div>
+  async function upsertItem(type, amount, note, date) {
+    try {
+      if (!currentUser) return showToast('Avval tizimga kiring');
+      if (isAdmin && !viewUid) return showToast('Foydalanuvchini tanlang');
 
-        <label class="switch">
-          <input id="useReportForCalc" type="checkbox" checked />
-          <div>
-            <div style="font-weight:950">Hisoblash ham shu diapazon bo‘yicha</div>
-            <div class="muted" style="font-size:12px">O‘chirsangiz — kirim va chiqimni alohida sanalar bilan hisoblay olasiz.</div>
-          </div>
-        </label>
+      if (editingId) {
+        const id = editingId;
+        editingId = null;
+        await updateTx(id, type, amount, note, date);
+        showToast('Yangilandi');
+        resetForm();
+        return;
+      }
 
-        <div id="calcRangesBox" hidden>
-          <div class="two-col" style="margin-top:12px">
-            <div class="field">
-              <label for="calcIncomeFrom">Kirim hisoblash: from</label>
-              <input id="calcIncomeFrom" type="date" />
-            </div>
-            <div class="field">
-              <label for="calcIncomeTo">Kirim hisoblash: to</label>
-              <input id="calcIncomeTo" type="date" />
-            </div>
-          </div>
+      await addTx(type, amount, note, date);
+      showToast('Saqlandi');
+      resetForm();
+    } catch (err) {
+      console.error(err);
+      showToast('Saqlashda xato: ' + (err?.message || err));
+    }
+  }
 
-          <div class="two-col" style="margin-top:12px">
-            <div class="field">
-              <label for="calcExpenseFrom">Chiqim hisoblash: from</label>
-              <input id="calcExpenseFrom" type="date" />
-            </div>
-            <div class="field">
-              <label for="calcExpenseTo">Chiqim hisoblash: to</label>
-              <input id="calcExpenseTo" type="date" />
-            </div>
-          </div>
-        </div>
+  async function removeItem(id) {
+    const it = state.items.find(x => x.id === id);
+    if (!it) return;
 
-        <div class="two-col" style="margin-top:12px">
-          <div class="field">
-            <label for="fiscalStartDay">Oy boshi kuni</label>
-            <select id="fiscalStartDay"></select>
-            <small class="hint">Masalan: 25-kun — oy 25dan boshlanadi, keyingi oyning 24iga qadar.</small>
-          </div>
+    const ok = confirm(`Rostdan ham o‘chirasizmi?\n\n${it.type === 'income' ? 'Kirim' : 'Chiqim'}: ${formatMoney(it.amount)}\nIzoh: ${it.note}`);
+    if (!ok) return;
 
-          <div class="field">
-            <label>Hisobot tarkibi</label>
-            <label class="switch" style="margin-top:6px">
-              <input id="includeCharts" type="checkbox" checked />
-              <div><div style="font-weight:950">Grafiklarni qo‘shish</div></div>
-            </label>
-            <label class="switch" style="margin-top:8px">
-              <input id="includeDetails" type="checkbox" checked />
-              <div><div style="font-weight:950">Detallarni qo‘shish</div></div>
-            </label>
-          </div>
-        </div>
+    try {
+      await deleteTx(id);
+      if (editingId === id) resetForm();
+      showToast('O‘chirildi');
+    } catch (err) {
+      console.error(err);
+      showToast('O‘chirishda xato: ' + (err?.message || err));
+    }
+  }
 
-        <div class="field" style="margin-top:10px">
-          <label for="maxDetailRows">Detallar limiti (0–5000)</label>
-          <input id="maxDetailRows" type="number" min="0" max="5000" step="50" value="300" />
-          <small class="hint">Detallar ko‘p bo‘lsa PDF og‘irlashadi. 0 qo‘ysangiz detal chiqmaydi.</small>
-        </div>
-
-        <div class="small-actions" style="margin-top: 12px">
-          <button id="btnApplyRange" class="btn btn-primary" type="button">
-            <span class="icon" aria-hidden="true">✅</span>
-            <span>Diapazonni qo‘llash</span>
-          </button>
-          <button id="btnQuickReport" class="btn btn-secondary" type="button">
-            <span class="icon" aria-hidden="true">👁</span>
-            <span>Hisobotni ko‘rish</span>
-          </button>
-        </div>
-      </section>
-
-      <div class="footer muted">
-        © Kirim–Chiqim • Firestore Only • Telefon va kompyuterga mos
-      </div>
-    </main>
-  </div>
-
-  <!-- REPORT MODAL -->
-  <div id="reportModal" class="modal" role="dialog" aria-modal="true" aria-label="Hisobot">
-    <div class="modal-card">
-      <div class="modal-head">
-        <div>
-          <h3>Hisobot</h3>
-          <div class="muted" style="font-size:12px;font-weight:900" id="reportTitle">—</div>
-        </div>
-        <div class="modal-actions">
-          <button id="btnPrint" class="btn btn-secondary" type="button">
-            <span class="icon" aria-hidden="true">🖨</span>
-            <span>Chop etish</span>
-          </button>
-          <button id="btnPdf" class="btn btn-secondary" type="button">
-            <span class="icon" aria-hidden="true">📄</span>
-            <span>PDF saqlash</span>
-          </button>
-          <button id="btnCloseReport" class="btn btn-ghost" type="button">
-            <span class="icon" aria-hidden="true">✕</span>
-            <span>Yopish</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="hr"></div>
-
-      <div id="reportSummary" class="report-box"></div>
-
-      <div id="reportCharts" style="margin-top:12px; display:none">
-        <div class="analysis-grid">
-          <div class="canvas-wrap">
-            <div class="canvas-title"><span>Kunlik kirim/chiqim</span><span class="muted" id="rLineMeta"></span></div>
-            <canvas id="rLineChart"></canvas>
-          </div>
-          <div class="canvas-wrap">
-            <div class="canvas-title"><span>Kategoriya chiqim</span><span class="muted" id="rDonutMeta"></span></div>
-            <canvas id="rDonutChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <div id="reportDetails" style="margin-top:12px"></div>
-    </div>
-  </div>
-
-  <div id="toast" class="toast" style="display:none"></div>
-
-  <script type="module">
-    // Firebase (CDN modules)
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import {
-      getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, query, where, orderBy, limit, startAfter,
-      getDocs, onSnapshot, serverTimestamp, setDoc, getDoc, writeBatch
-    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-    import {
-      getAuth, setPersistence, browserLocalPersistence,
-      signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile
-    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-
-    // ====== YOUR FIREBASE CONFIG (SIZ BERGAN) ======
-    const firebaseConfig = {
-      apiKey: "AIzaSyDLIJg7UfsVYiz9HdhbwblqQ_3ZYZPJ8fg",
-      authDomain: "shahbozbek-4922b.firebaseapp.com",
-      projectId: "shahbozbek-4922b",
-      storageBucket: "shahbozbek-4922b.firebasestorage.app",
-      messagingSenderId: "131010057146",
-      appId: "1:131010057146:web:f9fe30976d19e9d1ea0383",
-      measurementId: "G-3XCQLHNYC2"
+  function exportJSON() {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      version: 1,
+      items: state.items
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
-    // Persist session (telefon/kompyuterda qayta kirish shart emas)
-    await setPersistence(auth, browserLocalPersistence);
-
-    // ====== UI refs ======
-    const $ = (id) => document.getElementById(id);
-
-    const overlay = $("overlay");
-    const appEl = $("app");
-
-    const loginName = $("loginName");
-    const loginCode = $("loginCode");
-    const btnLogin = $("btnLogin");
-    const btnSignup = $("btnSignup");
-
-    const cloudDot = $("cloudDot");
-    const cloudText = $("cloudText");
-    const whoami = $("whoami");
-
-    const btnTheme = $("btnTheme");
-    const btnLogout = $("btnLogout");
-
-    const entryForm = $("entryForm");
-    const amountEl = $("amount");
-    const dateEl = $("date");
-    const categoryEl = $("category");
-    const noteEl = $("note");
-    const btnCancelEdit = $("btnCancelEdit");
-
-    const tbody = $("tbody");
-    const cards = $("cards");
-    const emptyBox = $("emptyBox");
-
-    const filterType = $("filterType");
-    const filterCategory = $("filterCategory");
-    const searchNote = $("searchNote");
-    const btnReload = $("btnReload");
-    const btnLoadMore = $("btnLoadMore");
-    const btnClearAll = $("btnClearAll");
-
-    const sumIncome = $("sumIncome");
-    const sumExpense = $("sumExpense");
-    const sumBalance = $("sumBalance");
-
-    const btnToggleAnalysis = $("btnToggleAnalysis");
-    const analysisCard = $("analysisCard");
-    const analysisRangeText = $("analysisRangeText");
-    const btnRefreshAnalysis = $("btnRefreshAnalysis");
-    const insightsBox = $("insights");
-
-    const reportFrom = $("reportFrom");
-    const reportTo = $("reportTo");
-    const reportType = $("reportType");
-    const btnRangeAll = $("btnRangeAll");
-    const btnRangeThisMonth = $("btnRangeThisMonth");
-    const useReportForCalc = $("useReportForCalc");
-    const calcRangesBox = $("calcRangesBox");
-    const calcIncomeFrom = $("calcIncomeFrom");
-    const calcIncomeTo = $("calcIncomeTo");
-    const calcExpenseFrom = $("calcExpenseFrom");
-    const calcExpenseTo = $("calcExpenseTo");
-    const fiscalStartDay = $("fiscalStartDay");
-    const includeCharts = $("includeCharts");
-    const includeDetails = $("includeDetails");
-    const maxDetailRows = $("maxDetailRows");
-    const btnApplyRange = $("btnApplyRange");
-    const btnQuickReport = $("btnQuickReport");
-    const btnOpenReport = $("btnOpenReport");
-
-    const btnExportCsv = $("btnExportCsv");
-    const csvFile = $("csvFile");
-
-    const toastEl = $("toast");
-
-    const reportModal = $("reportModal");
-    const reportTitle = $("reportTitle");
-    const reportSummary = $("reportSummary");
-    const reportDetails = $("reportDetails");
-    const reportChartsWrap = $("reportCharts");
-    const btnCloseReport = $("btnCloseReport");
-    const btnPrint = $("btnPrint");
-    const btnPdf = $("btnPdf");
-
-    // analytics canvases
-    const lineCanvas = $("lineChart");
-    const donutCanvas = $("donutChart");
-    const lineMeta = $("lineMeta");
-    const donutMeta = $("donutMeta");
-
-    const rLineCanvas = $("rLineChart");
-    const rDonutCanvas = $("rDonutChart");
-    const rLineMeta = $("rLineMeta");
-    const rDonutMeta = $("rDonutMeta");
-
-    // ====== State ======
-    let currentUser = null;
-    let unsubList = null;
-    let listDocs = []; // last loaded docs (200 + pages)
-    let lastDoc = null;
-    let editingId = null;
-
-    // Chart instances
-    let lineChart = null;
-    let donutChart = null;
-    let rLineChart = null;
-    let rDonutChart = null;
-
-    // ====== Helpers ======
-    const nf = new Intl.NumberFormat("uz-UZ");
-    const fmt = (n) => `${nf.format(Math.round(n || 0))} so'm`;
-
-    function todayStr(){
-      const d = new Date();
-      const m = String(d.getMonth()+1).padStart(2,"0");
-      const day = String(d.getDate()).padStart(2,"0");
-      return `${d.getFullYear()}-${m}-${day}`;
-    }
-
-    function toast(msg, ms=2400){
-      toastEl.textContent = msg;
-      toastEl.style.display = "block";
-      clearTimeout(toastEl._t);
-      toastEl._t = setTimeout(()=> toastEl.style.display = "none", ms);
-    }
-
-    function setCloudState(state, text){
-      // state: "ok" | "bad" | "wait"
-      cloudDot.classList.remove("ok","bad");
-      if(state==="ok") cloudDot.classList.add("ok");
-      if(state==="bad") cloudDot.classList.add("bad");
-      cloudText.textContent = text;
-    }
-
-    function normalizeName(name){
-      const raw = (name || "").trim().toLowerCase();
-      const simple = raw.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
-      const cleaned = simple.replace(/\s+/g, ".").replace(/[^a-z0-9._-]/g, "");
-      return cleaned.slice(0, 40);
-    }
-
-    function emailFromName(name){
-      const u = normalizeName(name);
-      if(!u) return null;
-      return `${u}@kirimchiqim.local`;
-    }
-
-    function parseAmount(v){
-      const s = String(v || "").replace(/[^\d.,-]/g, "").replace(/,/g, ".");
-      const n = Number(s);
-      if(!Number.isFinite(n)) return NaN;
-      return Math.round(n);
-    }
-
-    function inRange(dateStr, fromStr, toStr){
-      if(!dateStr) return false;
-      if(fromStr && dateStr < fromStr) return false;
-      if(toStr && dateStr > toStr) return false;
-      return true;
-    }
-
-    function getFiscalMonthRange(baseDateStr, startDay){
-      // returns {from,to} for "current fiscal month" containing baseDate
-      const base = baseDateStr ? new Date(baseDateStr + "T00:00:00") : new Date();
-      const sd = Math.min(28, Math.max(1, Number(startDay || 1)));
-
-      let y = base.getFullYear();
-      let m = base.getMonth(); // 0-11
-
-      // determine start date of current fiscal month
-      let start = new Date(y, m, sd);
-      if(base.getDate() < sd){
-        // fiscal month started previous month
-        m -= 1;
-        if(m < 0){ m = 11; y -= 1; }
-        start = new Date(y, m, sd);
-      }
-
-      // end = day before next fiscal start
-      let ny = y, nm = m + 1;
-      if(nm > 11){ nm = 0; ny += 1; }
-      const nextStart = new Date(ny, nm, sd);
-      const end = new Date(nextStart.getTime() - 24*60*60*1000);
-
-      const toStr = (d)=> `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-      return { from: toStr(start), to: toStr(end) };
-    }
-
-    function esc(s){
-      return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
-    }
-
-    // ====== Theme in Firestore (NO localStorage) ======
-    async function loadProfileTheme(uid){
-      try{
-        const ref = doc(db, "users", uid, "profile", "settings");
-        const snap = await getDoc(ref);
-        const theme = snap.exists() ? snap.data().theme : null;
-        if(theme === "light") document.documentElement.dataset.theme = "light";
-        else document.documentElement.dataset.theme = "dark";
-      }catch(e){
-        // default
-        document.documentElement.dataset.theme = "dark";
-      }
-    }
-
-    async function saveProfileTheme(uid, theme){
-      const ref = doc(db, "users", uid, "profile", "settings");
-      await setDoc(ref, { theme }, { merge: true });
-    }
-
-    // ====== Firestore paths ======
-    const txCol = () => collection(db, "users", currentUser.uid, "transactions");
-
-    // ====== List realtime (paged) ======
-    function buildBaseListQuery(){
-      const from = reportFrom.value || "";
-      const to = reportTo.value || "";
-      // Keep it index-friendly: range+orderby on same field only.
-      if(from && to){
-        return query(txCol(), where("date", ">=", from), where("date", "<=", to), orderBy("date", "desc"), limit(200));
-      } else if(from){
-        return query(txCol(), where("date", ">=", from), orderBy("date", "desc"), limit(200));
-      } else if(to){
-        return query(txCol(), where("date", "<=", to), orderBy("date", "desc"), limit(200));
-      } else {
-        return query(txCol(), orderBy("date", "desc"), limit(200));
-      }
-    }
-
-    function attachRealtimeList(){
-      if(unsubList) { unsubList(); unsubList = null; }
-      listDocs = [];
-      lastDoc = null;
-      renderList([]);
-      setCloudState("wait", "Cloud: ulanmoqda…");
-
-      const q = buildBaseListQuery();
-      unsubList = onSnapshot(q, (snap)=>{
-        setCloudState("ok", "Cloud: ulandi");
-        listDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        lastDoc = snap.docs.length ? snap.docs[snap.docs.length-1] : null;
-        renderList(listDocs);
-        // refresh summary+analysis in background (range-based)
-        refreshSummaryAndAnalysis(false);
-      }, (err)=>{
-        console.error(err);
-        setCloudState("bad", "Cloud: xato");
-        toast("Cloud ulanmayapti. Hosting/Rules/Auth tekshiring.");
-      });
-    }
-
-    async function loadMore(){
-      if(!lastDoc) { toast("Yana ma'lumot yo‘q."); return; }
-
-      btnLoadMore.disabled = true;
-      try{
-        const from = reportFrom.value || "";
-        const to = reportTo.value || "";
-
-        let q;
-        if(from && to){
-          q = query(txCol(), where("date", ">=", from), where("date", "<=", to), orderBy("date", "desc"), startAfter(lastDoc), limit(200));
-        } else if(from){
-          q = query(txCol(), where("date", ">=", from), orderBy("date", "desc"), startAfter(lastDoc), limit(200));
-        } else if(to){
-          q = query(txCol(), where("date", "<=", to), orderBy("date", "desc"), startAfter(lastDoc), limit(200));
-        } else {
-          q = query(txCol(), orderBy("date", "desc"), startAfter(lastDoc), limit(200));
-        }
-
-        const snap = await getDocs(q);
-        const more = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        if(snap.docs.length) lastDoc = snap.docs[snap.docs.length-1];
-        else lastDoc = null;
-
-        listDocs = listDocs.concat(more);
-        renderList(listDocs);
-        toast(more.length ? `Yana ${more.length} ta yuklandi.` : "Yana ma'lumot yo‘q.");
-      }catch(e){
-        console.error(e);
-        toast("Yuklashda xato. Internet/Rules tekshiring.");
-      }finally{
-        btnLoadMore.disabled = false;
-      }
-    }
-
-    function applyClientFilters(rows){
-      const t = filterType.value;
-      const cat = (filterCategory.value || "").trim().toLowerCase();
-      const q = (searchNote.value || "").trim().toLowerCase();
-
-      return rows.filter(r=>{
-        if(t !== "all" && r.type !== t) return false;
-        if(cat && String(r.category||"").toLowerCase().indexOf(cat) === -1) return false;
-        if(q && String(r.note||"").toLowerCase().indexOf(q) === -1) return false;
-        return true;
-      });
-    }
-
-    function renderList(rows){
-      const filtered = applyClientFilters(rows);
-
-      tbody.innerHTML = "";
-      cards.innerHTML = "";
-
-      if(!filtered.length){
-        emptyBox.style.display = "flex";
-      } else {
-        emptyBox.style.display = "none";
-      }
-
-      // Desktop table
-      for(const r of filtered){
-        const tr = document.createElement("tr");
-
-        const typeBadge = r.type === "income"
-          ? `<span class="badge income">⬆ Kirim</span>`
-          : `<span class="badge expense">⬇ Chiqim</span>`;
-
-        const catBadge = `<span class="badge cat">${esc(r.category || "Boshqa")}</span>`;
-        const amountClass = r.type === "income" ? "income" : "expense";
-
-        tr.innerHTML = `
-          <td>${esc(r.date || "")}</td>
-          <td>${typeBadge}</td>
-          <td>${catBadge}</td>
-          <td>${esc(r.note || "")}</td>
-          <td><span class="amount ${amountClass}">${fmt(r.amount || 0)}</span></td>
-          <td class="td-actions">
-            <div class="row-actions">
-              <button class="btn btn-mini" data-edit="${r.id}">✎ Tahrir</button>
-              <button class="btn btn-mini del" data-del="${r.id}">🗑 O'chir</button>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      }
-
-      // Mobile cards
-      for(const r of filtered){
-        const item = document.createElement("div");
-        item.className = "card-item";
-        const amountClass = r.type === "income" ? "income" : "expense";
-        const typeBadge = r.type === "income"
-          ? `<span class="badge income">⬆ Kirim</span>`
-          : `<span class="badge expense">⬇ Chiqim</span>`;
-
-        item.innerHTML = `
-          <div class="card-top">
-            <div class="card-meta">
-              ${typeBadge}
-              <span class="badge cat">${esc(r.category || "Boshqa")}</span>
-            </div>
-            <div class="card-date">${esc(r.date || "")}</div>
-          </div>
-          <div class="card-note">${esc(r.note || "")}</div>
-          <div style="margin-top:8px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
-            <div class="card-amount amount ${amountClass}">${fmt(r.amount || 0)}</div>
-            <div class="card-actions">
-              <button class="btn btn-mini" data-edit="${r.id}">✎ Tahrir</button>
-              <button class="btn btn-mini del" data-del="${r.id}">🗑 O'chir</button>
-            </div>
-          </div>
-        `;
-        cards.appendChild(item);
-      }
-    }
-
-    // ====== Summary + Analysis (range fetch, no localStorage) ======
-    async function fetchRangeDocs(){
-      // fetch docs in selected "calculation" ranges.
-      // To keep index easy, we query by date only; filter type in JS.
-      // If ranges are empty: fetch up to 5000 newest docs (for summary/analysis).
-      const LIMIT = 5000;
-
-      const useReport = useReportForCalc.checked;
-      const rFrom = reportFrom.value || "";
-      const rTo = reportTo.value || "";
-
-      const iFrom = useReport ? rFrom : (calcIncomeFrom.value || "");
-      const iTo   = useReport ? rTo   : (calcIncomeTo.value || "");
-      const eFrom = useReport ? rFrom : (calcExpenseFrom.value || "");
-      const eTo   = useReport ? rTo   : (calcExpenseTo.value || "");
-
-      const makeQ = (from,to)=> {
-        if(from && to) return query(txCol(), where("date", ">=", from), where("date","<=",to), orderBy("date","asc"), limit(LIMIT));
-        if(from) return query(txCol(), where("date", ">=", from), orderBy("date","asc"), limit(LIMIT));
-        if(to) return query(txCol(), where("date", "<=", to), orderBy("date","asc"), limit(LIMIT));
-        return query(txCol(), orderBy("date","desc"), limit(LIMIT)); // fallback
-      };
-
-      const [incSnap, expSnap] = await Promise.all([
-        getDocs(makeQ(iFrom,iTo)),
-        getDocs(makeQ(eFrom,eTo)),
-      ]);
-
-      const inc = incSnap.docs.map(d=>({id:d.id, ...d.data()})).filter(x=>x.type==="income");
-      const exp = expSnap.docs.map(d=>({id:d.id, ...d.data()})).filter(x=>x.type==="expense");
-
-      return { inc, exp, meta: { LIMIT, useReport, rFrom, rTo, iFrom, iTo, eFrom, eTo } };
-    }
-
-    function buildDailySeries(all, fromStr, toStr){
-      // all = transactions in range (both types)
-      const map = new Map(); // date -> {income,expense}
-      for(const r of all){
-        if(!r.date) continue;
-        if(!inRange(r.date, fromStr, toStr)) continue;
-        const cur = map.get(r.date) || { income:0, expense:0 };
-        if(r.type==="income") cur.income += (r.amount||0);
-        else if(r.type==="expense") cur.expense += (r.amount||0);
-        map.set(r.date, cur);
-      }
-      const dates = Array.from(map.keys()).sort();
-      const incomes = dates.map(d=>map.get(d).income);
-      const expenses = dates.map(d=>map.get(d).expense);
-      return { dates, incomes, expenses };
-    }
-
-    function buildCategoryTotals(rows, type){
-      const m = new Map();
-      for(const r of rows){
-        if(r.type!==type) continue;
-        const c = (r.category || "Boshqa").trim() || "Boshqa";
-        m.set(c, (m.get(c)||0) + (r.amount||0));
-      }
-      const entries = Array.from(m.entries()).sort((a,b)=>b[1]-a[1]);
-      return entries;
-    }
-
-    function makeInsights(all, fromStr, toStr){
-      // peak day income / expense + quietest day by total
-      const daily = new Map();
-      for(const r of all){
-        if(!r.date) continue;
-        if(!inRange(r.date, fromStr, toStr)) continue;
-        daily.set(r.date, (daily.get(r.date)||0) + (r.amount||0));
-      }
-      const days = Array.from(daily.entries());
-      let max = null, min = null;
-      for(const [d,v] of days){
-        if(!max || v > max[1]) max = [d,v];
-        if(!min || v < min[1]) min = [d,v];
-      }
-
-      const incomeTotal = all.filter(x=>x.type==="income" && inRange(x.date, fromStr, toStr)).reduce((s,x)=>s+(x.amount||0),0);
-      const expenseTotal = all.filter(x=>x.type==="expense" && inRange(x.date, fromStr, toStr)).reduce((s,x)=>s+(x.amount||0),0);
-
-      // Most frequent category expense
-      const catExp = buildCategoryTotals(all, "expense");
-      const topCat = catExp.length ? `${catExp[0][0]} (${fmt(catExp[0][1])})` : "—";
-
-      return [
-        { k:"Eng ko‘p harakat kuni", v: max ? `${max[0]} • ${fmt(max[1])}` : "—" },
-        { k:"Eng kam harakat kuni", v: min ? `${min[0]} • ${fmt(min[1])}` : "—" },
-        { k:"Eng katta chiqim kategoriyasi", v: topCat },
-        { k:"Jami kirim", v: fmt(incomeTotal) },
-        { k:"Jami chiqim", v: fmt(expenseTotal) },
-        { k:"Balans", v: fmt(incomeTotal - expenseTotal) },
-      ];
-    }
-
-    function renderInsights(items){
-      insightsBox.innerHTML = "";
-      const show = items.slice(0,6);
-      for(const it of show){
-        const div = document.createElement("div");
-        div.className = "insight";
-        div.innerHTML = `<div class="k">${esc(it.k)}</div><div class="v">${esc(it.v)}</div>`;
-        insightsBox.appendChild(div);
-      }
-    }
-
-    function ensureChartInstances(){
-      if(!window.Chart) return;
-
-      const baseLineCfg = (labels, incomeData, expenseData)=>({
-        type: "line",
-        data: {
-          labels,
-          datasets: [
-            { label: "Kirim", data: incomeData, tension: 0.28, borderWidth: 2, fill: true },
-            { label: "Chiqim", data: expenseData, tension: 0.28, borderWidth: 2, fill: true }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: { mode: "index", intersect: false },
-          plugins: {
-            legend: { display: true },
-            tooltip: { callbacks: { label: (ctx)=> `${ctx.dataset.label}: ${fmt(ctx.raw)}` } }
-          },
-          scales: {
-            y: { ticks: { callback: (v)=> nf.format(v) } }
-          }
-        }
-      });
-
-      const donutCfg = (labels, data)=>({
-        type: "doughnut",
-        data: { labels, datasets: [{ data, borderWidth: 0 }] },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: "bottom" },
-            tooltip: { callbacks: { label: (ctx)=> `${ctx.label}: ${fmt(ctx.raw)}` } }
-          }
-        }
-      });
-
-      return { baseLineCfg, donutCfg };
-    }
-
-    function setChart(chartRef, canvas, cfg){
-      if(chartRef) chartRef.destroy();
-      return new Chart(canvas.getContext("2d"), cfg);
-    }
-
-    async function refreshSummaryAndAnalysis(forceToast=true){
-      if(!currentUser) return;
-
-      try{
-        const { inc, exp, meta } = await fetchRangeDocs();
-        const incSum = inc.reduce((s,x)=>s+(x.amount||0),0);
-        const expSum = exp.reduce((s,x)=>s+(x.amount||0),0);
-
-        sumIncome.textContent = fmt(incSum);
-        sumExpense.textContent = fmt(expSum);
-        sumBalance.textContent = fmt(incSum - expSum);
-
-        // range label for analysis
-        const fromShow = meta.useReport ? (meta.rFrom || "…") : `${meta.iFrom||"…"} / ${meta.eFrom||"…"}`;
-        const toShow = meta.useReport ? (meta.rTo || "…") : `${meta.iTo||"…"} / ${meta.eTo||"…"}`;
-        analysisRangeText.textContent = `Diapazon: ${fromShow} → ${toShow}`;
-
-        // if analysis open, refresh charts
-        if(analysisCard.classList.contains("open")){
-          const all = inc.concat(exp);
-          const from = meta.useReport ? meta.rFrom : "";
-          const to = meta.useReport ? meta.rTo : "";
-
-          const cfgs = ensureChartInstances();
-          if(cfgs){
-            const { dates, incomes, expenses } = buildDailySeries(all, from, to);
-            lineMeta.textContent = `${dates.length} kun`;
-            donutMeta.textContent = "Chiqim";
-
-            lineChart = setChart(lineChart, lineCanvas, cfgs.baseLineCfg(dates, incomes, expenses));
-
-            const cat = buildCategoryTotals(all, "expense");
-            const labels = cat.slice(0, 10).map(x=>x[0]);
-            const data = cat.slice(0, 10).map(x=>x[1]);
-            donutChart = setChart(donutChart, donutCanvas, cfgs.donutCfg(labels, data));
-
-            renderInsights(makeInsights(all, from, to));
-          }
-        }
-
-        if(forceToast){
-          toast(`Hisob yangilandi. (limit: ${meta.LIMIT})`);
-        }
-      }catch(e){
-        console.error(e);
-        toast("Hisoblashda xato. Firestore/Rules/Internet tekshiring.");
-      }
-    }
-
-    // ====== Report ======
-    function getReportOptions(){
-      const from = reportFrom.value || "";
-      const to = reportTo.value || "";
-      const type = reportType.value;
-      const maxRows = Math.max(0, Math.min(5000, Number(maxDetailRows.value || 0)));
-      return {
-        from, to, type,
-        includeCharts: includeCharts.checked,
-        includeDetails: includeDetails.checked,
-        maxRows
-      };
-    }
-
-    async function buildReportData(){
-      const opt = getReportOptions();
-      const LIMIT = 5000; // for fetching (can be adjusted)
-
-      // fetch by date only to avoid composite indexes
-      const makeQ = ()=>{
-        if(opt.from && opt.to) return query(txCol(), where("date", ">=", opt.from), where("date","<=",opt.to), orderBy("date","asc"), limit(LIMIT));
-        if(opt.from) return query(txCol(), where("date", ">=", opt.from), orderBy("date","asc"), limit(LIMIT));
-        if(opt.to) return query(txCol(), where("date", "<=", opt.to), orderBy("date","asc"), limit(LIMIT));
-        return query(txCol(), orderBy("date","asc"), limit(LIMIT));
-      };
-
-      const snap = await getDocs(makeQ());
-      let rows = snap.docs.map(d=>({id:d.id, ...d.data()}));
-
-      if(opt.type !== "all"){
-        rows = rows.filter(r=>r.type === opt.type);
-      }
-
-      // summary
-      const income = rows.filter(r=>r.type==="income").reduce((s,x)=>s+(x.amount||0),0);
-      const expense = rows.filter(r=>r.type==="expense").reduce((s,x)=>s+(x.amount||0),0);
-      const balance = income - expense;
-
-      // details (limit)
-      const details = opt.includeDetails ? rows.slice(0, opt.maxRows) : [];
-
-      return { opt, rows, details, summary: { income, expense, balance, count: rows.length, fetchLimit: LIMIT } };
-    }
-
-    function openReportModal(){
-      reportModal.classList.add("open");
-      document.body.style.overflow = "hidden";
-    }
-    function closeReportModal(){
-      reportModal.classList.remove("open");
-      document.body.style.overflow = "";
-      // destroy report charts
-      if(rLineChart){ rLineChart.destroy(); rLineChart=null; }
-      if(rDonutChart){ rDonutChart.destroy(); rDonutChart=null; }
-    }
-
-    async function renderReport(){
-      try{
-        btnQuickReport.disabled = true;
-        btnOpenReport.disabled = true;
-        toast("Hisobot tayyorlanmoqda…", 1800);
-
-        const data = await buildReportData();
-        const { opt, rows, details, summary } = data;
-
-        const title = `Diapazon: ${opt.from || "barchasi"} → ${opt.to || "barchasi"} • ${opt.type==="all"?"Kirim+Chiqim":(opt.type==="income"?"Kirim":"Chiqim")}`;
-        reportTitle.textContent = title;
-
-        reportSummary.innerHTML = `
-          <div class="kv"><div class="k">Jami yozuv</div><div class="v">${summary.count}</div></div>
-          <div class="kv"><div class="k">Jami kirim</div><div class="v" style="color:var(--income)">${fmt(summary.income)}</div></div>
-          <div class="kv"><div class="k">Jami chiqim</div><div class="v" style="color:var(--expense)">${fmt(summary.expense)}</div></div>
-          <div class="kv"><div class="k">Balans</div><div class="v">${fmt(summary.balance)}</div></div>
-          <div class="kv"><div class="k">Fetch limiti</div><div class="v">${summary.fetchLimit}</div></div>
-        `;
-
-        // charts
-        reportChartsWrap.style.display = opt.includeCharts ? "block" : "none";
-        if(opt.includeCharts){
-          const cfgs = ensureChartInstances();
-          const from = opt.from || "";
-          const to = opt.to || "";
-
-          const daily = buildDailySeries(rows, from, to);
-          rLineMeta.textContent = `${daily.dates.length} kun`;
-          rDonutMeta.textContent = "Chiqim";
-
-          rLineChart = setChart(rLineChart, rLineCanvas, cfgs.baseLineCfg(daily.dates, daily.incomes, daily.expenses));
-
-          const cat = buildCategoryTotals(rows, "expense");
-          const labels = cat.slice(0, 12).map(x=>x[0]);
-          const vals = cat.slice(0, 12).map(x=>x[1]);
-          rDonutChart = setChart(rDonutChart, rDonutCanvas, cfgs.donutCfg(labels, vals));
-        }
-
-        // details
-        reportDetails.innerHTML = "";
-        if(opt.includeDetails && opt.maxRows > 0){
-          const wrap = document.createElement("div");
-          wrap.className = "table-wrap";
-          wrap.style.marginTop = "12px";
-          wrap.innerHTML = `
-            <table class="table" style="min-width: 900px">
-              <thead>
-                <tr>
-                  <th>Sana</th><th>Turi</th><th>Kategoriya</th><th>Izoh</th><th>Summa</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${details.map(r=>{
-                  const t = r.type==="income" ? "Kirim" : "Chiqim";
-                  const cls = r.type==="income" ? "income" : "expense";
-                  return `<tr>
-                    <td>${esc(r.date||"")}</td>
-                    <td>${esc(t)}</td>
-                    <td>${esc(r.category||"Boshqa")}</td>
-                    <td>${esc(r.note||"")}</td>
-                    <td><span class="amount ${cls}">${fmt(r.amount||0)}</span></td>
-                  </tr>`;
-                }).join("")}
-              </tbody>
-            </table>
-          `;
-          reportDetails.appendChild(wrap);
-
-          if(summary.count > details.length){
-            const more = document.createElement("div");
-            more.className = "muted";
-            more.style.marginTop = "10px";
-            more.style.fontSize = "12px";
-            more.style.fontWeight = "900";
-            more.textContent = `Detallar limit sabab ${details.length} ta ko‘rsatildi (jami ${summary.count}).`;
-            reportDetails.appendChild(more);
-          }
-        } else {
-          const note = document.createElement("div");
-          note.className = "muted";
-          note.style.fontSize = "12px";
-          note.style.fontWeight = "900";
-          note.textContent = "Detallar o‘chirilgan (yoki limit 0).";
-          reportDetails.appendChild(note);
-        }
-
-        openReportModal();
-      }catch(e){
-        console.error(e);
-        toast("Hisobotda xato. Diapazon toraytiring yoki internet tekshiring.");
-      }finally{
-        btnQuickReport.disabled = false;
-        btnOpenReport.disabled = false;
-      }
-    }
-
-    async function reportPrint(){
-      // Print alohida: new window with clean HTML
-      const title = reportTitle.textContent || "Hisobot";
-      const summaryHtml = reportSummary.innerHTML;
-      const detailsHtml = reportDetails.innerHTML;
-      const showCharts = includeCharts.checked;
-
-      const w = window.open("", "_blank");
-      if(!w){ toast("Popup bloklangan. Brauzer ruxsat bering."); return; }
-
-      const theme = document.documentElement.dataset.theme || "dark";
-      const bg = theme === "light" ? "#ffffff" : "#0b0f19";
-      const text = theme === "light" ? "#111827" : "#ffffff";
-      const muted = theme === "light" ? "#6b7280" : "rgba(255,255,255,.72)";
-
-      w.document.write(`<!doctype html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${esc(title)}</title>
-<style>
-  body{font-family:Inter,Arial,sans-serif;background:${bg};color:${text};margin:0;padding:22px}
-  h1{font-size:18px;margin:0}
-  .muted{color:${muted};font-size:12px;font-weight:700;margin-top:6px}
-  .box{border:1px solid rgba(0,0,0,.12);border-radius:14px;padding:12px;margin-top:12px}
-  table{width:100%;border-collapse:collapse;margin-top:12px}
-  th,td{border-bottom:1px solid rgba(0,0,0,.12);padding:10px;font-size:12px;vertical-align:top;text-align:left}
-  th{background:rgba(0,0,0,.04)}
-  .income{color:#14b8a6;font-weight:800}
-  .expense{color:#fb7185;font-weight:800}
-  @media print{ body{padding:0} }
-</style></head>
-<body>
-  <h1>${esc(title)}</h1>
-  <div class="muted">Chop etish uchun tayyor (Print). Agar PDF kerak bo‘lsa — alohida “PDF saqlash” tugmasini bosing.</div>
-  <div class="box">${summaryHtml}</div>
-  ${detailsHtml}
-</body></html>`);
-      w.document.close();
-      w.focus();
-      w.print();
-    }
-
-    async function reportPdf(){
-      // PDF alohida: jsPDF + autotable
-      try{
-        const data = await buildReportData();
-        const { opt, details, summary } = data;
-
-        const { jsPDF } = window.jspdf;
-        const docPdf = new jsPDF({ orientation: "p", unit: "pt", format: "a4" });
-
-        const title = `Kirim–Chiqim Hisobot`;
-        const subtitle = `${opt.from || "barchasi"} → ${opt.to || "barchasi"} • ${opt.type==="all"?"Kirim+Chiqim":(opt.type==="income"?"Kirim":"Chiqim")}`;
-
-        docPdf.setFont("helvetica", "bold");
-        docPdf.setFontSize(14);
-        docPdf.text(title, 40, 46);
-
-        docPdf.setFont("helvetica", "normal");
-        docPdf.setFontSize(10);
-        docPdf.text(subtitle, 40, 64);
-
-        docPdf.setFontSize(11);
-        docPdf.text(`Jami kirim: ${nf.format(summary.income)} so'm`, 40, 92);
-        docPdf.text(`Jami chiqim: ${nf.format(summary.expense)} so'm`, 40, 110);
-        docPdf.text(`Balans: ${nf.format(summary.balance)} so'm`, 40, 128);
-        docPdf.text(`Yozuvlar: ${summary.count}`, 40, 146);
-
-        let startY = 170;
-
-        if(opt.includeDetails && details.length){
-          const body = details.map(r=>[
-            r.date || "",
-            r.type==="income" ? "Kirim" : "Chiqim",
-            r.category || "Boshqa",
-            r.note || "",
-            nf.format(r.amount || 0),
-          ]);
-
-          docPdf.autoTable({
-            startY,
-            head: [["Sana","Turi","Kategoriya","Izoh","Summa (so'm)"]],
-            body,
-            styles: { fontSize: 9, cellPadding: 6 },
-            headStyles: { fontStyle: "bold" },
-            columnStyles: { 4: { halign: "right" } }
-          });
-        } else {
-          docPdf.setFontSize(10);
-          docPdf.text("Detallar o‘chirilgan (yoki limit 0).", 40, startY);
-        }
-
-        const filename = `kirim-chiqim-hisobot_${(opt.from||"all")}_${(opt.to||"all")}.pdf`;
-        docPdf.save(filename);
-        toast("PDF saqlandi.");
-      }catch(e){
-        console.error(e);
-        toast("PDF yaratishda xato. Internet/diapazon tekshiring.");
-      }
-    }
-
-    // ====== CRUD ======
-    async function addOrUpdateTx(payload){
-      if(!currentUser) return;
-
-      if(editingId){
-        const ref = doc(db, "users", currentUser.uid, "transactions", editingId);
-        await updateDoc(ref, payload);
-      }else{
-        await addDoc(txCol(), { ...payload, createdAt: serverTimestamp() });
-      }
-    }
-
-    async function deleteTx(id){
-      if(!currentUser) return;
-      await deleteDoc(doc(db, "users", currentUser.uid, "transactions", id));
-    }
-
-    async function clearAllTx(){
-      // Batch delete (500 limit per batch)
-      if(!currentUser) return;
-      const ok = confirm("Hamma yozuvlarni o‘chirasizmi? Bu amal qaytarilmaydi.");
-      if(!ok) return;
-
-      btnClearAll.disabled = true;
-      try{
-        toast("O‘chirilmoqda…", 2000);
-        let deleted = 0;
-
-        while(true){
-          const snap = await getDocs(query(txCol(), limit(500)));
-          if(snap.empty) break;
-
-          const batch = writeBatch(db);
-          snap.docs.forEach(d=> batch.delete(d.ref));
-          await batch.commit();
-
-          deleted += snap.size;
-          if(snap.size < 500) break;
-        }
-
-        toast(`O‘chirildi: ${deleted} ta`);
-      }catch(e){
-        console.error(e);
-        toast("O‘chirishda xato. Rules/Internet tekshiring.");
-      }finally{
-        btnClearAll.disabled = false;
-      }
-    }
-
-    function startEdit(id){
-      const r = listDocs.find(x=>x.id===id);
-      if(!r) return;
-
-      editingId = id;
-      entryForm.querySelector(`input[name="type"][value="${r.type}"]`).checked = true;
-      amountEl.value = r.amount ?? "";
-      dateEl.value = r.date ?? todayStr();
-      categoryEl.value = r.category ?? "";
-      noteEl.value = r.note ?? "";
-      btnCancelEdit.hidden = false;
-      $("btnSave").querySelector("span:last-child").textContent = "Yangilash";
-      toast("Tahrir rejimi.");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function cancelEdit(){
-      editingId = null;
-      entryForm.reset();
-      dateEl.value = todayStr();
-      btnCancelEdit.hidden = true;
-      $("btnSave").querySelector("span:last-child").textContent = "Saqlash";
-    }
-
-    // ====== CSV (simple) ======
-    function rowsToCsv(rows){
-      const header = ["date","type","category","note","amount"];
-      const escapeCsv = (v)=>{
-        const s = String(v ?? "");
-        if(/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
-        return s;
-      };
-      const lines = [header.join(",")];
-      for(const r of rows){
-        lines.push([
-          r.date||"",
-          r.type||"",
-          r.category||"",
-          r.note||"",
-          String(r.amount||0),
-        ].map(escapeCsv).join(","));
-      }
-      return lines.join("\n");
-    }
-
-    function downloadText(filename, text){
-      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    }
-
-    async function exportCsv(){
-      const rows = applyClientFilters(listDocs);
-      const csv = rowsToCsv(rows);
-      downloadText(`kirim-chiqim_export_${todayStr()}.csv`, csv);
-      toast("CSV yuklab olindi.");
-    }
-
-    function parseCsv(text){
-      // minimal CSV parser supporting quoted values
-      const rows = [];
-      let i=0, field="", row=[], inQuotes=false;
-
-      const pushField = ()=>{ row.push(field); field=""; };
-      const pushRow = ()=>{ rows.push(row); row=[]; };
-
-      while(i < text.length){
-        const c = text[i];
-        if(inQuotes){
-          if(c === '"' && text[i+1] === '"'){ field += '"'; i += 2; continue; }
-          if(c === '"'){ inQuotes=false; i++; continue; }
-          field += c; i++; continue;
-        }else{
-          if(c === '"'){ inQuotes=true; i++; continue; }
-          if(c === ","){ pushField(); i++; continue; }
-          if(c === "\n"){ pushField(); pushRow(); i++; continue; }
-          if(c === "\r"){ i++; continue; }
-          field += c; i++; continue;
-        }
-      }
-      pushField();
-      if(row.length) pushRow();
-      return rows;
-    }
-
-    async function importCsv(file){
-      if(!file) return;
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kirim-chiqim_${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast('Eksport tayyor');
+  }
+
+  async function importJSONFile(file) {
+    try {
       const text = await file.text();
-      const rows = parseCsv(text).filter(r=>r.length);
-      if(!rows.length){ toast("CSV bo‘sh."); return; }
+      const data = JSON.parse(text);
 
-      const header = rows[0].map(x=>String(x||"").trim().toLowerCase());
-      const idx = (k)=> header.indexOf(k);
+      const items = Array.isArray(data?.items) ? data.items : Array.isArray(data) ? data : null;
+      if (!items) throw new Error('Noto‘g‘ri format');
 
-      const iDate = idx("date");
-      const iType = idx("type");
-      const iCat = idx("category");
-      const iNote = idx("note");
-      const iAmt = idx("amount");
+      const cleaned = items
+        .filter(x => x && (x.type === 'income' || x.type === 'expense'))
+        .map(x => ({
+          id: String(x.id || uid()),
+          type: x.type,
+          amount: Number(x.amount) || 0,
+          note: String(x.note || '').slice(0, 120),
+          date: String(x.date || todayISO()).slice(0, 10),
+          createdAt: Number(x.createdAt) || Date.now()
+        }));
 
-      if([iDate,iType,iNote,iAmt].some(x=>x<0)){
-        toast("CSV ustunlari noto‘g‘ri. Kerak: date,type,category,note,amount");
-        return;
-      }
+      const map = new Map(state.items.map(x => [x.id, x]));
+      for (const it of cleaned) map.set(it.id, it);
 
-      const ok = confirm(`CSV import qilinsinmi? (${rows.length-1} ta yozuv)`);
-      if(!ok) return;
+      state.items = Array.from(map.values());
+      save();
+      render();
+      resetForm();
+      showToast('Import bajarildi');
+    } catch (e) {
+      console.error(e);
+      showToast('Import xato: fayl formati noto‘g‘ri');
+    }
+  }
 
-      setCloudState("wait","Cloud: import…");
-      try{
-        let count = 0;
-        for(let r=1; r<rows.length; r++){
-          const row = rows[r];
-          const type = (row[iType]||"").trim();
-          const payload = {
-            date: String(row[iDate]||"").trim(),
-            type: type === "income" || type === "expense" ? type : "expense",
-            category: String(row[iCat]||"Boshqa").trim() || "Boshqa",
-            note: String(row[iNote]||"").trim() || "—",
-            amount: parseAmount(row[iAmt]),
-          };
-          if(!payload.date || !Number.isFinite(payload.amount)) continue;
-          await addDoc(txCol(), { ...payload, createdAt: serverTimestamp() });
-          count++;
-        }
-        toast(`Import tugadi: ${count} ta`);
-        setCloudState("ok","Cloud: ulandi");
-      }catch(e){
-        console.error(e);
-        setCloudState("bad","Cloud: xato");
-        toast("Importda xato. Rules/Internet tekshiring.");
-      }finally{
-        csvFile.value = "";
-      }
+  function render() {
+    renderSummary();
+    renderList();
+    // real-time analytics (if open, redraw; if closed, keep light)
+    if (!analysisBody.hidden) renderAnalytics();
+  }
+
+  // ---------- Events ----------
+  entryForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const type = entryForm.querySelector('input[name="type"]:checked')?.value || 'income';
+    const amount = parseAmount(amountInput.value);
+    const note = (noteInput.value || '').trim();
+    const date = (dateInput.value || '').trim() || todayISO();
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      amountInput.focus();
+      return showToast('Summani to‘g‘ri kiriting (0 dan katta)');
+    }
+    if (!note) {
+      noteInput.focus();
+      return showToast('Izohni kiriting');
     }
 
-    // ====== Events ======
-    // Fill fiscalStartDay options
-    (function initFiscalOptions(){
-      fiscalStartDay.innerHTML = "";
-      for(let d=1; d<=28; d++){
-        const opt = document.createElement("option");
-        opt.value = String(d);
-        opt.textContent = `${d}-kun`;
-        if(d===1) opt.selected = true;
-        fiscalStartDay.appendChild(opt);
-      }
-    })();
+    upsertItem(type, Math.round(amount), note, date);
+  });
 
-    dateEl.value = todayStr();
+  btnCancelEdit.addEventListener('click', () => {
+    resetForm();
+    showToast('Tahrirlash bekor qilindi');
+  });
 
-    useReportForCalc.addEventListener("change", ()=>{
-      calcRangesBox.hidden = useReportForCalc.checked;
-      refreshSummaryAndAnalysis(false);
-    });
+  filterType.addEventListener('change', renderList);
+  searchInput.addEventListener('input', renderList);
 
-    btnRangeAll.addEventListener("click", ()=>{
-      reportFrom.value = "";
-      reportTo.value = "";
-      attachRealtimeList();
-      refreshSummaryAndAnalysis(true);
-    });
+  btnTheme.addEventListener('click', toggleTheme);
 
-    btnRangeThisMonth.addEventListener("click", ()=>{
-      const r = getFiscalMonthRange(todayStr(), Number(fiscalStartDay.value||1));
-      reportFrom.value = r.from;
-      reportTo.value = r.to;
-      attachRealtimeList();
-      refreshSummaryAndAnalysis(true);
-    });
+  btnLogout.addEventListener('click', doLogout);
 
-    btnApplyRange.addEventListener("click", ()=>{
-      attachRealtimeList();
-      refreshSummaryAndAnalysis(true);
-      toast("Diapazon qo‘llandi.");
-    });
+  btnShowCode.addEventListener('click', () => {
+    loginCode.type = (loginCode.type === 'password') ? 'text' : 'password';
+  });
 
-    btnReload.addEventListener("click", ()=>{
-      attachRealtimeList();
-      toast("Yangilandi.");
-    });
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setAuthMessage('');
+    const code = normalizeCode(loginCode.value);
+    const pass = loginPassword.value || '';
 
-    btnLoadMore.addEventListener("click", loadMore);
+    try{
+      await doLogin(code, pass);
+    }catch(err){
+      console.error(err);
+      setAuthMessage(err?.message || String(err));
+      showToast('Kirishda xato: ' + (err?.message || err));
+    }
+  });
 
-    filterType.addEventListener("change", ()=> renderList(listDocs));
-    filterCategory.addEventListener("input", ()=> renderList(listDocs));
-    searchNote.addEventListener("input", ()=> renderList(listDocs));
+  btnRangeCalc.addEventListener('click', calcExpenseRange);
 
-    btnToggleAnalysis.addEventListener("click", async ()=>{
-      analysisCard.classList.toggle("open");
-      if(analysisCard.classList.contains("open")){
-        await refreshSummaryAndAnalysis(false);
-        window.scrollTo({ top: analysisCard.getBoundingClientRect().top + window.scrollY - 12, behavior: "smooth" });
-      }
-    });
+  createUserForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!isAdmin) return;
 
-    btnRefreshAnalysis.addEventListener("click", ()=> refreshSummaryAndAnalysis(true));
+    const code = normalizeCode(newUserCode.value);
+    const pass = newUserPassword.value || '';
+    const name = (newUserName.value || '').trim();
 
-    btnQuickReport.addEventListener("click", renderReport);
-    btnOpenReport.addEventListener("click", renderReport);
+    if (!/^[0-9]{4,12}$/.test(code)) return showToast('Kod 4-12 raqam bo‘lishi kerak');
+    if (!pass || pass.length < 6) return showToast('Parol kamida 6 ta bo‘lsin');
 
-    btnCloseReport.addEventListener("click", closeReportModal);
-    reportModal.addEventListener("click", (e)=>{
-      if(e.target === reportModal) closeReportModal();
-    });
+    const email = codeToEmail(code);
+    try{
+      const cred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+      await setDoc(userRef(cred.user.uid), {
+        code,
+        name,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        stats: { incomeTotal: 0, expenseTotal: 0, txCount: 0 }
+      }, { merge: true });
 
-    btnPrint.addEventListener("click", reportPrint);
-    btnPdf.addEventListener("click", reportPdf);
+      await signOut(secondaryAuth);
+      newUserCode.value = '';
+      newUserPassword.value = '';
+      newUserName.value = '';
+      showToast('Yangi foydalanuvchi yaratildi');
+    }catch(err){
+      console.error(err);
+      showToast('Yaratishda xato: ' + (err?.message || err));
+    }
+  });
 
-    btnClearAll.addEventListener("click", clearAllTx);
+  btnToggleAnalysis.addEventListener('click', () => toggleAnalysis());
+  rangeSelect?.addEventListener('change', () => { if (!analysisBody.hidden) renderAnalytics(); });
+  groupSelect?.addEventListener('change', () => { if (!analysisBody.hidden) renderAnalytics(); });
 
-    btnExportCsv.addEventListener("click", exportCsv);
-    csvFile.addEventListener("change", (e)=> importCsv(e.target.files?.[0]));
+  btnPdf.addEventListener('click', openPrintReport);
 
-    // Table actions (delegation)
-    document.addEventListener("click", async (e)=>{
-      const t = e.target;
-      const editId = t?.dataset?.edit;
-      const delId = t?.dataset?.del;
+  window.addEventListener('resize', () => {
+    if (!analysisBody.hidden) renderAnalytics();
+  });
 
-      if(editId){
-        startEdit(editId);
-      }
-      if(delId){
-        const ok = confirm("O‘chirasizmi?");
-        if(!ok) return;
-        try{
-          await deleteTx(delId);
-          toast("O‘chirildi.");
-        }catch(err){
-          console.error(err);
-          toast("O‘chirishda xato.");
-        }
-      }
-    });
+  // ---------- Init ----------
+  async function init() {
+    // Telegram WebApp init (if running inside Telegram)
+    try{
+      const tg = window.Telegram?.WebApp;
+      tg?.ready();
+      tg?.expand();
+      tg?.disableVerticalSwipes?.();
+    }catch(_){}
 
-    btnCancelEdit.addEventListener("click", cancelEdit);
+    dateInput.value = todayISO();
+    rangeFrom.value = todayISO();
+    rangeTo.value = todayISO();
 
-    entryForm.addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      if(!currentUser) return;
+    const saved = getSavedTheme();
+    if (saved) setTheme(saved);
 
-      const type = entryForm.type.value;
-      const amount = parseAmount(amountEl.value);
-      const date = dateEl.value;
-      const category = (categoryEl.value || "Boshqa").trim() || "Boshqa";
-      const note = (noteEl.value || "").trim();
+    bindChartEvents();
+    render();
+    resetForm();
 
-      if(!Number.isFinite(amount) || amount <= 0){
-        toast("Summani to‘g‘ri kiriting.");
-        return;
-      }
-      if(!date){
-        toast("Sana tanlang.");
-        return;
-      }
-      if(!note){
-        toast("Izoh yozing.");
+    toggleAnalysis(false);
+
+    // Auth state
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user || null;
+      if (!user) {
+        isAdmin = false;
+        currentCode = null;
+        viewUid = null;
+        setAuthed(false);
+        setUserBadge('');
+        adminPanel.hidden = true;
+        stopTxListener();
+        stopUsersListener();
+        state.items = [];
+        render();
         return;
       }
 
-      const payload = { type, amount, date, category, note };
+      // Determine code
+      currentCode = lastLoginCodeAttempt || (user.email ? user.email.split('@')[0] : '');
+      isAdmin = isAdminUser(user) || (normalizeCode(lastLoginCodeAttempt) === ADMIN_CODE);
 
-      $("btnSave").disabled = true;
+      setAuthed(true);
+      setUserBadge(currentCode);
+
+      // Ensure profile for non-admin users (optional for admin too)
       try{
-        await addOrUpdateTx(payload);
-        toast(editingId ? "Yangilandi." : "Saqlandi.");
-        cancelEdit();
-        // keep date = today by default
-        dateEl.value = todayStr();
+        if (!isAdmin) await ensureProfile(user.uid, currentCode);
       }catch(err){
         console.error(err);
-        toast("Saqlashda xato. Rules/Internet tekshiring.");
-      }finally{
-        $("btnSave").disabled = false;
+      }
+
+      if (isAdmin) {
+        adminPanel.hidden = false;
+        selectedUserInfo.textContent = 'Foydalanuvchini tanlang.';
+        state.items = [];
+        render();
+        startUsersListener();
+        stopTxListener();
+        viewUid = null;
+      } else {
+        adminPanel.hidden = true;
+        stopUsersListener();
+        startTxListener(user.uid);
       }
     });
+  }
 
-    // Theme button (store in Firestore)
-    btnTheme.addEventListener("click", async ()=>{
-      const cur = document.documentElement.dataset.theme || "dark";
-      const next = cur === "light" ? "dark" : "light";
-      document.documentElement.dataset.theme = next;
-      btnTheme.querySelector(".icon").textContent = next === "light" ? "☀" : "☾";
-      if(currentUser){
-        try{ await saveProfileTheme(currentUser.uid, next); }catch(e){}
-      }
-    });
+  init();
+})();
 
-    // Logout
-    btnLogout.addEventListener("click", async ()=>{
-      await signOut(auth);
-    });
-
-    // ====== Auth flow (name+code) ======
-    async function doLogin(isSignup){
-      const name = (loginName.value || "").trim();
-      const code = (loginCode.value || "").trim();
-      const email = emailFromName(name);
-
-      if(!email){
-        toast("Ism noto‘g‘ri. Harf/raqam bilan kiriting.");
-        return;
-      }
-      if(code.length < 6){
-        toast("Kod kamida 6 ta belgi bo‘lsin.");
-        return;
-      }
-
-      btnLogin.disabled = true;
-      btnSignup.disabled = true;
-      setCloudState("wait", "Cloud: auth…");
-
-      try{
-        if(isSignup){
-          const cred = await createUserWithEmailAndPassword(auth, email, code);
-          try{ await updateProfile(cred.user, { displayName: name }); }catch(e){}
-          toast("Ro‘yxatdan o‘tildi.");
-        }else{
-          await signInWithEmailAndPassword(auth, email, code);
-          toast("Kirdingiz.");
-        }
-      }catch(e){
-        console.error(e);
-        const msg = (e && e.code) ? e.code : "auth/error";
-
-        if(isSignup && msg === "auth/email-already-in-use"){
-          toast("Bu ism band. Kirish tugmasini bosing.");
-        }else if(!isSignup && msg === "auth/invalid-credential"){
-          toast("Ism yoki kod xato.");
-        }else if(msg === "auth/network-request-failed"){
-          toast("Internet muammo (network).");
-        }else{
-          toast("Auth xato: " + msg);
-        }
-        setCloudState("bad","Cloud: xato");
-      }finally{
-        btnLogin.disabled = false;
-        btnSignup.disabled = false;
-      }
-    }
-
-    btnLogin.addEventListener("click", ()=> doLogin(false));
-    btnSignup.addEventListener("click", ()=> doLogin(true));
-
-    // ====== Start app on auth state ======
-    onAuthStateChanged(auth, async (user)=>{
-      currentUser = user;
-
-      if(!user){
-        // logged out
-        if(unsubList){ unsubList(); unsubList=null; }
-        listDocs = []; lastDoc = null;
-        renderList([]);
-        overlay.classList.remove("hidden");
-        appEl.style.display = "none";
-        whoami.textContent = "👤 —";
-        setCloudState("wait","Cloud: ulanmoqda…");
-        return;
-      }
-
-      // logged in
-      overlay.classList.add("hidden");
-      appEl.style.display = "block";
-
-      const display = user.displayName || normalizeName(loginName.value) || "user";
-      whoami.textContent = `👤 ${display}`;
-
-      // load theme
-      await loadProfileTheme(user.uid);
-      btnTheme.querySelector(".icon").textContent = (document.documentElement.dataset.theme === "light") ? "☀" : "☾";
-
-      // default range: fiscal month (startDay)
-      const r = getFiscalMonthRange(todayStr(), Number(fiscalStartDay.value||1));
-      if(!reportFrom.value && !reportTo.value){
-        reportFrom.value = r.from;
-        reportTo.value = r.to;
-      }
-
-      // attach realtime list
-      attachRealtimeList();
-
-      // initial summary
-      refreshSummaryAndAnalysis(false);
-    });
-
-  </script>
+</script>
 </body>
 </html>
