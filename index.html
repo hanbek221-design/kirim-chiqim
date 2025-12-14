@@ -660,6 +660,55 @@ canvas{
 </style>
 </head>
 <body>
+<script>
+(function(){
+  const PASS="12345678";
+  const KEY="kc_access";
+  if(localStorage.getItem(KEY)==="ok") return;
+  while(true){
+    const p=prompt("Parolni kiriting:");
+    if(p===PASS){ localStorage.setItem(KEY,"ok"); break; }
+    alert("Parol noto‘g‘ri");
+  }
+})();
+
+// ===== OPTIMISTIC SAVE (NO RELOAD, NO DUPLICATE) =====
+let __isSaving=false;
+const __form=document.getElementById("entryForm");
+if(__form){
+  __form.addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    if(__isSaving) return;
+    __isSaving=true;
+    const btn=__form.querySelector("button");
+    if(btn) btn.disabled=true;
+
+    const f=new FormData(__form);
+    const amount=Number(String(f.get("amount")||"").replace(/\D/g,""));
+    const type=f.get("type");
+    const note=f.get("note");
+    const date=f.get("date");
+
+    __form.reset();
+
+    try{
+      await addDoc(collection(db,"transactions"),{
+        type, amount, note, date,
+        createdAt: serverTimestamp()
+      });
+    }catch(err){
+      alert("Saqlashda xato");
+      console.error(err);
+    }finally{
+      __isSaving=false;
+      if(btn) btn.disabled=false;
+    }
+  });
+}
+
+</script>
+
   <div class="app">
     <header class="topbar">
       <div class="brand">
@@ -1000,15 +1049,17 @@ import {
   // (importlar modul boshida)
 
   // Sizning Firebase konfiguratsiyangiz (Firebase Console -> Project settings -> Web app)
-  const firebaseConfig = {
-    apiKey: "AIzaSyDLIJg7UfsVYiz9HdhbwblqQ_3ZYZPJ8fg",
-    authDomain: "shahbozbek-4922b.firebaseapp.com",
-    projectId: "shahbozbek-4922b",
-    storageBucket: "shahbozbek-4922b.firebasestorage.app",
-    messagingSenderId: "131010057146",
-    appId: "1:131010057146:web:f9fe30976d19e9d1ea0383",
-    measurementId: "G-3XCQLHNYC2"
-  };
+  
+const firebaseConfig = {
+  apiKey: "AIzaSyDLIJg7UfsVYiz9HdhbwblqQ_3ZYZPJ8fg",
+  authDomain: "shahbozbek-4922b.firebaseapp.com",
+  projectId: "shahbozbek-4922b",
+  storageBucket: "shahbozbek-4922b.firebasestorage.app",
+  messagingSenderId: "131010057146",
+  appId: "1:131010057146:web:f9fe30976d19e9d1ea0383",
+  measurementId: "G-3XCQLHNYC2"
+};
+
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
@@ -2104,520 +2155,4 @@ import {
         <title>Kirim–Chiqim Hisoboti</title>
         <style>${reportCss}</style>
       </head>
-      <body>
-        <div class="printbar">
-          <button class="btn" onclick="window.print()">Chop etish / PDF</button>
-          <button class="btn btn2" onclick="window.close()">Yopish</button>
-        </div>
-
-        <h1>Kirim–Chiqim Hisoboti</h1>
-        <div class="sub">Yaratilgan: ${safeText(generatedAt)} • Yozuvlar: ${items.length} ta</div>
-
-        <div class="grid">
-          <div class="box"><div class="k">Jami kirim</div><div class="v in">${safeText(formatMoney(income))}</div></div>
-          <div class="box"><div class="k">Jami chiqim</div><div class="v ex">${safeText(formatMoney(expense))}</div></div>
-          <div class="box"><div class="k">Balans</div><div class="v">${safeText(formatMoney(balance))}</div></div>
-        </div>
-
-        <div class="section">
-          <div class="stitle">Tahlil grafiklari (kunlar bo‘yicha)</div>
-          <div class="two">
-            <div class="chart">
-              <div class="k">Kirim / Chiqim (tanlangan oraliq)</div>
-              <img src="${imgIncome}" alt="Kirim/Chiqim grafigi" />
-            </div>
-            <div class="chart">
-              <div class="k">Balans (kumulative)</div>
-              <img src="${imgExpense}" alt="Balans grafigi" />
-            </div>
-          </div>
-          <div class="note">Eslatma: Grafika ko‘rinishi brauzerga bog‘liq. PDF olish uchun “Chop etish / PDF” tugmasini bosing.</div>
-        </div>
-
-        <div class="section">
-          <div class="stitle">Kunlik jamlanma</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Sana</th>
-                <th style="text-align:right">Kirim</th>
-                <th style="text-align:right">Chiqim</th>
-                <th style="text-align:right">Net (balans)</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${dailyRows || '<tr><td colspan="4">Ma’lumot yo‘q</td></tr>'}
-            </tbody>
-          </table>
-        </div>
-
-        <div class="section">
-          <div class="stitle">Kirimlar (nimadan kelgan)</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Sana</th>
-                <th style="text-align:right">Summa</th>
-                <th>Izoh</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${incomeRows || '<tr><td colspan="3">Kirim yo‘q</td></tr>'}
-            </tbody>
-          </table>
-        </div>
-
-        <div class="section">
-          <div class="stitle">Chiqimlar (qayerga ishlatilgan)</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Sana</th>
-                <th style="text-align:right">Summa</th>
-                <th>Izoh</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${expenseRows || '<tr><td colspan="3">Chiqim yo‘q</td></tr>'}
-            </tbody>
-          </table>
-        </div>
-      </body>
-      </html>
-    `;
-
-    const w = window.open('', '_blank');
-    if (!w) {
-      showToast('Brauzer popupni blok qildi. Ruxsat bering va qayta bosing.');
-      return;
-    }
-    w.document.open();
-    w.document.write(reportHtml);
-    w.document.close();
-  }
-
-  // ---------- Actions ----------
-  function resetForm() {
-    editingId = null;
-    entryForm.reset();
-    dateInput.value = todayISO();
-    btnSave.querySelector('span:last-child').textContent = 'Saqlash';
-    btnCancelEdit.hidden = true;
-    amountInput.focus();
-  }
-
-  function startEdit(id) {
-    const it = state.items.find(x => x.id === id);
-    if (!it) return;
-
-    editingId = id;
-
-    const typeRadio = entryForm.querySelector(`input[name="type"][value="${it.type}"]`);
-    if (typeRadio) typeRadio.checked = true;
-
-    amountInput.value = String(it.amount ?? '');
-    noteInput.value = it.note ?? '';
-    dateInput.value = it.date ?? todayISO();
-
-    btnSave.querySelector('span:last-child').textContent = 'Yangilash';
-    btnCancelEdit.hidden = false;
-
-    showToast('Tahrirlash rejimi yoqildi');
-    amountInput.focus();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function upsertItem(type, amount, note, date) {
-    // Firestore’ga yozish (localStorage ishlatilmaydi)
-    if (editingId) {
-      const id = editingId;
-      editingId = null;
-
-      updateDoc(doc(db, COL_NAME, id), {
-        type,
-        amount,
-        note,
-        date,
-        updatedAt: serverTimestamp(),
-        updatedAtMs: Date.now()
-      }).then(() => {
-        showToast('Yangilandi');
-        resetForm();
-      }).catch((e) => {
-        console.error(e);
-        showToast('Yangilashda xato (Rules/ulanishni tekshiring)');
-      });
-
-      return;
-    }
-
-    addDoc(collection(db, COL_NAME), {
-      type,
-      amount,
-      note,
-      date,
-      createdAt: serverTimestamp(),
-      createdAtMs: Date.now(),
-      updatedAt: serverTimestamp(),
-      updatedAtMs: Date.now()
-    }).then(() => {
-      showToast('Saqlandi');
-      resetForm();
-    }).catch((e) => {
-      console.error(e);
-      showToast('Saqlashda xato (Rules/ulanishni tekshiring)');
-    });
-  }
-
-  function removeItem(id) {
-    const it = state.items.find(x => x.id === id);
-    if (!it) return;
-
-    const ok = confirm(`Rostdan ham o‘chirasizmi?
-
-${it.type === 'income' ? 'Kirim' : 'Chiqim'}: ${formatMoney(it.amount)}
-Izoh: ${it.note}`);
-    if (!ok) return;
-
-    deleteDoc(doc(db, COL_NAME, id))
-      .then(() => showToast('O‘chirildi'))
-      .catch((e) => {
-        console.error(e);
-        showToast('O‘chirishda xato (Rules/ulanishni tekshiring)');
-      });
-  }
-
-  async function () {
-    if (state.items.length === 0) return showToast(' uchun ma’lumot yo‘q');
-
-    const ok = confirm('Hamma yozuvlarni o‘chirib tashlaysizmi? Bu amalni qaytarib bo‘lmaydi.');
-    if (!ok) return;
-
-    try {
-      const snap = await getDocs(collection(db, COL_NAME));
-      if (snap.empty) return showToast(' uchun ma’lumot yo‘q');
-
-      let batch = writeBatch(db);
-      let ops = 0;
-
-      for (const d of snap.docs) {
-        batch.delete(d.ref);
-        ops++;
-
-        // Firestore batch limit: 500. Biz xavfsizroq 450 qilamiz.
-        if (ops >= 450) {
-          await batch.commit();
-          batch = writeBatch(db);
-          ops = 0;
-        }
-      }
-
-      if (ops > 0) await batch.commit();
-      showToast('Hammasi landi');
-      resetForm();
-    } catch (e) {
-      console.error(e);
-      showToast('da xato (Rules/ulanishni tekshiring)');
-    }
-  }
-
-  function exportJSON() {
-    const payload = {
-      exportedAt: new Date().toISOString(),
-      version: 1,
-      items: state.items
-    };
-
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `kirim-chiqim_${new Date().toISOString().slice(0,10)}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    showToast('Eksport tayyor');
-  }
-
-  async function importJSONFile(file) {
-    try {
-      const text = await file.text();
-      const data = JSON.parse(text);
-
-      const items = Array.isArray(data?.items) ? data.items : Array.isArray(data) ? data : null;
-      if (!items) throw new Error('Noto‘g‘ri format');
-
-      const cleaned = items
-        .filter(x => x && (x.type === 'income' || x.type === 'expense'))
-        .map(x => ({
-          id: String(x.id || '').trim(),
-          type: x.type,
-          amount: Number(x.amount) || 0,
-          note: String(x.note || '').slice(0, 120),
-          date: String(x.date || todayISO()).slice(0, 10),
-          createdAt: Number(x.createdAt) || Date.now()
-        }))
-        .filter(x => x.amount > 0 && x.note);
-
-      if (cleaned.length === 0) return showToast('Import uchun yaroqli yozuv topilmadi');
-
-      const ok = confirm(`Import qilinsinmi?
-
-Topildi: ${cleaned.length} ta yozuv`);
-      if (!ok) return;
-
-      const colRef = collection(db, COL_NAME);
-
-      let batch = writeBatch(db);
-      let ops = 0;
-
-      for (const it of cleaned) {
-        const ref = it.id ? doc(db, COL_NAME, it.id) : doc(colRef);
-        batch.set(ref, {
-          type: it.type,
-          amount: Math.round(it.amount),
-          note: it.note,
-          date: it.date,
-          createdAtMs: it.createdAt,
-          importedAt: serverTimestamp(),
-          importedAtMs: Date.now()
-        }, { merge: true });
-
-        ops++;
-        if (ops >= 450) {
-          await batch.commit();
-          batch = writeBatch(db);
-          ops = 0;
-        }
-      }
-
-      if (ops > 0) await batch.commit();
-
-      resetForm();
-      showToast('Import bajarildi');
-    } catch (e) {
-      console.error(e);
-      showToast('Import xato: fayl formati noto‘g‘ri');
-    }
-  }
-
-  function render() {
-    renderSummary();
-    renderList();
-    // real-time analytics (if open, redraw; if closed, keep light)
-    if (!analysisBody.hidden) renderAnalytics();
-  }
-
-  // ---------- Events ----------
-  entryForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const type = entryForm.querySelector('input[name="type"]:checked')?.value || 'income';
-    const amount = parseAmount(amountInput.value);
-    const note = (noteInput.value || '').trim();
-    const date = (dateInput.value || '').trim() || todayISO();
-
-    if (!Number.isFinite(amount) || amount <= 0) {
-      amountInput.focus();
-      return showToast('Summani to‘g‘ri kiriting (0 dan katta)');
-    }
-    if (!note) {
-      noteInput.focus();
-      return showToast('Izohni kiriting');
-    }
-
-    upsertItem(type, Math.round(amount), note, date);
-  });
-
-  btnCancelEdit.addEventListener('click', () => {
-    resetForm();
-    showToast('Tahrirlash bekor qilindi');
-  });
-
-  filterType.addEventListener('change', renderList);
-  searchInput.addEventListener('input', renderList);
-
-  btn.addEventListener('click', );
-  btnExport.addEventListener('click', exportJSON);
-
-  btnImport.addEventListener('click', () => fileImport.click());
-  fileImport.addEventListener('change', () => {
-    const file = fileImport.files?.[0];
-    if (file) importJSONFile(file);
-    fileImport.value = '';
-  });
-
-  btnTheme.addEventListener('click', toggleTheme);
-
-  btnToggleAnalysis.addEventListener('click', () => toggleAnalysis());
-  rangeSelect?.addEventListener('change', () => { if (!analysisBody.hidden) renderAnalytics(); });
-  groupSelect?.addEventListener('change', () => { if (!analysisBody.hidden) renderAnalytics(); });
-
-  btnPdf.addEventListener('click', openPrintReport);
-
-  window.addEventListener('resize', () => {
-    if (!analysisBody.hidden) renderAnalytics();
-  });
-
-  // ---------- Init ----------
-  function init() {
-    dateInput.value = todayISO();
-
-    const saved = getSavedTheme();
-    if (saved) setTheme(saved);
-
-    bindChartEvents();
-
-    // Firestore real-time ulanish
-    startRealtime();
-
-    // UI initial render (snapshot kelguncha bo‘sh ko‘rinadi)
-    render();
-    resetForm();
-
-    // start with analytics hidden, but ready
-    toggleAnalysis(false);
-  }
-
-  init();
-})();
-
-// ===== OPTIMISTIC SAVE (ANTI-DUPLICATE) =====
-let __isSaving = false;
-if (typeof entryForm !== 'undefined') {
-  const __origSubmit = entryForm.onsubmit;
-  entryForm.onsubmit = async (e)=>{
-    e.preventDefault();
-    if (__isSaving) return;
-    __isSaving = true;
-    const btn = entryForm.querySelector('button');
-    if (btn) btn.disabled = true;
-
-    const f = new FormData(entryForm);
-    const amount = Number(String(f.get('amount')||'').replace(/\D/g,''));
-    const type = String(f.get('type')||'income');
-    const note = String(f.get('note')||'');
-    const date = String(f.get('date')||new Date().toISOString().slice(0,10));
-
-    // UI darhol tozalanadi (tezlik hissi)
-    try { entryForm.reset(); } catch {}
-
-    try {
-      // Firestore yozishlari fon rejimida
-      await addDoc(collection(db,'transactions'),{
-        userId: typeof activeUserId!=='undefined'?activeUserId:null,
-        type, amount, note, date, createdAt: serverTimestamp()
-      });
-      if (typeof addDoc === 'function') {
-        await addDoc(collection(db,'reminders'),{
-          userId: typeof activeUserId!=='undefined'?activeUserId:null,
-          type, totalAmount: amount, paidAmount: 0, remainingAmount: amount,
-          person: note, remindDate: date, status:'pending', seen:false,
-          createdAt: serverTimestamp()
-        });
-      }
-    } catch(err){
-      console.error(err);
-      alert('Saqlashda xato. Internetni tekshiring.');
-    } finally {
-      __isSaving = false;
-      if (btn) btn.disabled = false;
-    }
-  };
-}
-
-</script>
-
-<!-- ===== ADDED: SMART REMINDERS + AI LOGIC ===== -->
-<script type="module">
-import { collection, addDoc, updateDoc, getDocs, doc, serverTimestamp } 
-  from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-
-// Ding
-const __ding = new Audio('./ding.mp3');
-let __dingOnce=false;
-function playDingOnce(){ if(__dingOnce) return; __dingOnce=true; __ding.play().catch(()=>{}); }
-
-// Helpers
-function todayISO(){ const d=new Date(); const o=d.getTimezoneOffset(); return new Date(d.getTime()-o*60000).toISOString().slice(0,10); }
-function aiText(r, paid){
-  if(r.remainingAmount<=0){
-    return r.remindDate>=todayISO()
-      ? "A’lo! To‘lovni juda tez yopdingiz. Shunday davom eting."
-      : "To‘lov yopildi. Keyingi safar biroz tezroq bo‘lsa yanada foydali bo‘ladi.";
-  }
-  if(r.type==="expense"){
-    return `Siz ${paid} so‘m to‘ladingiz. Yana ${r.remainingAmount} so‘m qoldi. Tezroq yopishni maslahat beraman.`;
-  }
-  return `Siz ${paid} so‘m oldingiz. Yana ${r.remainingAmount} so‘m olishingiz kerak. Yana eslataman.`;
-}
-
-// Hook into existing save (transactions) by also creating reminders
-document.getElementById('entryForm')?.addEventListener('submit', async (e)=>{
-  const f=new FormData(e.target);
-  const amount=Number(String(f.get('amount')||'').replace(/\D/g,''));
-  const note=String(f.get('note')||'');
-  const date=String(f.get('date')||todayISO());
-  const type=String(f.get('type')||'income');
-  if(!amount) return;
-  await addDoc(collection(db,'reminders'),{
-    type, totalAmount:amount, paidAmount:0, remainingAmount:amount,
-    person:note, remindDate:date, status:'pending', seen:false,
-    createdAt:serverTimestamp()
-  });
-});
-
-// Modal (lightweight)
-const bg=document.createElement('div');
-bg.id='__remBg';
-bg.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:9999';
-bg.innerHTML=`<div style="background:#141827;color:#fff;border-radius:16px;padding:16px;max-width:420px;width:92%">
-  <div id="__remText"></div>
-  <input id="__remInp" placeholder="Qancha to‘landingiz / oldingiz" style="width:100%;padding:10px;margin-top:8px">
-  <button id="__remPart" style="width:100%;margin-top:8px">Shuncha</button>
-  <button id="__remFull" style="width:100%;margin-top:8px">To‘liq</button>
-  <button id="__remSeen" style="width:100%;margin-top:8px">Ko‘rdim</button>
-</div>`;
-document.body.appendChild(bg);
-
-let curId=null, cur=null;
-async function checkReminders(){
-  const snap=await getDocs(collection(db,'reminders'));
-  snap.forEach(d=>{
-    const r=d.data();
-    if(r.status==='pending' && !r.seen && r.remindDate<=todayISO()){
-      curId=d.id; cur=r;
-      document.getElementById('__remText').innerText=
-        `${r.person} bilan ${r.remainingAmount} so‘m ${r.type==='expense'?'to‘lash':'olish'} kerak`;
-      bg.style.display='flex';
-      playDingOnce();
-    }
-  });
-}
-checkReminders();
-
-document.getElementById('__remSeen').onclick=async()=>{
-  await updateDoc(doc(db,'reminders',curId),{seen:true});
-  bg.style.display='none';
-};
-document.getElementById('__remFull').onclick=async()=>{
-  await updateDoc(doc(db,'reminders',curId),{
-    paidAmount:cur.totalAmount, remainingAmount:0, status:'done', seen:true
-  });
-  alert(aiText({...cur,remainingAmount:0},cur.totalAmount));
-  bg.style.display='none';
-};
-document.getElementById('__remPart').onclick=async()=>{
-  const v=Number(String(document.getElementById('__remInp').value||'').replace(/\D/g,''));
-  if(!v) return;
-  const paid=cur.paidAmount+v;
-  const rem=Math.max(0,cur.totalAmount-paid);
-  await updateDoc(doc(db,'reminders',curId),{paidAmount:paid, remainingAmount:rem});
-  alert(aiText({...cur,remainingAmount:rem},v));
-  bg.style.display='none';
-};
-</script>
-<!-- ===== END ADDED ===== -->
-
-</body></html>
+      
