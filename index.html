@@ -716,10 +716,6 @@ canvas{
             <span class="icon" aria-hidden="true">⤒</span>
             <span>Import</span>
           </button>
-          <button id="btnClearAll" class="btn btn-danger" type="button">
-            <span class="icon" aria-hidden="true">🗑</span>
-            <span>Hammasini tozalash</span>
-          </button>
         </div>
 
         <p class="muted" style="margin-top:10px;font-size:12px">
@@ -1040,7 +1036,6 @@ import {
   const filterType = $('#filterType');
   const searchInput = $('#search');
 
-  const btnClearAll = $('#btnClearAll');
   const btnExport = $('#btnExport');
   const btnImport = $('#btnImport');
   const fileImport = $('#fileImport');
@@ -2317,39 +2312,6 @@ Izoh: ${it.note}`);
       });
   }
 
-  async function clearAll() {
-    if (state.items.length === 0) return showToast('Tozalash uchun ma’lumot yo‘q');
-
-    const ok = confirm('Hamma yozuvlarni o‘chirib tashlaysizmi? Bu amalni qaytarib bo‘lmaydi.');
-    if (!ok) return;
-
-    try {
-      const snap = await getDocs(collection(db, COL_NAME));
-      if (snap.empty) return showToast('Tozalash uchun ma’lumot yo‘q');
-
-      let batch = writeBatch(db);
-      let ops = 0;
-
-      for (const d of snap.docs) {
-        batch.delete(d.ref);
-        ops++;
-
-        // Firestore batch limit: 500. Biz xavfsizroq 450 qilamiz.
-        if (ops >= 450) {
-          await batch.commit();
-          batch = writeBatch(db);
-          ops = 0;
-        }
-      }
-
-      if (ops > 0) await batch.commit();
-      showToast('Hammasi tozalandi');
-      resetForm();
-    } catch (e) {
-      console.error(e);
-      showToast('Tozalashda xato (Rules/ulanishni tekshiring)');
-    }
-  }
 
   function exportJSON() {
     const payload = {
@@ -2485,7 +2447,6 @@ Topildi: ${cleaned.length} ta yozuv`);
   filterType.addEventListener('change', renderList);
   searchInput.addEventListener('input', renderList);
 
-  btnClearAll.addEventListener('click', clearAll);
   btnExport.addEventListener('click', exportJSON);
 
   btnImport.addEventListener('click', () => fileImport.click());
