@@ -425,6 +425,11 @@ canvas{width: 100%; height: 230px; display:block;}
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+
 </head>
 <body>
   <div class="app">
@@ -755,7 +760,7 @@ canvas{width: 100%; height: 230px; display:block;}
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'kirim_chiqim_v1';
+  // LocalStorage olib tashlandi
 
   /** @type {{items: Array<{id:string,type:'income'|'expense',amount:number,note:string,date:string,createdAt:number}>}} */
   let state = { items: [] };
@@ -1729,6 +1734,11 @@ canvas{width: 100%; height: 230px; display:block;}
       
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+
 </head>
       <body>
         <div class="bar">
@@ -1888,6 +1898,52 @@ canvas{width: 100%; height: 230px; display:block;}
     });
     tg.MainButton.show();
   }
+</script>
+
+
+<script>
+  // 🔥 Firebase config (O'ZINGNIKINI QO'Y)
+  const firebaseConfig = {
+    apiKey: "AIzaSyDLIJg7UfsVYiz9HdhbwblqQ_3ZYZPJ8fg",
+    authDomain: "shahbozbek-4922b.firebaseapp.com",
+    projectId: "shahbozbek-4922b",
+    storageBucket: "shahbozbek-4922b.firebasestorage.app",
+    messagingSenderId: "131010057146",
+    appId: "1:131010057146:web:f9fe30976d19e9d1ea0383"
+	measurementId: "G-3XCQLHNYC2"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // Telegram user ID
+  const tgUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'guest';
+
+  // Firestore collection
+  const colRef = db.collection('kirim_chiqim').doc(String(tgUserId)).collection('items');
+
+  // 🔄 LOAD from Firestore
+  async function load() {
+    state.items = [];
+    const snap = await colRef.orderBy('createdAt', 'desc').get();
+    snap.forEach(doc => state.items.push({ id: doc.id, ...doc.data() }));
+    renderSummary();
+    renderList();
+  }
+
+  // 💾 SAVE new item
+  async function saveItem(item) {
+    await colRef.add(item);
+    await load();
+  }
+
+  // ✏ UPDATE item
+  async function updateItem(id, data) {
+    await colRef.doc(id).update(data);
+    await load();
+  }
+
+  // ❌ DELETE YO'Q (bloklangan)
 </script>
 
 </body>
@@ -2132,6 +2188,51 @@ canvas{width: 100%; height: 230px; display:block;}
     });
     tg.MainButton.show();
   }
+</script>
+
+
+<script>
+  // 🔥 Firebase config (O'ZINGNIKINI QO'Y)
+  const firebaseConfig = {
+    apiKey: "API_KEY",
+    authDomain: "PROJECT_ID.firebaseapp.com",
+    projectId: "PROJECT_ID",
+    storageBucket: "PROJECT_ID.appspot.com",
+    messagingSenderId: "SENDER_ID",
+    appId: "APP_ID"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // Telegram user ID
+  const tgUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'guest';
+
+  // Firestore collection
+  const colRef = db.collection('kirim_chiqim').doc(String(tgUserId)).collection('items');
+
+  // 🔄 LOAD from Firestore
+  async function load() {
+    state.items = [];
+    const snap = await colRef.orderBy('createdAt', 'desc').get();
+    snap.forEach(doc => state.items.push({ id: doc.id, ...doc.data() }));
+    renderSummary();
+    renderList();
+  }
+
+  // 💾 SAVE new item
+  async function saveItem(item) {
+    await colRef.add(item);
+    await load();
+  }
+
+  // ✏ UPDATE item
+  async function updateItem(id, data) {
+    await colRef.doc(id).update(data);
+    await load();
+  }
+
+  // ❌ DELETE YO'Q (bloklangan)
 </script>
 
 </body>
