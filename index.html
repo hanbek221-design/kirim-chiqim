@@ -134,6 +134,68 @@ p{margin:6px 0 0}
   .summary-grid{grid-template-columns: repeat(3, 1fr);}
 }
 
+
+
+.period{
+  margin: 0 0 14px;
+  padding: 12px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.06);
+}
+:root[data-theme="light"] .period{background: rgba(255,255,255,.55);}
+.period-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.period-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.period-quick{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.period-controls{
+  display:flex;
+  gap: 10px;
+  align-items: stretch;
+}
+.period-mid{flex:1;min-width:0}
+.period-row{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.period-row-2{margin-top:8px;justify-content:space-between}
+.date{
+  flex: 1 1 160px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.18);
+  color: var(--text);
+  outline: none;
+}
+:root[data-theme="light"] .date{background: rgba(255,255,255,.85);}
+.dash{opacity:.7}
+.cycle-start{display:flex;gap:8px;align-items:center}
+.cycle-input{
+  width: 88px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.18);
+  color: var(--text);
+  outline:none;
+  text-align:center;
+}
+:root[data-theme="light"] .cycle-input{background: rgba(255,255,255,.85);}
+@media (max-width: 520px){
+  .period-controls{gap:6px}
+  .period-row-2{flex-direction:column;align-items:stretch}
+  .cycle-start{justify-content:space-between}
+  .cycle-input{width: 100%}
+}
+
 .metric{
   padding: 12px;
   border-radius: 16px;
@@ -657,22 +719,6 @@ canvas{
   gap: 12px;
 }
 
-
-
-/* -------- Date filters -------- */
-.list-tools{flex-wrap:wrap; gap:10px}
-.list-tools .input{height:42px; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background: rgba(255,255,255,.06); color: var(--text)}
-:root[data-theme="light"] .list-tools .input{background: rgba(255,255,255,.85)}
-.date-fields, .cycle-fields{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
-.date-fields .sep{opacity:.7}
-.badge{
-  display:inline-flex; align-items:center; gap:8px;
-  padding:8px 12px; border-radius:999px;
-  border:1px solid var(--border);
-  background: rgba(255,255,255,.06);
-  color: var(--text);
-  font-size:12px;
-}
 </style>
 </head>
 <body>
@@ -697,6 +743,55 @@ canvas{
     <main class="grid">
       <!-- Summary -->
       <section class="card summary">
+        
+        <!-- Period / Range filter -->
+        <div class="period" id="periodBox">
+          <div class="period-head">
+            <div>
+              <div class="period-title">Davr filtri</div>
+              <div class="muted" id="periodLabel">To‘liq ko‘rish (hamma yozuvlar)</div>
+            </div>
+
+            <div class="period-quick">
+              <button id="btnThisCycle" class="btn btn-secondary" type="button" title="Tanlangan oy davrini avtomatik qo‘yadi">
+                <span class="icon" aria-hidden="true">🗓️</span>
+                <span>Bu oy</span>
+              </button>
+              <button id="btnClearRange" class="btn btn-ghost" type="button" title="Filtrni o‘chiradi (hammasi ko‘rinadi)">
+                <span class="icon" aria-hidden="true">✕</span>
+                <span>To‘liq</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="period-controls">
+            <button id="btnPrevCycle" class="btn btn-ghost" type="button" aria-label="Oldingi oy">◀</button>
+            <div class="period-mid">
+              <div class="period-row">
+                <input id="dateFrom" class="date" type="date" />
+                <span class="dash">—</span>
+                <input id="dateTo" class="date" type="date" />
+              </div>
+              <div class="period-row period-row-2">
+                <button id="btnApplyRange" class="btn btn-primary" type="button">
+                  <span class="icon" aria-hidden="true">✅</span>
+                  <span>Ko‘rsat</span>
+                </button>
+
+                <div class="cycle-start">
+                  <label class="muted" for="cycleStartDay" style="font-size:12px">Oy boshi kuni</label>
+                  <input id="cycleStartDay" class="cycle-input" type="number" min="1" max="28" step="1" />
+                </div>
+              </div>
+            </div>
+            <button id="btnNextCycle" class="btn btn-ghost" type="button" aria-label="Keyingi oy">▶</button>
+          </div>
+
+          <div class="muted" style="font-size:12px;margin-top:8px;line-height:1.35">
+            Izoh: “Oy boshi kuni” 1–28 oralig‘ida. Masalan, 25 qo‘ysangiz, oy <b>25-kundan</b> boshlanadi va keyingi oy <b>24-kunida</b> tugaydi.
+          </div>
+        </div>
+
         <div class="summary-grid">
           <div class="metric metric-income">
             <div class="metric-label">Jami kirim</div>
@@ -801,31 +896,6 @@ canvas{
               <option value="income">Faqat kirim</option>
               <option value="expense">Faqat chiqim</option>
             </select>
-            <select id="dateMode" class="select" aria-label="Sana filtri">
-              <option value="all">Barcha sanalar</option>
-              <option value="range">Sana oralig‘i</option>
-              <option value="month">Kalendar oy</option>
-              <option value="cycle">Sozlangan oy (sikl)</option>
-            </select>
-
-            <div id="dateFieldsRange" class="date-fields" hidden>
-              <input id="rangeStart" class="input" type="date" />
-              <span class="sep" aria-hidden="true">—</span>
-              <input id="rangeEnd" class="input" type="date" />
-            </div>
-
-            <input id="monthPick" class="input" type="month" hidden />
-
-            <div id="cycleFields" class="cycle-fields" hidden>
-              <input id="cycleMonth" class="input" type="month" />
-              <input id="cycleStartDay" class="input" type="number" min="1" max="28" step="1" placeholder="Sikl boshi (kun)" />
-              <button id="btnSaveCycle" class="btn btn-ghost" type="button" title="Sikl sozlamasini saqlash">Sozlash</button>
-            </div>
-
-            <button id="btnClearDateFilter" class="btn btn-ghost" type="button" title="Sana filtrini o‘chirish">To‘liq</button>
-
-            <div id="activeDateFilter" class="badge" hidden></div>
-
 
             <input id="search" class="search" type="search" placeholder="Izoh bo‘yicha qidirish..." />
           </div>
@@ -1053,7 +1123,7 @@ import {
   const COL_NAME = "transactions"; // Firestore collection nomi
 
   /** @type {{items: Array<{id:string,type:'income'|'expense',amount:number,note:string,date:string,createdAt:number}>}} */
-  let state = { items: [] };
+  let state = { items: [], range: { enabled:false, from:'', to:'' }, cycleStartDay: 1, cycleStartISO: '' };
 
   const $ = (sel) => document.querySelector(sel);
 
@@ -1077,19 +1147,6 @@ import {
   const filterType = $('#filterType');
   const searchInput = $('#search');
 
-  const dateMode = $('#dateMode');
-  const dateFieldsRange = $('#dateFieldsRange');
-  const rangeStart = $('#rangeStart');
-  const rangeEnd = $('#rangeEnd');
-  const monthPick = $('#monthPick');
-  const cycleFields = $('#cycleFields');
-  const cycleMonth = $('#cycleMonth');
-  const cycleStartDay = $('#cycleStartDay');
-  const btnSaveCycle = $('#btnSaveCycle');
-  const btnClearDateFilter = $('#btnClearDateFilter');
-  const activeDateFilter = $('#activeDateFilter');
-
-
   const btnExport = $('#btnExport');
   const btnImport = $('#btnImport');
   const fileImport = $('#fileImport');
@@ -1108,6 +1165,18 @@ import {
   const rangeSelect = $('#rangeSelect');
   const groupSelect = $('#groupSelect');
 
+  // Range / period controls (list + summary)
+  const dateFromInput = $('#dateFrom');
+  const dateToInput = $('#dateTo');
+  const btnApplyRange = $('#btnApplyRange');
+  const btnClearRange = $('#btnClearRange');
+  const btnPrevCycle = $('#btnPrevCycle');
+  const btnNextCycle = $('#btnNextCycle');
+  const btnThisCycle = $('#btnThisCycle');
+  const cycleStartDayInput = $('#cycleStartDay');
+  const periodLabel = $('#periodLabel');
+
+
   const insight1 = $('#insight1');
   const insight2 = $('#insight2');
   const insight3 = $('#insight3');
@@ -1123,118 +1192,6 @@ import {
   let isSaving = false;
   let lastSaveKey = '';
   let lastSaveAt = 0;
-
-
-  // ---------- Date filter settings ----------
-  const SETTINGS_KEY = 'kc_date_settings_v1';
-  let settings = { cycleStartDay: 1, defaultDateMode: 'all' };
-
-  function loadSettings() {
-    try {
-      const raw = localStorage.getItem(SETTINGS_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === 'object') {
-        const csd = Number(parsed.cycleStartDay);
-        if (Number.isFinite(csd) && csd >= 1 && csd <= 28) settings.cycleStartDay = csd;
-        const dm = String(parsed.defaultDateMode || '');
-        if (['all','range','month','cycle'].includes(dm)) settings.defaultDateMode = dm;
-      }
-    } catch {}
-  }
-
-  function persistSettings() {
-    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch {}
-  }
-
-  function pad2(n){ return String(n).padStart(2,'0'); }
-  function todayYM(){ return todayISO().slice(0,7); }
-  function toISODateLocal(d){
-    return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-  }
-  function daysInMonth(y, m1to12){
-    return new Date(y, m1to12, 0).getDate();
-  }
-
-  function getRangeFilter(startISO, endISO){
-    if (!startISO && !endISO) return null;
-    let s = startISO || endISO;
-    let e = endISO || startISO;
-    if (!s || !e) return null;
-    if (s > e) [s, e] = [e, s];
-    return { start: s, end: e, label: `Sana: ${s} — ${e}` };
-  }
-
-  function getMonthFilter(ym){
-    if (!ym) return null;
-    const [y, m] = ym.split('-').map(Number);
-    if (!Number.isFinite(y) || !Number.isFinite(m)) return null;
-    const last = daysInMonth(y, m);
-    const start = `${ym}-01`;
-    const end = `${ym}-${pad2(last)}`;
-    return { start, end, label: `Oy: ${start} — ${end}` };
-  }
-
-  function getCycleStartDayEffective(){
-    const v = Number(cycleStartDay?.value);
-    if (Number.isFinite(v) && v >= 1 && v <= 28) return v;
-    return Number(settings.cycleStartDay) || 1;
-  }
-
-  function getCycleFilter(ym, startDay){
-    if (!ym) return null;
-    const [y, m] = ym.split('-').map(Number);
-    if (!Number.isFinite(y) || !Number.isFinite(m)) return null;
-
-    const dim = daysInMonth(y, m);
-    const sday = Math.min(Math.max(1, Number(startDay) || 1), dim);
-    const start = `${ym}-${pad2(sday)}`;
-
-    // next cycle start (same day next month), then subtract 1 day for end
-    const nextStart = new Date(y, m-1, sday);
-    nextStart.setMonth(nextStart.getMonth() + 1);
-    const endDate = new Date(nextStart.getTime() - 24*60*60*1000);
-    const end = toISODateLocal(endDate);
-
-    return { start, end, label: `Sikl: ${start} — ${end}` };
-  }
-
-  function getActiveDateFilter(){
-    const mode = dateMode?.value || 'all';
-    if (mode === 'range') return getRangeFilter(rangeStart?.value, rangeEnd?.value);
-    if (mode === 'month') return getMonthFilter(monthPick?.value);
-    if (mode === 'cycle') {
-      const ym = cycleMonth?.value || monthPick?.value || todayYM();
-      return getCycleFilter(ym, getCycleStartDayEffective());
-    }
-    return null;
-  }
-
-  function updateDateFilterUI(){
-    const mode = dateMode?.value || 'all';
-
-    if (dateFieldsRange) dateFieldsRange.hidden = mode !== 'range';
-    if (monthPick) monthPick.hidden = mode !== 'month';
-    if (cycleFields) cycleFields.hidden = mode !== 'cycle';
-
-    if (mode === 'month' && monthPick && !monthPick.value) monthPick.value = todayYM();
-
-    if (mode === 'cycle') {
-      if (cycleMonth && !cycleMonth.value) cycleMonth.value = todayYM();
-      if (cycleStartDay && !cycleStartDay.value) cycleStartDay.value = String(settings.cycleStartDay || 1);
-    }
-
-    const f = getActiveDateFilter();
-    if (activeDateFilter) {
-      if (f) {
-        activeDateFilter.hidden = false;
-        activeDateFilter.textContent = f.label;
-      } else {
-        activeDateFilter.hidden = true;
-        activeDateFilter.textContent = '';
-      }
-    }
-  }
 
 
   // ---------- Utils ----------
@@ -1345,11 +1302,19 @@ import {
   }
 
   // ---------- Filtering ----------
-  function getFilteredItems() {
+  function getFilteredItems(opts = {}) {
+    const ignoreSearch = !!opts.ignoreSearch;
     const ft = filterType.value;
-    const q = (searchInput.value || '').trim().toLowerCase();
+    const q = ignoreSearch ? '' : (searchInput.value || '').trim().toLowerCase();
 
     let items = [...state.items];
+
+    // date range filter (inclusive)
+    if (state.range?.enabled && state.range.from && state.range.to) {
+      const from = state.range.from;
+      const to = state.range.to;
+      items = items.filter(x => x.date && x.date >= from && x.date <= to);
+    }
 
     if (ft !== 'all') items = items.filter(x => x.type === ft);
 
@@ -1357,27 +1322,104 @@ import {
       items = items.filter(x =>
         (x.note || '').toLowerCase().includes(q)
         || (x.date || '').includes(q)
+        || String(x.amount || '').includes(q)
       );
     }
-
-
-    const df = getActiveDateFilter();
-    if (df) {
-      items = items.filter(x => {
-        const d = x.date || todayISO();
-        return d >= df.start && d <= df.end;
-      });
-    }
-
-    items.sort((a, b) => {
-      if (a.date !== b.date) return (b.date || '').localeCompare(a.date || '');
-      return (b.createdAt || 0) - (a.createdAt || 0);
-    });
 
     return items;
   }
 
+  function updatePeriodLabel() {
+    if (!periodLabel) return;
+    if (state.range?.enabled && state.range.from && state.range.to) {
+      periodLabel.textContent = `Davr: ${state.range.from} — ${state.range.to}`;
+    } else {
+      periodLabel.textContent = "To‘liq ko‘rish (hamma yozuvlar)";
+    }
+  }
+
+  function setRange(from, to, { silent } = {}) {
+    state.range.enabled = true;
+    state.range.from = from;
+    state.range.to = to;
+
+    if (dateFromInput) dateFromInput.value = from;
+    if (dateToInput) dateToInput.value = to;
+
+    updatePeriodLabel();
+    if (!silent) render();
+  }
+
+  function clearRange({ silent } = {}) {
+    state.range.enabled = false;
+    state.range.from = '';
+    state.range.to = '';
+    if (dateFromInput) dateFromInput.value = '';
+    if (dateToInput) dateToInput.value = '';
+    state.cycleStartISO = '';
+    updatePeriodLabel();
+    if (!silent) render();
+  }
+
+  function applyManualRange() {
+    const from = (dateFromInput?.value || '').trim();
+    const to = (dateToInput?.value || '').trim();
+    if (!from || !to) return showToast('Sanadan–sanagacha ikkisini ham tanlang');
+    if (from > to) return showToast('Boshlanish sanasi tugash sanasidan katta bo‘lishi mumkin emas');
+    state.cycleStartISO = ''; // manual mode
+    setRange(from, to);
+  }
+
+  function loadCycleStartDay() {
+    const raw = localStorage.getItem('kirim_chiqim_cycleStartDay');
+    const n = Math.floor(Number(raw || 1));
+    if (!Number.isFinite(n) || n < 1 || n > 28) return 1;
+    return n;
+  }
+  function saveCycleStartDay(n) {
+    localStorage.setItem('kirim_chiqim_cycleStartDay', String(n));
+  }
+
+  function computeCycleForDate(d, startDay) {
+    const day = Math.max(1, Math.min(28, Math.floor(Number(startDay) || 1)));
+    const cur = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const start = (cur.getDate() >= day)
+      ? new Date(cur.getFullYear(), cur.getMonth(), day)
+      : new Date(cur.getFullYear(), cur.getMonth() - 1, day);
+
+    const next = new Date(start.getFullYear(), start.getMonth() + 1, day);
+    const end = new Date(next.getFullYear(), next.getMonth(), next.getDate() - 1);
+    return { start, end };
+  }
+
+  function applyCycleForDate(d) {
+    const { start, end } = computeCycleForDate(d, state.cycleStartDay);
+    const from = toISODate(start);
+    const to = toISODate(end);
+    state.cycleStartISO = from;
+    setRange(from, to);
+  }
+
+  function shiftCycle(deltaMonths) {
+    if (!state.cycleStartISO) {
+      // if no active cycle, use today’s cycle first
+      applyCycleForDate(new Date());
+      return;
+    }
+    const start = parseISODate(state.cycleStartISO);
+    const day = state.cycleStartDay;
+    const shiftedStart = new Date(start.getFullYear(), start.getMonth() + (deltaMonths || 0), day);
+    const next = new Date(shiftedStart.getFullYear(), shiftedStart.getMonth() + 1, day);
+    const end = new Date(next.getFullYear(), next.getMonth(), next.getDate() - 1);
+
+    const from = toISODate(shiftedStart);
+    const to = toISODate(end);
+    state.cycleStartISO = from;
+    setRange(from, to);
+  }
+
   // ---------- Summary ----------
+
   function calcTotals(items = state.items) {
     const income = items.filter(x => x.type === 'income').reduce((s, x) => s + (Number(x.amount) || 0), 0);
     const expense = items.filter(x => x.type === 'expense').reduce((s, x) => s + (Number(x.amount) || 0), 0);
@@ -1385,8 +1427,9 @@ import {
   }
 
   function renderSummary() {
-    const items = getFilteredItems();
-    const { income, expense, balance } = calcTotals(items);
+    updatePeriodLabel();
+    const base = getFilteredItems({ ignoreSearch: true });
+    const { income, expense, balance } = calcTotals(base);
     sumIncomeEl.textContent = formatMoney(income);
     sumExpenseEl.textContent = formatMoney(expense);
     sumBalanceEl.textContent = formatMoney(balance);
@@ -1695,7 +1738,7 @@ import {
 
   function renderMonthlyTable() {
     if (!monthTbody) return;
-    const months = groupByMonth(state.items);
+    const months = groupByMonth(getFilteredItems({ ignoreSearch: true }));
     monthTbody.innerHTML = '';
 
     if (months.length === 0) {
@@ -1817,6 +1860,7 @@ import {
   }
 
   function applyRange(series){
+    if (state.range?.enabled && state.range.from && state.range.to) return series;
     const v = rangeSelect?.value || '30';
     if (v === 'all') return series;
     const n = Math.max(1, Number(v) || 30);
@@ -2134,7 +2178,7 @@ import {
 
   function renderAnalytics() {
     const groupMode = groupSelect?.value || 'day';
-    const all = groupSeries(getFilteredItems(), groupMode);
+    const all = groupSeries(getFilteredItems({ ignoreSearch: true }), groupMode);
     const view = applyRange(all);
 
     drawComboChart(canvasCombo, view);
@@ -2163,8 +2207,8 @@ import {
 
   // ---------- PDF / Print report ----------
   function openPrintReport() {
-    // Report uses current view (filters applied)
-    const items = [...getFilteredItems()].sort((a,b)=>{
+    // Use all items (not filtered) for full report; you can change to filtered if desired.
+    const items = [...state.items].sort((a,b)=>{
       if (a.date !== b.date) return (a.date||'').localeCompare(b.date||'');
       return (a.createdAt||0) - (b.createdAt||0);
     });
@@ -2571,7 +2615,6 @@ Topildi: ${cleaned.length} ta yozuv`);
   }
 
   function render() {
-    updateDateFilterUI();
     renderSummary();
     renderList();
     // real-time analytics (if open, redraw; if closed, keep light)
@@ -2621,47 +2664,30 @@ Topildi: ${cleaned.length} ta yozuv`);
     showToast('Tahrirlash bekor qilindi');
   });
 
-  filterType.addEventListener('change', () => { render(); });
-  searchInput.addEventListener('input', () => { render(); });
+  filterType.addEventListener('change', render);
+  searchInput.addEventListener('input', renderList);
 
-  // Date filter events
-  dateMode?.addEventListener('change', () => {
-    settings.defaultDateMode = dateMode.value;
-    persistSettings();
-    updateDateFilterUI();
-    render();
-  });
 
-  rangeStart?.addEventListener('change', () => { updateDateFilterUI(); render(); });
-  rangeEnd?.addEventListener('change', () => { updateDateFilterUI(); render(); });
+  // Range / period events
+  btnApplyRange?.addEventListener('click', applyManualRange);
+  btnClearRange?.addEventListener('click', () => clearRange());
+  btnThisCycle?.addEventListener('click', () => applyCycleForDate(new Date()));
+  btnPrevCycle?.addEventListener('click', () => shiftCycle(-1));
+  btnNextCycle?.addEventListener('click', () => shiftCycle(1));
+  cycleStartDayInput?.addEventListener('change', () => {
+    const n = Math.max(1, Math.min(28, Math.floor(Number(cycleStartDayInput.value) || 1)));
+    state.cycleStartDay = n;
+    cycleStartDayInput.value = String(n);
+    saveCycleStartDay(n);
+    showToast(`Oy boshi kuni: ${n}`);
 
-  monthPick?.addEventListener('change', () => { updateDateFilterUI(); render(); });
-
-  cycleMonth?.addEventListener('change', () => { updateDateFilterUI(); render(); });
-  cycleStartDay?.addEventListener('input', () => { updateDateFilterUI(); render(); });
-
-  btnClearDateFilter?.addEventListener('click', () => {
-    if (dateMode) dateMode.value = 'all';
-    if (rangeStart) rangeStart.value = '';
-    if (rangeEnd) rangeEnd.value = '';
-    if (monthPick) monthPick.value = todayYM();
-    if (cycleMonth) cycleMonth.value = todayYM();
-    if (cycleStartDay) cycleStartDay.value = String(settings.cycleStartDay || 1);
-    settings.defaultDateMode = 'all';
-    persistSettings();
-    updateDateFilterUI();
-    render();
-  });
-
-  btnSaveCycle?.addEventListener('click', () => {
-    const v = getCycleStartDayEffective();
-    settings.cycleStartDay = v;
-    settings.defaultDateMode = 'cycle';
-    persistSettings();
-    showToast(`Sikl sozlandi: oy ${v}-kundan boshlanadi`, 'ok');
-    if (dateMode) dateMode.value = 'cycle';
-    updateDateFilterUI();
-    render();
+    // Agar hozir “Bu oy / ◀ ▶” davrida turgan bo‘lsangiz, qayta hisoblaymiz.
+    if (state.cycleStartISO || !state.range?.enabled) {
+      applyCycleForDate(new Date());
+    } else {
+      updatePeriodLabel();
+      render();
+    }
   });
 
   btnExport.addEventListener('click', exportJSON);
@@ -2689,18 +2715,15 @@ Topildi: ${cleaned.length} ta yozuv`);
   function init() {
     dateInput.value = todayISO();
 
-    // Date filter defaults
-    loadSettings();
-
-    if (monthPick && !monthPick.value) monthPick.value = todayYM();
-    if (cycleMonth && !cycleMonth.value) cycleMonth.value = todayYM();
-    if (cycleStartDay && !cycleStartDay.value) cycleStartDay.value = String(settings.cycleStartDay || 1);
-    if (dateMode) dateMode.value = settings.defaultDateMode || 'all';
-
-    updateDateFilterUI();
-
     const saved = getSavedTheme();
     if (saved) setTheme(saved);
+
+    // Period settings
+    state.cycleStartDay = loadCycleStartDay();
+    if (cycleStartDayInput) cycleStartDayInput.value = String(state.cycleStartDay);
+
+    // Default: show current month/cycle (you can press “To‘liq” to see everything)
+    applyCycleForDate(new Date());
 
     bindChartEvents();
 
