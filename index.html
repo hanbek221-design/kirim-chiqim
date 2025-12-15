@@ -422,6 +422,9 @@ canvas{width: 100%; height: 230px; display:block;}
 :root[data-theme="light"] .toast{background: rgba(255,255,255,.92)}
 
   </style>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 </head>
 <body>
   <div class="app">
@@ -1723,7 +1726,10 @@ canvas{width: 100%; height: 230px; display:block;}
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
         <style>${reportCss}</style>
-      </head>
+      
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+</head>
       <body>
         <div class="bar">
           <button class="btn" onclick="window.print()">${mode === 'pdf' ? 'PDF saqlash' : 'Chop etish'}</button>
@@ -1857,7 +1863,34 @@ canvas{width: 100%; height: 230px; display:block;}
             }
           })();
         </script>
-      </body>
+      
+<script>
+  // Telegram WebApp initialization
+  if (window.Telegram && Telegram.WebApp) {
+    const tg = Telegram.WebApp;
+    tg.ready();
+
+    // Expand to full height
+    tg.expand();
+
+    // Match Telegram theme
+    document.documentElement.style.setProperty('--tg-bg', tg.themeParams.bg_color || '#0b0f19');
+    document.documentElement.style.setProperty('--tg-text', tg.themeParams.text_color || '#ffffff');
+
+    // Disable accidental closing
+    tg.enableClosingConfirmation();
+
+    // Optional: show main button as Save shortcut
+    tg.MainButton.setText('➕ Yozuv qo‘shish');
+    tg.MainButton.onClick(() => {
+      const btn = document.getElementById('btnSave');
+      if (btn) btn.click();
+    });
+    tg.MainButton.show();
+  }
+</script>
+
+</body>
       </html>
     `;
 
@@ -2074,5 +2107,32 @@ canvas{width: 100%; height: 230px; display:block;}
   init();
 })();
   </script>
+
+<script>
+  // Telegram WebApp initialization
+  if (window.Telegram && Telegram.WebApp) {
+    const tg = Telegram.WebApp;
+    tg.ready();
+
+    // Expand to full height
+    tg.expand();
+
+    // Match Telegram theme
+    document.documentElement.style.setProperty('--tg-bg', tg.themeParams.bg_color || '#0b0f19');
+    document.documentElement.style.setProperty('--tg-text', tg.themeParams.text_color || '#ffffff');
+
+    // Disable accidental closing
+    tg.enableClosingConfirmation();
+
+    // Optional: show main button as Save shortcut
+    tg.MainButton.setText('➕ Yozuv qo‘shish');
+    tg.MainButton.onClick(() => {
+      const btn = document.getElementById('btnSave');
+      if (btn) btn.click();
+    });
+    tg.MainButton.show();
+  }
+</script>
+
 </body>
 </html>
