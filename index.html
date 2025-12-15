@@ -422,14 +422,6 @@ canvas{width: 100%; height: 230px; display:block;}
 :root[data-theme="light"] .toast{background: rgba(255,255,255,.92)}
 
   </style>
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-
 </head>
 <body>
   <div class="app">
@@ -483,7 +475,10 @@ canvas{width: 100%; height: 230px; display:block;}
             <span class="icon" aria-hidden="true">⤒</span>
             <span>Import</span>
           </button>
-          
+          <button id="btnClearAll" class="btn btn-danger" type="button">
+            <span class="icon" aria-hidden="true">🗑</span>
+            <span>Hammasini tozalash</span>
+          </button>
         </div>
 
         <div class="pillrow">
@@ -760,7 +755,7 @@ canvas{width: 100%; height: 230px; display:block;}
 (() => {
   'use strict';
 
-  // LocalStorage olib tashlandi
+  const STORAGE_KEY = 'kirim_chiqim_v1';
 
   /** @type {{items: Array<{id:string,type:'income'|'expense',amount:number,note:string,date:string,createdAt:number}>}} */
   let state = { items: [] };
@@ -790,6 +785,7 @@ canvas{width: 100%; height: 230px; display:block;}
   const searchInput = $('#search');
 
   // data tools
+  const btnClearAll = $('#btnClearAll');
   const btnExport = $('#btnExport');
   const btnImport = $('#btnImport');
   const fileImport = $('#fileImport');
@@ -1731,15 +1727,7 @@ canvas{width: 100%; height: 230px; display:block;}
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
         <style>${reportCss}</style>
-      
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-
-</head>
+      </head>
       <body>
         <div class="bar">
           <button class="btn" onclick="window.print()">${mode === 'pdf' ? 'PDF saqlash' : 'Chop etish'}</button>
@@ -1873,80 +1861,7 @@ canvas{width: 100%; height: 230px; display:block;}
             }
           })();
         </script>
-      
-<script>
-  // Telegram WebApp initialization
-  if (window.Telegram && Telegram.WebApp) {
-    const tg = Telegram.WebApp;
-    tg.ready();
-
-    // Expand to full height
-    tg.expand();
-
-    // Match Telegram theme
-    document.documentElement.style.setProperty('--tg-bg', tg.themeParams.bg_color || '#0b0f19');
-    document.documentElement.style.setProperty('--tg-text', tg.themeParams.text_color || '#ffffff');
-
-    // Disable accidental closing
-    tg.enableClosingConfirmation();
-
-    // Optional: show main button as Save shortcut
-    tg.MainButton.setText('➕ Yozuv qo‘shish');
-    tg.MainButton.onClick(() => {
-      const btn = document.getElementById('btnSave');
-      if (btn) btn.click();
-    });
-    tg.MainButton.show();
-  }
-</script>
-
-
-<script>
-  // 🔥 Firebase config (O'ZINGNIKINI QO'Y)
-  const firebaseConfig = {
-    apiKey: "AIzaSyDLIJg7UfsVYiz9HdhbwblqQ_3ZYZPJ8fg",
-    authDomain: "shahbozbek-4922b.firebaseapp.com",
-    projectId: "shahbozbek-4922b",
-    storageBucket: "shahbozbek-4922b.firebasestorage.app",
-    messagingSenderId: "131010057146",
-    appId: "1:131010057146:web:f9fe30976d19e9d1ea0383"
-	measurementId: "G-3XCQLHNYC2"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-
-  // Telegram user ID
-  const tgUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'guest';
-
-  // Firestore collection
-  const colRef = db.collection('kirim_chiqim').doc(String(tgUserId)).collection('items');
-
-  // 🔄 LOAD from Firestore
-  async function load() {
-    state.items = [];
-    const snap = await colRef.orderBy('createdAt', 'desc').get();
-    snap.forEach(doc => state.items.push({ id: doc.id, ...doc.data() }));
-    renderSummary();
-    renderList();
-  }
-
-  // 💾 SAVE new item
-  async function saveItem(item) {
-    await colRef.add(item);
-    await load();
-  }
-
-  // ✏ UPDATE item
-  async function updateItem(id, data) {
-    await colRef.doc(id).update(data);
-    await load();
-  }
-
-  // ❌ DELETE YO'Q (bloklangan)
-</script>
-
-</body>
+      </body>
       </html>
     `;
 
@@ -2023,6 +1938,17 @@ canvas{width: 100%; height: 230px; display:block;}
     render();
     if (editingId === id) resetForm();
     showToast('O‘chirildi');
+  }
+
+  function clearAll() {
+    if (state.items.length === 0) return showToast('Tozalash uchun ma’lumot yo‘q');
+    const ok = confirm('Hamma yozuvlarni o‘chirib tashlaysizmi? Bu amalni qaytarib bo‘lmaydi.');
+    if (!ok) return;
+    state.items = [];
+    save();
+    render();
+    resetForm();
+    showToast('Hammasi tozalandi');
   }
 
   function exportJSON() {
@@ -2108,6 +2034,7 @@ canvas{width: 100%; height: 230px; display:block;}
   filterType.addEventListener('change', renderList);
   searchInput.addEventListener('input', renderList);
 
+  btnClearAll.addEventListener('click', clearAll);
   btnExport.addEventListener('click', exportJSON);
 
   btnImport.addEventListener('click', () => fileImport.click());
@@ -2163,77 +2090,5 @@ canvas{width: 100%; height: 230px; display:block;}
   init();
 })();
   </script>
-
-<script>
-  // Telegram WebApp initialization
-  if (window.Telegram && Telegram.WebApp) {
-    const tg = Telegram.WebApp;
-    tg.ready();
-
-    // Expand to full height
-    tg.expand();
-
-    // Match Telegram theme
-    document.documentElement.style.setProperty('--tg-bg', tg.themeParams.bg_color || '#0b0f19');
-    document.documentElement.style.setProperty('--tg-text', tg.themeParams.text_color || '#ffffff');
-
-    // Disable accidental closing
-    tg.enableClosingConfirmation();
-
-    // Optional: show main button as Save shortcut
-    tg.MainButton.setText('➕ Yozuv qo‘shish');
-    tg.MainButton.onClick(() => {
-      const btn = document.getElementById('btnSave');
-      if (btn) btn.click();
-    });
-    tg.MainButton.show();
-  }
-</script>
-
-
-<script>
-  // 🔥 Firebase config (O'ZINGNIKINI QO'Y)
-  const firebaseConfig = {
-    apiKey: "API_KEY",
-    authDomain: "PROJECT_ID.firebaseapp.com",
-    projectId: "PROJECT_ID",
-    storageBucket: "PROJECT_ID.appspot.com",
-    messagingSenderId: "SENDER_ID",
-    appId: "APP_ID"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-
-  // Telegram user ID
-  const tgUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'guest';
-
-  // Firestore collection
-  const colRef = db.collection('kirim_chiqim').doc(String(tgUserId)).collection('items');
-
-  // 🔄 LOAD from Firestore
-  async function load() {
-    state.items = [];
-    const snap = await colRef.orderBy('createdAt', 'desc').get();
-    snap.forEach(doc => state.items.push({ id: doc.id, ...doc.data() }));
-    renderSummary();
-    renderList();
-  }
-
-  // 💾 SAVE new item
-  async function saveItem(item) {
-    await colRef.add(item);
-    await load();
-  }
-
-  // ✏ UPDATE item
-  async function updateItem(id, data) {
-    await colRef.doc(id).update(data);
-    await load();
-  }
-
-  // ❌ DELETE YO'Q (bloklangan)
-</script>
-
 </body>
 </html>
