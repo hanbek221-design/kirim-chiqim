@@ -1071,6 +1071,10 @@ import {
   let toastTimer = null;
 
   let editingId = null;
+  let isSaving = false;
+  let lastSaveKey = '';
+  let lastSaveAt = 0;
+
 
   // ---------- Utils ----------
   const fmt = new Intl.NumberFormat('uz-UZ');
@@ -2200,11 +2204,30 @@ import {
   function resetForm() {
     editingId = null;
     entryForm.reset();
+
+    // Saqlangandan keyin qayta bosib yubormaslik uchun summa 0 ga qaytadi
+    amountInput.value = '0';
+    noteInput.value = '';
+
     dateInput.value = todayISO();
     btnSave.querySelector('span:last-child').textContent = 'Saqlash';
     btnCancelEdit.hidden = true;
     amountInput.focus();
   }
+
+  function setSavingUI(on) {
+    isSaving = on;
+    btnSave.disabled = on;
+    btnSave.setAttribute('aria-busy', on ? 'true' : 'false');
+
+    const label = btnSave.querySelector('span:last-child');
+    if (on) {
+      label.textContent = (!btnCancelEdit.hidden ? 'Yangilanmoqda…' : 'Saqlanmoqda…');
+    } else {
+      label.textContent = (!btnCancelEdit.hidden ? 'Yangilash' : 'Saqlash');
+    }
+  }
+
 
   function startEdit(id) {
     const it = state.items.find(x => x.id === id);
@@ -2227,46 +2250,53 @@ import {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function upsertItem(type, amount, note, date) {
+  async function upsertItem(type, amount, note, date) {
     // Firestore’ga yozish (localStorage ishlatilmaydi)
     if (editingId) {
       const id = editingId;
-      editingId = null;
 
-      updateDoc(doc(db, COL_NAME, id), {
+      try {
+        await updateDoc(doc(db, COL_NAME, id), {
+          type,
+          amount,
+          note,
+          date,
+          updatedAt: serverTimestamp(),
+          updatedAtMs: Date.now()
+        });
+
+        editingId = null;
+        showToast('Yangilandi');
+        resetForm();
+        return;
+      } catch (e) {
+        // Tahrirlash rejimini saqlab qolamiz (qayta urinish uchun)
+        editingId = id;
+        console.error(e);
+        showToast('Yangilashda xato (Rules/ulanishni tekshiring)');
+        throw e;
+      }
+    }
+
+    try {
+      await addDoc(collection(db, COL_NAME), {
         type,
         amount,
         note,
         date,
+        createdAt: serverTimestamp(),
+        createdAtMs: Date.now(),
         updatedAt: serverTimestamp(),
         updatedAtMs: Date.now()
-      }).then(() => {
-        showToast('Yangilandi');
-        resetForm();
-      }).catch((e) => {
-        console.error(e);
-        showToast('Yangilashda xato (Rules/ulanishni tekshiring)');
       });
 
-      return;
-    }
-
-    addDoc(collection(db, COL_NAME), {
-      type,
-      amount,
-      note,
-      date,
-      createdAt: serverTimestamp(),
-      createdAtMs: Date.now(),
-      updatedAt: serverTimestamp(),
-      updatedAtMs: Date.now()
-    }).then(() => {
       showToast('Saqlandi');
       resetForm();
-    }).catch((e) => {
+    } catch (e) {
       console.error(e);
       showToast('Saqlashda xato (Rules/ulanishni tekshiring)');
-    });
+      throw e;
+    }
   }
 
   function removeItem(id) {
@@ -2410,25 +2440,42 @@ Topildi: ${cleaned.length} ta yozuv`);
   }
 
   // ---------- Events ----------
-  entryForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+    entryForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-    const type = entryForm.querySelector('input[name="type"]:checked')?.value || 'income';
-    const amount = parseAmount(amountInput.value);
-    const note = (noteInput.value || '').trim();
-    const date = (dateInput.value || '').trim() || todayISO();
+      if (isSaving) return;
 
-    if (!Number.isFinite(amount) || amount <= 0) {
-      amountInput.focus();
-      return showToast('Summani to‘g‘ri kiriting (0 dan katta)');
-    }
-    if (!note) {
-      noteInput.focus();
-      return showToast('Izohni kiriting');
-    }
+      const type = entryForm.querySelector('input[name="type"]:checked')?.value || 'income';
+      const amount = parseAmount(amountInput.value);
+      const note = (noteInput.value || '').trim();
+      const date = (dateInput.value || '').trim() || todayISO();
 
-    upsertItem(type, Math.round(amount), note, date);
-  });
+      if (!Number.isFinite(amount) || amount <= 0) {
+        amountInput.focus();
+        return showToast('Summani to‘g‘ri kiriting (0 dan katta)');
+      }
+      if (!note) {
+        noteInput.focus();
+        return showToast('Izohni kiriting');
+      }
+
+      const roundedAmount = Math.round(amount);
+      const now = Date.now();
+      const key = `${btnCancelEdit.hidden ? 'new' : (editingId || 'edit') }|${type}|${roundedAmount}|${note}|${date}`;
+
+      // Juda tez ketma-ket bosilsa (2–3 marta) aynan bir xil ma’lumot qayta ketmasin
+      if (key === lastSaveKey && (now - lastSaveAt) < 4000) return;
+
+      lastSaveKey = key;
+      lastSaveAt = now;
+
+      setSavingUI(true);
+      try {
+        await upsertItem(type, roundedAmount, note, date);
+      } finally {
+        setSavingUI(false);
+      }
+    });
 
   btnCancelEdit.addEventListener('click', () => {
     resetForm();
